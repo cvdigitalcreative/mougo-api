@@ -26,5 +26,11 @@ require __DIR__ . '/../src/middleware.php';
 // Register routes
 require __DIR__ . '/../src/routes.php';
 
+// Register routesCustomer
+require __DIR__ . '/../src/routesCustomer.php';
+
+// Register routesDriver
+require __DIR__ . '/../src/routesDriver.php';
+
 // Run app
 $app->run();
