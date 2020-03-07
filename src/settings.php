@@ -15,5 +15,12 @@ return [
             'path' => __DIR__ . '/../logs/app.log',
             'level' => \Monolog\Logger::DEBUG,
         ],
+        'db' => [
+            'host'=>'localhost',
+            'dbname'=>'db_mougo',
+            'user'=>'root',
+            'password'=>'',
+            'driver' => 'mysql'
+        ]
     ],
 ];
