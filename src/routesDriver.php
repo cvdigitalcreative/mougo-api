@@ -190,11 +190,11 @@ $app->post('/driver/register/', function ($request, $response, $args) {
 $app->post('/driver/login/', function ($request, $response, $args) {
         $data = $request->getParsedBody();
         $password = $data['password'];
-        if (isset($data['email_telpon'])) {
+        if (isset($data['emailTelpon'])) {
     
-            $user_email = $data['email_telpon'];
+            $user_email = $data['emailTelpon'];
             $sql_cek_tlp = "SELECT * FROM user
-            WHERE email LIKE '$user_email' AND role = 2 OR no_telpon LIKE '$user_email' AND role = 2 ";
+            WHERE email LIKE '$user_email' OR no_telpon LIKE '$user_email' AND role = 2 ";
     
             $estcek = $this->db->prepare($sql_cek_tlp);
             $estcek->execute();
@@ -207,26 +207,28 @@ $app->post('/driver/login/', function ($request, $response, $args) {
     
             $sql = "SELECT user.id_user , token , password FROM user
                             INNER JOIN api_token ON api_token.id_user = user.id_user
-                            WHERE email = :email AND password = :pass OR no_telpon = :email AND password = :pass";
-            $dats = [
-                ":email" => $data['email_telpon'],
+                            WHERE email = :email OR no_telpon = :email AND password = :pass";
+            $data_token = [
+                ":email" => $data['emailTelpon'],
                 ":pass" => $password,
             ];
             $est = $this->db->prepare($sql);
-            $est->execute($dats);
+            $est->execute($data_token);
             $stmt = $est->fetch();
-            $numrow = $est->rowCount();
-            
+    
             $res['id_user'] = $stmtcek['id_user'];
             $res['token'] = $stmt['token'];
-            if ($numrow > 0) {
-                if ($stmt['password'] == $password) {
-                    return $response->withJson(['status' => 'Success', 'data' => $res], 200);
-                }return $response->withJson(['status' => 'Error', 'message' => 'Password Salah'], 200);
-            }return $response->withJson(['status' => 'Error', 'message' => 'Email / Telpon Belum Terdaftar'], 200);
+            
+            if(empty($stmt)){
+                return $response->withJson(['status' => 'Error', 'message' => 'Email / Telpon Belum Terdaftar'], 200);
+            }
+            if ($stmt['password'] == $password) {
+                return $response->withJson(['status' => 'Success', 'data' => $res], 200);
+            }return $response->withJson(['status' => 'Error', 'message' => 'Password Salah'], 200);
+            
         }
     
-        if (!isset($data['email_telpon'])) {
+        if (!isset($data['emailTelpon'])) {
             return $response->withJson(['status' => 'Error', 'message' => 'No Telpon / Email tidak boleh kosong'], 200);
         }
     
