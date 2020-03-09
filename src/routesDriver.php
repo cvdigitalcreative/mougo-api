@@ -4,7 +4,7 @@ require_once "randomGen.php";
 
 //Driver
 //REGISTER
-$app->post('/driver/register/', function ($request, $response, $args) {
+$app->post('/driver/register/', function ($request, $response) {
     $user = $request->getParsedBody();
 
     //Check Input
@@ -187,7 +187,7 @@ $app->post('/driver/register/', function ($request, $response, $args) {
 
 //Driver
 //LOGIN
-$app->post('/driver/login/', function ($request, $response, $args) {
+$app->post('/driver/login/', function ($request, $response) {
         $data = $request->getParsedBody();
         $password = $data['password'];
         if (isset($data['emailTelpon'])) {
@@ -218,7 +218,7 @@ $app->post('/driver/login/', function ($request, $response, $args) {
     
             $res['id_user'] = $stmtcek['id_user'];
             $res['token'] = $stmt['token'];
-            
+
             if(empty($stmt)){
                 return $response->withJson(['status' => 'Error', 'message' => 'Email / Telpon Belum Terdaftar'], 200);
             }
