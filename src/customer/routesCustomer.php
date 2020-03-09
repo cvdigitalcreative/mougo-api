@@ -1,5 +1,5 @@
 <?php
-require_once "randomGen.php";
+require_once(dirname(__FILE__).'/../randomGen.php');
 
 //Customer
 //REGISTER
@@ -19,12 +19,12 @@ $app->post('/customer/register/', function ($request, $response) {
     if (!isset($user['password'])) {
         return $response->withJson(['status' => 'Error', 'message' => 'Password Kosong'], 200);
     }
-    if (!isset($user['kode_referal'])) {
+    if (empty($user['kode_referal'])) {
         $user_atasan_ref = 'RAAA000';
     } else {
         $user_atasan_ref = $user['kode_referal'];
     }
-    if (!isset($user['kode_sponsor'])) {
+    if (empty($user['kode_sponsor'])) {
         $user_atasan_sp = 'SAAA000';
     } else {
         $user_atasan_sp = $user['kode_sponsor'];
@@ -200,4 +200,10 @@ $app->post('/customer/login/', function ($request, $response) {
         return $response->withJson(['status' => 'Error', 'message' => 'No Telpon / Email tidak boleh kosong'], 200);
     }
 
+});
+
+//Customer
+//Trip
+$app->post('/customer/trip/',function($request,$response){
+    
 });
