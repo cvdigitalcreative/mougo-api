@@ -27,10 +27,14 @@ require __DIR__ . '/../src/middleware.php';
 require __DIR__ . '/../src/routes.php';
 
 // Register routesCustomer
-require __DIR__ . '/../src/routesCustomer.php';
+require __DIR__ . '/../src/customer/routesCustomer.php';
 
 // Register routesDriver
-require __DIR__ . '/../src/routesDriver.php';
+require __DIR__ . '/../src/driver/routesDriver.php';
+
+// Constant 
+require __DIR__ . '/../src/constantText.php';
+
 
 // Run app
 $app->run();
