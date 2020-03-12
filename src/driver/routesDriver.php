@@ -1,36 +1,37 @@
 <?php
-require_once(dirname(__FILE__).'/../randomGen.php');
-require_once(dirname(__FILE__).'/../entity/User.php');
+require_once dirname(__FILE__) . '/../randomGen.php';
+require_once dirname(__FILE__) . '/../entity/Driver.php';
 
 //Driver
 //REGISTER
 $app->post('/driver/register/', function ($request, $response) {
     $user = $request->getParsedBody();
 
-    $userRole = 2;
-    $userDriver = [
-        "no_polisi" => $user['no_polisi'],
-        "cabang" => $user['cabang'],
-        "alamat_domisili" => $user['alamat_domisili'],
-        "merk_kendaraan" => $user['merk_kendaraan'],
-        "jenis_kendaraan" => $user['jenis_kendaraan'],
-    ];
-    $userData = new User($user['nama'],$user['email'],$user['no_telpon'],$user['password'],$user['kode_referal'],$user['kode_sponsor']);
-    $userData->regDriver($userDriver);
+    $userData = new Driver($user['no_polisi'], $user['cabang'], $user['alamat_domisili'], $user['merk_kendaraan'], $user['jenis_kendaraan']);
     $userData->setDB($this->db);
+    $userData->setUser($user['nama'], $user['email'], $user['no_telpon'], $user['password'], $user['kode_referal'], $user['kode_sponsor']);
+    if (!$userData->driverData()) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $resultUser = $userData->register(DRIVER_ROLE);
+    if ($resultUser['status'] == "Error") {
+        return $response->withJson($resultUser, SERVER_OK);
+    }
+    $resultDriver = $userData->driverRegis();
 
-    $result = $userData->register($userRole);
-    return $response->withJson($result,200);$data = $request->getParsedBody();
+    if ($resultDriver['status'] == "Error") {
+        return $response->withJson($resultDriver, SERVER_OK);
+    }
 
+    return $response->withJson($resultUser, SERVER_OK);
 });
 
 //Driver
 //LOGIN
 $app->post('/driver/login/', function ($request, $response) {
     $data = $request->getParsedBody();
-    $userRole = 2;
-    $user = new User(NULL,$data['emailTelpon'],$data['emailTelpon'],$data['password'],NULL,NULL);
+    $user = new User(null, $data['emailTelpon'], $data['emailTelpon'], $data['password'], null, null);
     $user->setDB($this->db);
-    $result = $user->login($userRole);
-    return $response->withJson($result,200);
+    $result = $user->login(DRIVER_ROLE);
+    return $response->withJson($result, SERVER_OK);
 });

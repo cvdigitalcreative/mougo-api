@@ -1,16 +1,15 @@
 <?php
+require_once dirname(__FILE__) . '/User.php';
 
-class Driver {
-    private $id_user;
+class Driver extends User {
     private $no_polisi;
     private $cabang;
     private $alamat_domisili;
     private $merk_kendaraan;
     private $jenis_kendaraan;
 
-    public function __construct($id_user,$no_polisi,$cabang,$alamat_domisili,$merk_kendaraan,$jenis_kendaraan) {
-        $this->id_user = $id_user;
-        $this->emano_polisiil = $no_polisi;
+    public function __construct($no_polisi, $cabang, $alamat_domisili, $merk_kendaraan, $jenis_kendaraan) {
+        $this->no_polisi = $no_polisi;
         $this->cabang = $cabang;
         $this->alamat_domisili = $alamat_domisili;
         $this->merk_kendaraan = $merk_kendaraan;
@@ -18,7 +17,6 @@ class Driver {
     }
 
     public function regDriver($userDriver) {
-        $this->id_user = NULL;
         $this->no_polisi = $userDriver['no_polisi'];
         $this->cabang = $userDriver['cabang'];
         $this->alamat_domisili = $userDriver['alamat_domisili'];
@@ -26,45 +24,74 @@ class Driver {
         $this->jenis_kendaraan = $userDriver['jenis_kendaraan'];
     }
 
-    function getId_user(){
-        return $this->id_user;
-    }
-    function setId_user($id_user){
-        $this->id_user = $id_user;
+    public function driverRegis() {
+        if ($this->insertDriver()) {
+            return ['status' => 'Success', 'message' => 'Driver Terdaftar'];
+        }return ['status' => 'Error', 'message' => 'Gagal Daftar Driver'];
     }
 
-    function getNo_polisi(){
+    public function driverData() {
+
+        $isValid = true;
+        if (empty($this->getNo_polisi()) || empty($this->getCabang()) || empty($this->getAlamat_domisili()) || empty($this->getMerk_kendaraan()) || empty($this->getJenis_kendaraan())) {
+            $isValid = false;
+        }
+        return $isValid;
+
+    }
+
+    public function getNo_polisi() {
         return $this->no_polisi;
     }
-    function setNo_polisi($no_polisi){
+    public function setNo_polisi($no_polisi) {
         $this->no_polisi = $no_polisi;
     }
 
-    function getCabang(){
+    public function getCabang() {
         return $this->cabang;
     }
-    function setCabang($cabang){
+    public function setCabang($cabang) {
         $this->cabang = $cabang;
     }
 
-    function getAlamat_domisili(){
+    public function getAlamat_domisili() {
         return $this->alamat_domisili;
     }
-    function setAlamat_domisili($alamat_domisili){
+    public function setAlamat_domisili($alamat_domisili) {
         $this->alamat_domisili = $alamat_domisili;
     }
 
-    function getMerk_kendaraan(){
+    public function getMerk_kendaraan() {
         return $this->merk_kendaraan;
     }
-    function setMerk_kendaraan($merk_kendaraan){
+    public function setMerk_kendaraan($merk_kendaraan) {
         $this->merk_kendaraan = $merk_kendaraan;
     }
 
-    function getJenis_kendaraan(){
+    public function getJenis_kendaraan() {
         return $this->jenis_kendaraan;
     }
-    function setJenis_kendaraan($jenis_kendaraan){
+    public function setJenis_kendaraan($jenis_kendaraan) {
         $this->jenis_kendaraan = $jenis_kendaraan;
     }
+
+    public function insertDriver() {
+        $sql_driver = "INSERT INTO driver (id_user , status_online , no_polisi , cabang , alamat_domisili , merk_kendaraan , jenis_kendaraan , status_akun_aktif)
+                                VALUES (:id_user , :status_online , :no_polisi , :cabang , :alamat_domisili , :merk_kendaraan , :jenis_kendaraan , :status_akun_aktif)";
+        $data_driver = [
+            ':id_user' => $this->getId_user(),
+            ':status_online' => 0,
+            ':no_polisi' => $this->getNo_polisi(),
+            ':cabang' => $this->getCabang(),
+            ':alamat_domisili' => $this->getAlamat_domisili(),
+            ':merk_kendaraan' => $this->getMerk_kendaraan(),
+            ':jenis_kendaraan' => $this->getJenis_kendaraan(),
+            ':status_akun_aktif' => 0,
+        ];
+        $est_d = $this->getDb()->prepare($sql_driver);
+        if ($est_d->execute($data_driver)) {
+            return true;
+        }return false;
+    }
+
 }
