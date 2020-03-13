@@ -2,8 +2,8 @@
 require_once dirname(__FILE__) . '/../randomGen.php';
 require_once dirname(__FILE__) . '/../entity/Driver.php';
 
-//Driver
-//REGISTER
+// Driver
+// REGISTER
 $app->post('/driver/register/', function ($request, $response) {
     $user = $request->getParsedBody();
 
@@ -26,8 +26,8 @@ $app->post('/driver/register/', function ($request, $response) {
     return $response->withJson($resultUser, SERVER_OK);
 });
 
-//Driver
-//LOGIN
+// Driver
+// LOGIN
 $app->post('/driver/login/', function ($request, $response) {
     $data = $request->getParsedBody();
     $user = new User(null, $data['emailTelpon'], $data['emailTelpon'], $data['password'], null, null);
@@ -35,3 +35,20 @@ $app->post('/driver/login/', function ($request, $response) {
     $result = $user->login(DRIVER_ROLE);
     return $response->withJson($result, SERVER_OK);
 });
+
+// Driver
+// Get Cabang
+$app->get('/driver/cabang/',function ($request, $response){
+    $cabang = new Driver(null,null,null,null,null);
+    $cabang->setDb($this->db);
+    return $response->withJson($cabang->getAllCabang(), SERVER_OK);
+});
+
+// Driver
+// Get Jenis Kendaraan
+$app->get('/driver/jenis-kendaraan/',function ($request, $response){
+    $cabang = new Driver(null,null,null,null,null);
+    $cabang->setDb($this->db);
+    return $response->withJson($cabang->getAllJenisKendaraan(), SERVER_OK);
+});
+

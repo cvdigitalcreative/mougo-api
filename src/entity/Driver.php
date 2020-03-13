@@ -80,13 +80,13 @@ class Driver extends User {
                                 VALUES (:id_user , :status_online , :no_polisi , :cabang , :alamat_domisili , :merk_kendaraan , :jenis_kendaraan , :status_akun_aktif)";
         $data_driver = [
             ':id_user' => $this->getId_user(),
-            ':status_online' => 0,
+            ':status_online' => STATUS_ONLINE,
             ':no_polisi' => $this->getNo_polisi(),
             ':cabang' => $this->getCabang(),
             ':alamat_domisili' => $this->getAlamat_domisili(),
             ':merk_kendaraan' => $this->getMerk_kendaraan(),
             ':jenis_kendaraan' => $this->getJenis_kendaraan(),
-            ':status_akun_aktif' => 0,
+            ':status_akun_aktif' => STATUS_AKUN_AKTIF,
         ];
         $est_d = $this->getDb()->prepare($sql_driver);
         if ($est_d->execute($data_driver)) {
@@ -94,4 +94,23 @@ class Driver extends User {
         }return false;
     }
 
+    public function getAllCabang() {
+        $sql = "SELECT * FROM cabang";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        if (!empty($stmt)) {
+            return ['status' => 'Success','data' => $stmt ];
+        }return ['status' => 'Success','message' => 'Cabang Tidak Ditemukan' ];
+    }
+
+    public function getAllJenisKendaraan() {
+        $sql = "SELECT * FROM kategori_kendaraan";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        if (!empty($stmt)) {
+            return ['status' => 'Success','data' => $stmt ];
+        }return ['status' => 'Success','message' => 'Jenis Kendaraan Tidak Ditemukan' ];
+    }
 }
