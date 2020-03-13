@@ -45,7 +45,7 @@ class User {
             return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
         }
 
-        $status_aktif_user = 2; //unactive
+        $status_aktif_user = STATUS_AKTIF_USER; //unactive
         $user_email = $this->email;
         $user_no_tlp = $this->no_telpon;
 
@@ -108,9 +108,13 @@ class User {
         return ['status' => 'Error', 'message' => 'Password Salah'];
     }
 
+    public function trip(){
+        
+    }
+
     private function isDataValid($type) {
         switch ($type) {
-            case 'login':
+            case LOGIN:
                 $isValid = true;
                 if (empty($this->email) || empty($this->no_telpon)) {
                     $isValid = false;
@@ -120,13 +124,13 @@ class User {
                 }
                 return $isValid;
 
-            case 'register':
+            case REGISTER:
                 $isValid = true;
                 if (empty($this->kode_referal)) {
-                    $this->kode_referal = "RAAA000";
+                    $this->kode_referal = KODE_REFERAL_DMS;
                 }
                 if (empty($this->kode_sponsor)) {
-                    $this->kode_sponsor = "SAAA000";
+                    $this->kode_sponsor = KODE_SPONSOR_DMS;
                 }
                 if (empty($this->email) || empty($this->no_telpon) || empty($this->password) || empty($this->nama)) {
                     $isValid = false;
@@ -176,8 +180,8 @@ class User {
     public function generateKodeRefSp() {
         while (true) {
             $kode = randomLett() . randomNum();
-            $kode_ref = 'R' . $kode;
-            $kode_sp = 'S' . $kode;
+            $kode_ref = KODE_REFERAL_USER . $kode;
+            $kode_sp = KODE_SPONSOR_USER . $kode;
 
             $sqlcek = "SELECT id_user FROM kode_referal
                             WHERE kode_referal LIKE '$kode_ref'";
@@ -190,7 +194,7 @@ class User {
                 break;
             }
         }
-        return $kodeRefSp = [
+        return [
             'kode_ref' => $kode_ref,
             'kode_sp' => $kode_sp,
         ];
@@ -212,7 +216,7 @@ class User {
         $stmt2 = $est2->fetch();
 
         if (!empty($stmt) && !empty($stmt2)) {
-            return $atasanRefSp = [
+            return [
                 'idAtasanRef' => $stmt['id_atasan'],
                 'idAtasanSp' => $stmt2['id_atasan'],
             ];
@@ -249,7 +253,7 @@ class User {
         $data = [
             ':id_user' => $this->getId_user(),
             ':token' => sha1(rand()),
-            ':hits' => 0,
+            ':hits' => HITS_AWAL,
         ];
 
         $estimat = $this->db->prepare($sql_token);
@@ -263,7 +267,7 @@ class User {
                             VALUES (:id_user , :jumlah_saldo )";
         $data_saldo = [
             ':id_user' => $this->getId_user(),
-            ':jumlah_saldo' => 0,
+            ':jumlah_saldo' => SALDO_AWAL,
         ];
         $estimate = $this->db->prepare($sql_saldo);
         if ($estimate->execute($data_saldo)) {
@@ -276,7 +280,7 @@ class User {
             VALUES (:id_user , :jumlah_point )";
         $data_point = [
             ':id_user' => $this->getId_user(),
-            ':jumlah_point' => 0,
+            ':jumlah_point' => POINT_AWAL,
         ];
         $estimated = $this->db->prepare($sql_point);
         if ($estimated->execute($data_point)) {
@@ -310,7 +314,7 @@ class User {
         $est->execute($data_token);
         $stmt = $est->fetch();
         if (!empty($stmt)) {
-            return $dataToken = [
+            return [
                 'id_user' => $stmt['id_user'],
                 'token' => $stmt['token'],
                 'password' => $stmt['password'],

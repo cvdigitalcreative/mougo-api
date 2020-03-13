@@ -25,5 +25,6 @@ $app->post('/customer/login/', function ($request, $response) {
 //Customer
 //Trip
 $app->post('/customer/trip/', function ($request, $response) {
-
-});
+    $body = $request->getParsedBody();
+    
+})->add($tokenCheck);
