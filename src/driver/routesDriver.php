@@ -36,19 +36,41 @@ $app->post('/driver/login/', function ($request, $response) {
     return $response->withJson($result, SERVER_OK);
 });
 
-// Driver
-// Get Cabang
-$app->get('/driver/cabang/',function ($request, $response){
-    $cabang = new Driver(null,null,null,null,null);
-    $cabang->setDb($this->db);
-    return $response->withJson($cabang->getAllCabang(), SERVER_OK);
-});
+// DRIVER
+// POSITION
+$app->get('/driver/position/{id}', function ($request, $response, $args) {
+    $id = $args['id'];
+    $position = new Umum();
+    $position->setDb($this->db);
+    return $response->withJson($position->getPosition($id), SERVER_OK);
+})->add($tokenCheck);
 
-// Driver
-// Get Jenis Kendaraan
-$app->get('/driver/jenis-kendaraan/',function ($request, $response){
-    $cabang = new Driver(null,null,null,null,null);
-    $cabang->setDb($this->db);
-    return $response->withJson($cabang->getAllJenisKendaraan(), SERVER_OK);
-});
+// DRIVER
+// SEARCH TRIP
+$app->get('/driver/trip/search/', function ($request, $response) {
+    $lat = $request->getQueryParam("lat");
+    $long = $request->getQueryParam("long");
+    $trip_search = new Umum();
+    $trip_search->setDb($this->db);
+    return $response->withJson($trip_search->getTemporaryTrip($lat, $long), SERVER_OK);
+})->add($tokenCheck);
 
+// DRIVER
+// ACCEPT
+$app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
+    $id_trip = $args['id_trip'];
+    $id_driver = $request->getParsedBody();
+    $trip_acc = new Trip(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+    $trip_acc->setDb($this->db);
+    $data_trip = $trip_acc->getTemporaryOrderDetail($id_trip);
+    if(empty($data_trip)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Order Tidak Ada Atau Telah Diambil'], SERVER_OK);
+    }
+    if(!$trip_acc->deleteTemporaryOrderDetail($id_trip)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Gagal Menghapus Data'], SERVER_OK);
+    }
+    if(!$trip_acc->driverTerimaOrder($id_driver['id_driver'],$data_trip)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Gagal Menghapus Data'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Success' , 'data' =>$data_trip ], SERVER_OK);
+})->add($tokenCheck);

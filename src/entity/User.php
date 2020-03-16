@@ -49,17 +49,8 @@ class User {
         $user_email = $this->email;
         $user_no_tlp = $this->no_telpon;
 
-        if ($this->cekUserEmailTelpon($user_email, $user_no_tlp)) {
-            return ['status' => 'Error', 'message' => 'Email / Nomor Telpon Telah digunakan'];
-        }
-
-        //User Input
-        if (!$this->insertUser($role, $status_aktif_user)) {
-            return ['status' => 'Error', 'message' => 'Daftar User Gagal'];
-        }
 
         //Kode Referal dan sponsor regenerate
-
         $kodeRefSp = $this->generateKodeRefSp();
 
         //CEK Kode Referal dan Sponsor Atasan
@@ -69,13 +60,22 @@ class User {
         if (empty($atasanRefSp)) {
             return ['status' => 'Error', 'message' => 'Referal Atasan Tidak Ditemukan'];
         }
+        
+        if ($this->cekUserEmailTelpon($user_email, $user_no_tlp)) {
+            return ['status' => 'Error', 'message' => 'Email / Nomor Telpon Telah digunakan'];
+        }
+
+        //User Input
+        if (!$this->insertUser($role, $status_aktif_user)) {
+            return ['status' => 'Error', 'message' => 'Daftar User Gagal'];
+        }
 
         //Input Kode Referal dan Sponsor Atasan
 
         if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
 
             //Token saldo point input
-            if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint()) {
+            if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition()) {
                 return ['status' => 'Success', 'message' => 'Pendaftaran Sukses'];
             }
 
@@ -95,7 +95,7 @@ class User {
         $result = $this->getToken();
 
         if (empty($result)) {
-            return ['status' => 'Error', 'message' => 'Akun Tidak Ditemukan'];
+            return ['status' => 'Error', 'message' => 'Email dan No Telpon atau Password Salah'];
         }
         $res = [
             'id_user' => $result['id_user'],
@@ -106,10 +106,6 @@ class User {
             return ['status' => 'Success', 'data' => $res];
         }
         return ['status' => 'Error', 'message' => 'Password Salah'];
-    }
-
-    public function trip(){
-        
     }
 
     private function isDataValid($type) {
@@ -284,6 +280,21 @@ class User {
         ];
         $estimated = $this->db->prepare($sql_point);
         if ($estimated->execute($data_point)) {
+            return true;
+        }return false;
+    }
+
+    public function insertPosition() {
+        $sql_position = "INSERT INTO position (id_user , latitude , longitude )
+                            VALUES (:id_user , :latitude , :longitude)";
+        $data = [
+            ':id_user' => $this->getId_user(),
+            ':latitude' => POSITION_LAT,
+            ':longitude' => POSITION_LONG,
+        ];
+
+        $estimat = $this->db->prepare($sql_position);
+        if ($estimat->execute($data)) {
             return true;
         }return false;
     }
