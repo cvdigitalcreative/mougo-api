@@ -29,7 +29,6 @@ $tokenCheck = function($request, $response, $next){
                 ':token'=>$token
             ];
             $stmt->execute($dataUpdate);
-            var_dump($next);
             return $response = $next($request,$response);
 
         }

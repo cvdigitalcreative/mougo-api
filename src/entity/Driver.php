@@ -94,23 +94,5 @@ class Driver extends User {
         }return false;
     }
 
-    public function getAllCabang() {
-        $sql = "SELECT * FROM cabang";
-        $est = $this->getDb()->prepare($sql);
-        $est->execute();
-        $stmt = $est->fetchAll();
-        if (!empty($stmt)) {
-            return ['status' => 'Success','data' => $stmt ];
-        }return ['status' => 'Success','message' => 'Cabang Tidak Ditemukan' ];
-    }
-
-    public function getAllJenisKendaraan() {
-        $sql = "SELECT * FROM kategori_kendaraan";
-        $est = $this->getDb()->prepare($sql);
-        $est->execute();
-        $stmt = $est->fetchAll();
-        if (!empty($stmt)) {
-            return ['status' => 'Success','data' => $stmt ];
-        }return ['status' => 'Success','message' => 'Jenis Kendaraan Tidak Ditemukan' ];
-    }
+    
 }
