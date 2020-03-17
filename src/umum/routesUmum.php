@@ -16,3 +16,12 @@ $app->get('/driver/jenis-kendaraan/', function ($request, $response) {
     $jenis->setDb($this->db);
     return $response->withJson($jenis->getAllJenisKendaraan(), SERVER_OK);
 });
+
+// Customer
+// Harga Trip
+$app->get('/customer/trip/harga/{jarak}', function ($request, $response,$args) {
+    $harga = new Umum();
+    $harga->setDb($this->db);
+    return $response->withJson($harga->getHargaTotal($args['jarak']), SERVER_OK);
+});
+

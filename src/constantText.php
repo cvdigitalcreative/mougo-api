@@ -29,9 +29,9 @@ define('HITS_AWAL',0);
 define('SALDO_AWAL',0);
 define('POINT_AWAL',0);
 
-// // HARGA 
-// define('HARGA_JARAK_MINIMAL',9000);
-// define('HARGA_JARAK_PERKILO',2000);
+// HARGA 
+define('HARGA_JARAK_MINIMAL',9000);
+define('HARGA_JARAK_PERKILO',2000);
 
 // JARAK MIN
 define('JARAK_MINIMAL',2);
