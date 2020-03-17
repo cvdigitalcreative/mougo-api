@@ -151,4 +151,16 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Gagal Update Status'];
     }
 
+    public function getHargaTotal($jarak) {
+        if($jarak<=JARAK_MINIMAL){
+            return ['status'=>'Success','harga'=>HARGA_JARAK_MINIMAL];
+        }else{
+            $harga = HARGA_JARAK_MINIMAL;
+            for ($i=3; $i <= $jarak; $i++) { 
+                $harga = $harga + HARGA_JARAK_PERKILO;
+            }
+            return ['status'=>'Success','harga'=>$harga];    
+        }return ['status'=>'Error','message'=>'Gagal Mendapatkan Harga'];
+    }
+
 }
