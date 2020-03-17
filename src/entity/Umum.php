@@ -132,4 +132,23 @@ class Umum {
             return ['status' => 'Success', 'data' => $stmt];
         }return ['status' => 'Error', 'message' => 'Posisi Tidak Ditemukan'];
     }
+
+    public function updateStatusTrip($id, $status) {
+        $sql = "UPDATE trip
+            SET status_trip = '$status'
+            WHERE id_trip = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            if ($status == STATUS_MENGANTAR_KETUJUAN) {
+                return ['status' => 'Success', 'message' => 'Mengantar Customer'];
+            }
+            if ($status == STATUS_SAMPAI_TUJUAN) {
+                return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
+            }
+            if ($status == STATUS_CANCEL) {
+                return ['status' => 'Success', 'message' => 'Batal Order'];
+            }
+        }return ['status' => 'Error', 'message' => 'Gagal Update Status'];
+    }
+
 }

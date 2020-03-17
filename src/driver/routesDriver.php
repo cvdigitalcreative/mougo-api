@@ -84,3 +84,24 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     }
     return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
 })->add($tokenCheck);
+
+// DRIVER
+// MENJEMPUT
+$app->put('/driver/trip/terjemput/{id_trip}', function ($request, $response, $args) {
+    $id_trip = $args['id_trip'];
+    $trip_update_status = new Umum();
+    $trip_update_status->setDb($this->db);
+    $data_trip = $trip_update_status->updateStatusTrip($id_trip, STATUS_MENGANTAR_KETUJUAN);
+    return $response->withJson($data_trip, SERVER_OK);
+})->add($tokenCheck);
+
+// DRIVER
+// SAMPAI TUJUAN
+$app->put('/driver/trip/finish/{id_trip}', function ($request, $response, $args) {
+    $id_trip = $args['id_trip'];
+    $trip_update_status = new Umum();
+    $trip_update_status->setDb($this->db);
+    $data_trip = $trip_update_status->updateStatusTrip($id_trip, STATUS_SAMPAI_TUJUAN);
+    return $response->withJson($data_trip, SERVER_OK);
+})->add($tokenCheck);
+
