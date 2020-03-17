@@ -72,7 +72,7 @@ class Umum {
         uasort($result, function ($a, $b) {
             return strcmp($a['distance'], $b['distance']);
         });
-        
+
         $temp = [];
         $j = 0;
         foreach ($result as $key => $value) {
@@ -92,7 +92,6 @@ class Umum {
             }
         }
 
-        
         if (empty($temp)) {
             return ['status' => 'Error', 'message' => 'Customer Trip Tidak Ditemukan'];
         }
@@ -111,7 +110,15 @@ class Umum {
 
     }
 
-    public function updatePosition() {
+    public function updatePosition($id, $lat, $long) {
+        $sql = "UPDATE position
+            SET latitude = '$lat' , longitude = '$long'
+            WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Posisi Sudah Diupdate'];
+        }return ['status' => 'Error', 'message' => 'Posisi Gagal Diupdate'];
 
     }
 
