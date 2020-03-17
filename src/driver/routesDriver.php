@@ -38,11 +38,21 @@ $app->post('/driver/login/', function ($request, $response) {
 
 // DRIVER
 // POSITION
-$app->get('/driver/position/{id}', function ($request, $response, $args) {
+$app->get('/driver/position/{id_user}', function ($request, $response, $args) {
     $id = $args['id'];
     $position = new Umum();
     $position->setDb($this->db);
     return $response->withJson($position->getPosition($id), SERVER_OK);
+})->add($tokenCheck);
+
+// UPDATE
+$app->put('/driver/position/{id_user}', function ($request, $response, $args) {
+    $lat = $request->getQueryParam("lat");
+    $long = $request->getQueryParam("long");
+    $id = $args['id_user'];
+    $position = new Umum();
+    $position->setDb($this->db);
+    return $response->withJson($position->updatePosition($id, $lat, $long), SERVER_OK);
 })->add($tokenCheck);
 
 // DRIVER
@@ -60,17 +70,17 @@ $app->get('/driver/trip/search/', function ($request, $response) {
 $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $id_trip = $args['id_trip'];
     $id_driver = $request->getParsedBody();
-    $trip_acc = new Trip(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+    $trip_acc = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     $trip_acc->setDb($this->db);
     $data_trip = $trip_acc->getTemporaryOrderDetail($id_trip);
-    if(empty($data_trip)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'Order Tidak Ada Atau Telah Diambil'], SERVER_OK);
+    if (empty($data_trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Order Tidak Ada Atau Telah Diambil'], SERVER_OK);
     }
-    if(!$trip_acc->deleteTemporaryOrderDetail($id_trip)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'Gagal Menghapus Data'], SERVER_OK);
+    if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
     }
-    if(!$trip_acc->driverTerimaOrder($id_driver['id_driver'],$data_trip)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'Gagal Menghapus Data'], SERVER_OK);
+    if (!$trip_acc->driverTerimaOrder($id_driver['id_driver'], $data_trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
     }
-    return $response->withJson(['status' => 'Success' , 'data' =>$data_trip ], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
 })->add($tokenCheck);
