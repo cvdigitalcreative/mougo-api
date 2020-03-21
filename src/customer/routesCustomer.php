@@ -17,7 +17,7 @@ $app->post('/customer/register/', function ($request, $response) {
 //LOGIN
 $app->post('/customer/login/', function ($request, $response) {
     $data = $request->getParsedBody();
-    $user = new User(NULL, $data['emailTelpon'], $data['emailTelpon'], $data['password'], NULL, NULL);
+    $user = new User(null, $data['emailTelpon'], $data['emailTelpon'], $data['password'], null, null);
     $user->setDB($this->db);
     $result = $user->login(USER_ROLE);
     return $response->withJson($result, SERVER_OK);
@@ -27,7 +27,7 @@ $app->post('/customer/login/', function ($request, $response) {
 //Trip
 $app->post('/customer/trip/', function ($request, $response) {
     $body = $request->getParsedBody();
-    $user = new Trip($body['id_user'],NULL,$body['total_harga'],$body['alamat_jemput'],$body['lat_jemput'],$body['long_jemput'],$body['alamat_destinasi'],$body['lat_destinasi'],$body['long_destinasi'],$body['jarak'],NULL,$body['jenis_trip'],STATUS_MENCARI_DRIVER,$body['jenis_pembayaran']);
+    $user = new Trip($body['id_user'], null, $body['total_harga'], $body['alamat_jemput'], $body['lat_jemput'], $body['long_jemput'], $body['alamat_destinasi'], $body['lat_destinasi'], $body['long_destinasi'], $body['jarak'], null, $body['jenis_trip'], STATUS_MENCARI_DRIVER, $body['jenis_pembayaran']);
     $user->setDB($this->db);
     $result = $user->order_trip();
     return $response->withJson($result, SERVER_OK);
@@ -35,9 +35,18 @@ $app->post('/customer/trip/', function ($request, $response) {
 
 // Customer
 // Cek trip
-$app->get('/customer/trip/cek/{id}', function ($request,$response,$args){
+$app->get('/customer/trip/cek/{id}', function ($request, $response, $args) {
     $id = $args['id'];
     $trip_cek = new Umum();
     $trip_cek->setDb($this->db);
     return $response->withJson($trip_cek->getCekTripStatusCustomer($id), SERVER_OK);
+})->add($tokenCheck);
+
+// Customer
+// Cancel Trip
+$app->post('/customer/trip/cancel/', function ($request, $response) {
+    $id = $request->getParsedBody();
+    $trip_cek = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    $trip_cek->setDb($this->db);
+    return $response->withJson($trip_cek->cancelOrder($id['id_trip']), SERVER_OK);
 })->add($tokenCheck);

@@ -14,6 +14,8 @@ define('KODE_SPONSOR_DMS',"SAAA000");
 define('KODE_REFERAL_USER',"R");
 define('KODE_SPONSOR_USER',"S");
 
+// SALDO INFO
+define('TAMBAH_SALDO',1);
 
 // FUNGSI USER
 define('REGISTER', 'register');
@@ -47,3 +49,5 @@ define('STATUS_CANCEL',5);
 define('POSITION_LAT',-2.980670100);
 define('POSITION_LONG',104.726203500);
 
+// DRIVER SILUMAN
+define('ID_DRIVER_SILUMAN', "f768adacff6bb95eafb7d9a2d56be1c2f2ef6d13");

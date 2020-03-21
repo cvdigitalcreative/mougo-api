@@ -146,7 +146,7 @@ class Umum {
                 return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
             }
             if ($status == STATUS_CANCEL) {
-                return ['status' => 'Success', 'message' => 'Batal Order'];
+                return ['status' => 'Success', 'message' => 'Trip Telah Dibatalkan'];
             }
         }return ['status' => 'Error', 'message' => 'Gagal Update Status'];
     }
@@ -162,5 +162,9 @@ class Umum {
             return ['status'=>'Success','harga'=>$harga];    
         }return ['status'=>'Error','message'=>'Gagal Mendapatkan Harga'];
     }
+
+    // public function updateSaldo($jumlahSaldo,$status){
+    //     $sql = "f";
+    // }
 
 }

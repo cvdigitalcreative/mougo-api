@@ -79,7 +79,7 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
     }
-    if (!$trip_acc->driverTerimaOrder($id_driver['id_driver'], $data_trip)) {
+    if (!$trip_acc->driverInputOrder($id_driver['id_driver'], $data_trip,STATUS_DRIVER_MENJEMPUT)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
     }
     return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
