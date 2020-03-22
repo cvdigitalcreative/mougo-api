@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__FILE__) . '/Umum.php';
+
 class Trip {
     private $id_customer;
     private $id_driver;
@@ -48,7 +50,7 @@ class Trip {
         }
         // $this->hitungHarga();
         $data['id_trip'] = $this->inputTemporaryOrder();
-        if(!$data['id_trip']){
+        if (!$data['id_trip']) {
             return ['status' => 'Error', 'message' => 'Pemesanan Error'];
         }
         $data['status_trip'] = $this->status_trip;
@@ -57,9 +59,9 @@ class Trip {
     }
 
     private function isDataValid() {
-        $isValid = TRUE;
+        $isValid = true;
         if (empty($this->id_customer) || empty($this->total_harga) || empty($this->alamat_jemput) || empty($this->latitude_jemput) || empty($this->longitude_jemput) || empty($this->alamat_destinasi) || empty($this->latitude_destinasi) || empty($this->longitude_destinasi) || empty($this->jarak) || empty($this->jenis_trip) || empty($this->jenis_pembayaran)) {
-            $isValid = FALSE;
+            $isValid = false;
         }
         return $isValid;
 
@@ -80,53 +82,66 @@ class Trip {
             ':jarak' => $this->jarak,
             ':jenis_trip' => $this->jenis_trip,
             ':status_trip' => $this->status_trip,
-            ':jenis_pembayaran' => $this->jenis_pembayaran
+            ':jenis_pembayaran' => $this->jenis_pembayaran,
         ];
         $est = $this->getDb()->prepare($sql);
-        if($est->execute($data)){
+        if ($est->execute($data)) {
             return $this->getDb()->lastInsertId();
-        }return FALSE;
+        }return false;
 
     }
 
-    public function driverTerimaOrder($id_driver,$data_trip)
-    {
+    public function driverInputOrder($id_driver, $data_trip ,$status_trip) {
         $sql = "INSERT INTO trip (id_customer,id_driver,total_harga,alamat_jemput,latitude_jemput,longitude_jemput,alamat_destinasi,latitude_destinasi,longitude_destinasi,jarak,jenis_trip,status_trip,jenis_pembayaran)
         VALUES(:id_customer,:id_driver,:total_harga,:alamat_jemput,:latitude_jemput,:longitude_jemput,:alamat_destinasi,:latitude_destinasi,:longitude_destinasi,:jarak,:jenis_trip,:status_trip,:jenis_pembayaran)";
         $data = [
-        ':id_customer' => $data_trip['id_customer'],
-        ':id_driver' => $id_driver,
-        ':total_harga' => $data_trip['total_harga'],
-        ':alamat_jemput' => $data_trip['alamat_jemput'],
-        ':latitude_jemput' => $data_trip['latitude_jemput'],
-        ':longitude_jemput' => $data_trip['longitude_jemput'],
-        ':alamat_destinasi' => $data_trip['alamat_destinasi'],
-        ':latitude_destinasi' => $data_trip['latitude_destinasi'],
-        ':longitude_destinasi' => $data_trip['longitude_destinasi'],
-        ':jarak' => $data_trip['jarak'],
-        ':jenis_trip' => $data_trip['jenis_trip'],
-        ':status_trip' => STATUS_DRIVER_MENJEMPUT,
-        ':jenis_pembayaran' => $data_trip['jenis_pembayaran']
-    ];
-    $est = $this->getDb()->prepare($sql);
-    if($est->execute($data)){
-        return $data_trip;
-    }return FALSE;
+            ':id_customer' => $data_trip['id_customer'],
+            ':id_driver' => $id_driver,
+            ':total_harga' => $data_trip['total_harga'],
+            ':alamat_jemput' => $data_trip['alamat_jemput'],
+            ':latitude_jemput' => $data_trip['latitude_jemput'],
+            ':longitude_jemput' => $data_trip['longitude_jemput'],
+            ':alamat_destinasi' => $data_trip['alamat_destinasi'],
+            ':latitude_destinasi' => $data_trip['latitude_destinasi'],
+            ':longitude_destinasi' => $data_trip['longitude_destinasi'],
+            ':jarak' => $data_trip['jarak'],
+            ':jenis_trip' => $data_trip['jenis_trip'],
+            ':status_trip' => $status_trip,
+            ':jenis_pembayaran' => $data_trip['jenis_pembayaran'],
+        ];
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute($data)) {
+            return $data_trip;
+        }return false;
     }
 
-    public function deleteTemporaryOrderDetail($id)
-    {
+    public function cancelOrder($id_trip) {
+        $data_order = $this->getTemporaryOrderDetail($id_trip);
+        if (empty($data_order)) {
+            $cancelOrder = new Umum();
+            $cancelOrder->setDb($this->db);
+            return $cancelOrder->updateStatusTrip($id_trip,STATUS_CANCEL);
+        }
+        $this->deleteTemporaryOrderDetail($id_trip);
+        $cek = $this->driverInputOrder(ID_DRIVER_SILUMAN,$data_order,STATUS_CANCEL);
+        if(empty($cek)){
+            return ['status' => 'Error', 'message' => 'Trip Tidak Ada Atau Telah Dibatalkan'];
+        }
+        return ['status' => 'Success', 'message' => 'Trip Telah Dibatalkan'];
+
+    }
+
+    public function deleteTemporaryOrderDetail($id) {
         $sql = "DELETE FROM temporary_order
                 WHERE id_trip = '$id'";
         $est = $this->getDb()->prepare($sql);
         if ($est->execute()) {
-            return TRUE;
-        }return FALSE;
+            return true;
+        }return false;
     }
 
-    public function getTemporaryOrderDetail($id)
-    {
-        $sql = "SELECT * FROM temporary_order
+    public function getTripDetail($id) {
+        $sql = "SELECT * FROM trip
                 WHERE id_trip = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
@@ -136,5 +151,15 @@ class Trip {
         }return $stmt;
     }
 
+    public function getTemporaryOrderDetail($id) {
+        $sql = "SELECT * FROM temporary_order
+                WHERE id_trip = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        if (!empty($stmt)) {
+            return $stmt;
+        }return $stmt;
+    }
 
 }
