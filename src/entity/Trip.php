@@ -92,9 +92,10 @@ class Trip {
     }
 
     public function driverInputOrder($id_driver, $data_trip ,$status_trip) {
-        $sql = "INSERT INTO trip (id_customer,id_driver,total_harga,alamat_jemput,latitude_jemput,longitude_jemput,alamat_destinasi,latitude_destinasi,longitude_destinasi,jarak,jenis_trip,status_trip,jenis_pembayaran)
-        VALUES(:id_customer,:id_driver,:total_harga,:alamat_jemput,:latitude_jemput,:longitude_jemput,:alamat_destinasi,:latitude_destinasi,:longitude_destinasi,:jarak,:jenis_trip,:status_trip,:jenis_pembayaran)";
+        $sql = "INSERT INTO trip (id_trip,id_customer,id_driver,total_harga,alamat_jemput,latitude_jemput,longitude_jemput,alamat_destinasi,latitude_destinasi,longitude_destinasi,jarak,jenis_trip,status_trip,jenis_pembayaran)
+        VALUES(:id_trip,:id_customer,:id_driver,:total_harga,:alamat_jemput,:latitude_jemput,:longitude_jemput,:alamat_destinasi,:latitude_destinasi,:longitude_destinasi,:jarak,:jenis_trip,:status_trip,:jenis_pembayaran)";
         $data = [
+            ':id_trip' => $data_trip['id_trip'],
             ':id_customer' => $data_trip['id_customer'],
             ':id_driver' => $id_driver,
             ':total_harga' => $data_trip['total_harga'],

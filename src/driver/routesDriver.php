@@ -70,6 +70,9 @@ $app->get('/driver/trip/search/', function ($request, $response) {
 $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $id_trip = $args['id_trip'];
     $id_driver = $request->getParsedBody();
+    if(empty($id_driver['id_driver'])){
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
     $trip_acc = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     $trip_acc->setDb($this->db);
     $data_trip = $trip_acc->getTemporaryOrderDetail($id_trip);
