@@ -100,10 +100,10 @@ class Umum {
 
     public function getCekTripStatusCustomer($id) {
         $sql = "SELECT * FROM temporary_order
-                WHERE id_customer = '$id'";
+                WHERE id_trip = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetch();
+        $stmt = $est->fetchAll();
         if (!empty($stmt)) {
             return ['status' => false, 'message' => 'Sedang Mencari Driver'];
         }return ['status' => true, 'message' => 'Dapat Driver'];
@@ -163,8 +163,8 @@ class Umum {
         }return ['status'=>'Error','message'=>'Gagal Mendapatkan Harga'];
     }
 
-    // public function updateSaldo($jumlahSaldo,$status){
-    //     $sql = "f";
-    // }
+    public function inputSaldo($jumlahSaldo,$id_user){
+        $sql = "INSERT INTO top_up ()";
+    }
 
 }
