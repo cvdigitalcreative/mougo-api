@@ -1,4 +1,6 @@
 <?php
+require_once dirname(__FILE__) . '/Trip.php';
+require_once dirname(__FILE__) . '/Driver.php';
 
 class Umum {
     private $db;
@@ -84,7 +86,8 @@ class Umum {
                 $temp[$j]['alamat_destinasi'] = $value['alamat_destinasi'];
                 // $temp[$j]['latitude_destinasi'] = $value['latitude_destinasi'];
                 // $temp[$j]['longitude_destinasi'] = $value['longitude_destinasi'];
-                $temp[$j]['jenis_pembayaran'] = $value['jenis_pembayaran'];
+                $temp[$j]['jenis_pembayaran'] =(int) $value['jenis_pembayaran'];
+                $temp[$j]['jenis_trip'] =(int) $value['jenis_trip'];
                 $temp[$j]['jarak'] = $value['jarak'];
                 $temp[$j]['total_harga'] = $value['total_harga'];
                 // $temp[$j]['distance'] = $value['distance'];
@@ -103,10 +106,16 @@ class Umum {
                 WHERE id_trip = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetchAll();
+        $stmt = $est->fetch();
         if (!empty($stmt)) {
             return ['status' => false, 'message' => 'Sedang Mencari Driver'];
-        }return ['status' => true, 'message' => 'Dapat Driver'];
+        }
+        $trip_cek = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $trip_driver = new Driver(null, null, null, null, null);
+        $trip_cek->setDb($this->db);
+        $trip_driver->setDb($this->db);
+        $data_trip = $trip_cek->getTripDetail($id);
+        return ['status' => true, 'message' => 'Dapat Driver', 'data_trip' => $data_trip , 'data_driver'=>$trip_driver->getProfileDriver($data_trip['id_driver'])];
 
     }
 
@@ -115,7 +124,6 @@ class Umum {
             SET latitude = '$lat' , longitude = '$long'
             WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
-
         if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Posisi Sudah Diupdate'];
         }return ['status' => 'Error', 'message' => 'Posisi Gagal Diupdate'];
@@ -152,18 +160,18 @@ class Umum {
     }
 
     public function getHargaTotal($jarak) {
-        if($jarak<=JARAK_MINIMAL){
-            return ['status'=>'Success','harga'=>HARGA_JARAK_MINIMAL];
-        }else{
+        if ($jarak <= JARAK_MINIMAL) {
+            return ['status' => 'Success', 'harga' => HARGA_JARAK_MINIMAL];
+        } else {
             $harga = HARGA_JARAK_MINIMAL;
-            for ($i=3; $i <= $jarak; $i++) { 
+            for ($i = 3; $i <= $jarak; $i++) {
                 $harga = $harga + HARGA_JARAK_PERKILO;
             }
-            return ['status'=>'Success','harga'=>$harga];    
-        }return ['status'=>'Error','message'=>'Gagal Mendapatkan Harga'];
+            return ['status' => 'Success', 'harga' => $harga];
+        }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
     }
 
-    public function inputSaldo($jumlahSaldo,$id_user){
+    public function inputSaldo($jumlahSaldo, $id_user) {
         $sql = "INSERT INTO top_up ()";
     }
 

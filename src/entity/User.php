@@ -36,6 +36,17 @@ class User {
         return $this->db;
     }
 
+    public function getProfileUser($id) {
+        $sql = "SELECT * FROM user
+                WHERE id_user = '$id' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        if (!empty($stmt)) {
+            return $stmt;
+        }return $stmt;
+    }
+
     public function getId_user() {
         return $this->id_user;
     }

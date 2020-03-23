@@ -24,6 +24,18 @@ class Driver extends User {
         $this->jenis_kendaraan = $userDriver['jenis_kendaraan'];
     }
 
+    public function getProfileDriver($id) {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                WHERE user.id_user = '$id' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        if (!empty($stmt)) {
+            return $stmt;
+        }return $stmt;
+    }
+
     public function driverRegis() {
         if ($this->insertDriver()) {
             return ['status' => 'Success', 'message' => 'Driver Terdaftar'];
@@ -94,5 +106,4 @@ class Driver extends User {
         }return false;
     }
 
-    
 }

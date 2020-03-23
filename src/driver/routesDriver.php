@@ -70,7 +70,9 @@ $app->get('/driver/trip/search/', function ($request, $response) {
 $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $id_trip = $args['id_trip'];
     $id_driver = $request->getParsedBody();
-    if(empty($id_driver['id_driver'])){
+    $user = new User(null,null,null, null, null, null);
+    $user->setDB($this->db);
+    if (empty($id_driver['id_driver'])) {
         return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
     }
     $trip_acc = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
@@ -82,10 +84,15 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
     }
-    if (!$trip_acc->driverInputOrder($id_driver['id_driver'], $data_trip,STATUS_DRIVER_MENJEMPUT)) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
+    if (!$trip_acc->driverInputOrder($id_driver['id_driver'], $data_trip, STATUS_DRIVER_MENJEMPUT)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Input Data'], SERVER_OK);
     }
-    return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
+    $data_user = $user->getProfileUser($data_trip['id_customer']);
+    $data_trip['status_trip'] =(int)$data_trip['status_trip']; 
+    $data_trip['jenis_pembayaran'] =(int)$data_trip['jenis_pembayaran']; 
+    $data_trip['jenis_trip'] =(int)$data_trip['jenis_trip']; 
+    $data_trip['no_telpon'] = $data_user['no_telpon'];
+    return $response->withJson(['status' => 'Success', 'data' => $data_trip ], SERVER_OK);
 })->add($tokenCheck);
 
 // DRIVER
@@ -107,4 +114,3 @@ $app->put('/driver/trip/finish/{id_trip}', function ($request, $response, $args)
     $data_trip = $trip_update_status->updateStatusTrip($id_trip, STATUS_SAMPAI_TUJUAN);
     return $response->withJson($data_trip, SERVER_OK);
 })->add($tokenCheck);
-
