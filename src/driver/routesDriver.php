@@ -88,10 +88,12 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Input Data'], SERVER_OK);
     }
     $data_user = $user->getProfileUser($data_trip['id_customer']);
+    $data_trip['id_trip'] =(int)$data_trip['id_trip'];
     $data_trip['status_trip'] =(int)$data_trip['status_trip']; 
     $data_trip['jenis_pembayaran'] =(int)$data_trip['jenis_pembayaran']; 
     $data_trip['jenis_trip'] =(int)$data_trip['jenis_trip']; 
     $data_trip['no_telpon'] = $data_user['no_telpon'];
+    $data_trip['nama'] = $data_user['nama'];
     return $response->withJson(['status' => 'Success', 'data' => $data_trip ], SERVER_OK);
 })->add($tokenCheck);
 

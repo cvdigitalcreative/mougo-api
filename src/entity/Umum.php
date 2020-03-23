@@ -79,7 +79,7 @@ class Umum {
         $j = 0;
         foreach ($result as $key => $value) {
             if ($value['distance'] < JARAK_MINIMAL) {
-                $temp[$j]['id_trip'] = $value['id_trip'];
+                $temp[$j]['id_trip'] =(int) $value['id_trip'];
                 $temp[$j]['alamat_jemput'] = $value['alamat_jemput'];
                 // $temp[$j]['latitude_jemput'] = $value['latitude_jemput'];
                 // $temp[$j]['longitude_jemput'] = $value['longitude_jemput'];
@@ -88,8 +88,8 @@ class Umum {
                 // $temp[$j]['longitude_destinasi'] = $value['longitude_destinasi'];
                 $temp[$j]['jenis_pembayaran'] =(int) $value['jenis_pembayaran'];
                 $temp[$j]['jenis_trip'] =(int) $value['jenis_trip'];
-                $temp[$j]['jarak'] = $value['jarak'];
-                $temp[$j]['total_harga'] = $value['total_harga'];
+                $temp[$j]['jarak'] =(double) $value['jarak'];
+                $temp[$j]['total_harga'] =(double) $value['total_harga'];
                 // $temp[$j]['distance'] = $value['distance'];
                 ++$j;
             }
