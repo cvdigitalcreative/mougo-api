@@ -91,7 +91,7 @@ class Trip {
 
     }
 
-    public function driverInputOrder($id_driver, $data_trip ,$status_trip) {
+    public function driverInputOrder($id_driver, $data_trip, $status_trip) {
         $sql = "INSERT INTO trip (id_trip,id_customer,id_driver,total_harga,alamat_jemput,latitude_jemput,longitude_jemput,alamat_destinasi,latitude_destinasi,longitude_destinasi,jarak,jenis_trip,status_trip,jenis_pembayaran)
         VALUES(:id_trip,:id_customer,:id_driver,:total_harga,:alamat_jemput,:latitude_jemput,:longitude_jemput,:alamat_destinasi,:latitude_destinasi,:longitude_destinasi,:jarak,:jenis_trip,:status_trip,:jenis_pembayaran)";
         $data = [
@@ -121,11 +121,11 @@ class Trip {
         if (empty($data_order)) {
             $cancelOrder = new Umum();
             $cancelOrder->setDb($this->db);
-            return $cancelOrder->updateStatusTrip($id_trip,STATUS_CANCEL);
+            return $cancelOrder->updateStatusTrip($id_trip, STATUS_CANCEL);
         }
         $this->deleteTemporaryOrderDetail($id_trip);
-        $cek = $this->driverInputOrder(ID_DRIVER_SILUMAN,$data_order,STATUS_CANCEL);
-        if(empty($cek)){
+        $cek = $this->driverInputOrder(ID_DRIVER_SILUMAN, $data_order, STATUS_CANCEL);
+        if (empty($cek)) {
             return ['status' => 'Error', 'message' => 'Trip Tidak Ada Atau Telah Dibatalkan'];
         }
         return ['status' => 'Success', 'message' => 'Trip Telah Dibatalkan'];

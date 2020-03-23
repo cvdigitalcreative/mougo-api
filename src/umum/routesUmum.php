@@ -19,7 +19,7 @@ $app->get('/driver/jenis-kendaraan/', function ($request, $response) {
 
 // Customer
 // Harga Trip
-$app->get('/customer/trip/harga/{jarak}', function ($request, $response,$args) {
+$app->get('/customer/trip/harga/{jarak}', function ($request, $response, $args) {
     $harga = new Umum();
     $harga->setDb($this->db);
     return $response->withJson($harga->getHargaTotal($args['jarak']), SERVER_OK);
@@ -27,9 +27,9 @@ $app->get('/customer/trip/harga/{jarak}', function ($request, $response,$args) {
 
 // CUSTOMER DRIVER
 // ISI SALDO
-// $app->POST('/common/topup/', function ($request, $response) {
-//     $saldo = $request->getParsedBody();
-//     $topup = new Umum();
-//     $topup->setDb($this->db);
-//     return $response->withJson($topup->updateSaldo($saldo['saldo'],TAMBAH_SALDO), SERVER_OK);
-// })->add($tokenCheck);
+$app->POST('/common/topup/', function ($request, $response) {
+    $saldo = $request->getParsedBody();
+    $topup = new Umum();
+    $topup->setDb($this->db);
+    return $response->withJson($topup->inputSaldo($saldo['saldo'], $saldo['id_user']), SERVER_OK);
+})->add($tokenCheck);
