@@ -39,10 +39,11 @@ $app->post('/driver/login/', function ($request, $response) {
 // DRIVER
 // POSITION
 $app->get('/driver/position/{id_user}', function ($request, $response, $args) {
-    $id = $args['id'];
+    $id = $args['id_user'];
+    $id_trip = $request->getQueryParam("id_trip");
     $position = new Umum();
     $position->setDb($this->db);
-    return $response->withJson($position->getPosition($id), SERVER_OK);
+    return $response->withJson($position->getPosition($id,$id_trip), SERVER_OK);
 })->add($tokenCheck);
 
 // UPDATE
