@@ -19,7 +19,7 @@ return [
             'host'=>'localhost',
             'dbname'=>'db_mougo',
             'user'=>'root',
-            'password'=>'',
+            'password'=>'DigitalCreativeCrew1!@2',
             'driver' => 'mysql'
         ]
     ],
