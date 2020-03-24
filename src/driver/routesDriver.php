@@ -36,16 +36,6 @@ $app->post('/driver/login/', function ($request, $response) {
     return $response->withJson($result, SERVER_OK);
 });
 
-// DRIVER
-// POSITION
-$app->get('/driver/position/{id_user}', function ($request, $response, $args) {
-    $id = $args['id_user'];
-    $id_trip = $request->getQueryParam("id_trip");
-    $position = new Umum();
-    $position->setDb($this->db);
-    return $response->withJson($position->getPosition($id,$id_trip), SERVER_OK);
-})->add($tokenCheck);
-
 // UPDATE
 $app->put('/driver/position/{id_user}', function ($request, $response, $args) {
     $lat = $request->getQueryParam("lat");
