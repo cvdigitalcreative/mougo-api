@@ -130,18 +130,37 @@ class Umum {
 
     }
 
-    public function getPosition($id) {
+    public function getPosition($id,$id_trip) {
         $sql = "SELECT * FROM position
                 WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $stmt = $est->fetch();
         if (!empty($stmt)) {
-            return ['status' => 'Success', 'data' => $stmt];
+            $trip_cek_status = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+            $trip_cek_status->setDb($this->db);
+            $data_trip = $trip_cek_status->getTripDetail($id_trip);
+            switch ($data_trip['status_trip']) {
+                case '2':
+                    $pesan_status = "Driver Dalam Perjalanan Menjemput";
+                    break;
+                case '3':
+                    $pesan_status = "Driver Sedang Mengantar Anda";
+                    break;
+                case '4':
+                    $pesan_status = "Selamat Anda Telah Sampai Tujuan";
+                    break;    
+            }
+            return ['status' => 'Success', 'data' => $stmt , 'message'=>$pesan_status];
         }return ['status' => 'Error', 'message' => 'Posisi Tidak Ditemukan'];
     }
 
     public function updateStatusTrip($id, $status) {
+        $trip_cek = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $trip_cek->setDb($this->db);
+        if(empty($trip_cek->getTripDetail($id))){
+            return ['status' => 'Error', 'message' => 'Trip Tidak Ditemukan'];
+        }
         $sql = "UPDATE trip
             SET status_trip = '$status'
             WHERE id_trip = '$id'";

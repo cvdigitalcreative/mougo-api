@@ -33,5 +33,5 @@ $tokenCheck = function($request, $response, $next){
 
         }
     }
-    return $response->withJson(['status'=>'error','message'=>'Unauthorized'],401);
+    return $response->withJson(['status'=>'Error','message'=>'Unauthorized'],401);
 };

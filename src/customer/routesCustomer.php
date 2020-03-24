@@ -50,3 +50,13 @@ $app->post('/customer/trip/cancel/', function ($request, $response) {
     $trip_cek->setDb($this->db);
     return $response->withJson($trip_cek->cancelOrder($id['id_trip']), SERVER_OK);
 })->add($tokenCheck);
+
+// Customer
+// POSITION
+$app->get('/customer/trip/position/{id_driver}', function ($request, $response, $args) {
+    $id = $args['id_driver'];
+    $id_trip = $request->getQueryParam("id_trip");
+    $position = new Umum();
+    $position->setDb($this->db);
+    return $response->withJson($position->getPosition($id,$id_trip), SERVER_OK);
+})->add($tokenCheck);
