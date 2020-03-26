@@ -3,7 +3,7 @@ return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
-
+        'upload_directory' => __DIR__ . '/../assets/', // upload directory
         // Renderer settings
         'renderer' => [
             'template_path' => __DIR__ . '/../templates/',
@@ -19,7 +19,7 @@ return [
             'host'=>'localhost',
             'dbname'=>'db_mougo',
             'user'=>'root',
-            'password'=>'',
+            'password'=>'DigitalCreativeCrew1!@2',
             'driver' => 'mysql'
         ]
     ],
