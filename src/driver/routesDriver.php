@@ -125,4 +125,4 @@ $app->get('/driver/trip/position/' ,function($request,$response){
         return $response->withJson(['status'=>'Success','jarak'=>$jarak], SERVER_OK);
     }
     return $response->withJson(['status'=>'Error','jarak'=>$jarak], SERVER_OK);
-});
+})->add($tokenCheck);
