@@ -86,7 +86,7 @@ class Admin {
                 WHERE email_admin LIKE '$email' OR no_telpon LIKE '$no_telpon' ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $temp = $est->fetchAll();
+        $temp = $est->fetch();
         return $temp;
     }
 }
