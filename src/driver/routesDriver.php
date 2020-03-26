@@ -1,6 +1,8 @@
 <?php
 require_once dirname(__FILE__) . '/../randomGen.php';
 require_once dirname(__FILE__) . '/../entity/Driver.php';
+require_once dirname(__FILE__) . '/../entity/Umum.php';
+
 
 // Driver
 // REGISTER
@@ -106,4 +108,21 @@ $app->put('/driver/trip/finish/{id_trip}', function ($request, $response, $args)
     $trip_update_status->setDb($this->db);
     $data_trip = $trip_update_status->updateStatusTrip($id_trip, STATUS_SAMPAI_TUJUAN);
     return $response->withJson($data_trip, SERVER_OK);
+})->add($tokenCheck);
+
+
+// DRIVER
+// Cek Posisi Driver dan Customer
+$app->get('/driver/trip/position/' ,function($request,$response){
+    $lat = $request->getQueryParam("lat_driver");
+    $long = $request->getQueryParam("long_driver");
+    $lat_dest = $request->getQueryParam("lat_customer");
+    $long_dest = $request->getQueryParam("long_customer");  
+    $jarak = new Umum();
+    $jarak->setDb($this->db);
+    $jarak = ($jarak->getDistance($lat,$long,$lat_dest,$long_dest))*1000;
+    if($jarak<=50){
+        return $response->withJson(['status'=>'Success','jarak'=>$jarak], SERVER_OK);
+    }
+    return $response->withJson(['status'=>'Error','jarak'=>$jarak], SERVER_OK);
 })->add($tokenCheck);
