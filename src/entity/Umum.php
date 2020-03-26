@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/Trip.php';
 require_once dirname(__FILE__) . '/Driver.php';
+require_once dirname(__FILE__) . '/../randomGen.php';
 
 class Umum {
     private $db;
@@ -79,17 +80,17 @@ class Umum {
         $j = 0;
         foreach ($result as $key => $value) {
             if ($value['distance'] < JARAK_MINIMAL) {
-                $temp[$j]['id_trip'] =(int) $value['id_trip'];
+                $temp[$j]['id_trip'] = (int) $value['id_trip'];
                 $temp[$j]['alamat_jemput'] = $value['alamat_jemput'];
                 // $temp[$j]['latitude_jemput'] = $value['latitude_jemput'];
                 // $temp[$j]['longitude_jemput'] = $value['longitude_jemput'];
                 $temp[$j]['alamat_destinasi'] = $value['alamat_destinasi'];
                 // $temp[$j]['latitude_destinasi'] = $value['latitude_destinasi'];
                 // $temp[$j]['longitude_destinasi'] = $value['longitude_destinasi'];
-                $temp[$j]['jenis_pembayaran'] =(int) $value['jenis_pembayaran'];
-                $temp[$j]['jenis_trip'] =(int) $value['jenis_trip'];
-                $temp[$j]['jarak'] =(double) $value['jarak'];
-                $temp[$j]['total_harga'] =(double) $value['total_harga'];
+                $temp[$j]['jenis_pembayaran'] = (int) $value['jenis_pembayaran'];
+                $temp[$j]['jenis_trip'] = (int) $value['jenis_trip'];
+                $temp[$j]['jarak'] = (double) $value['jarak'];
+                $temp[$j]['total_harga'] = (double) $value['total_harga'];
                 // $temp[$j]['distance'] = $value['distance'];
                 ++$j;
             }
@@ -115,7 +116,7 @@ class Umum {
         $trip_cek->setDb($this->db);
         $trip_driver->setDb($this->db);
         $data_trip = $trip_cek->getTripDetail($id);
-        return ['status' => true, 'message' => 'Dapat Driver', 'data_trip' => $data_trip , 'data_driver'=>$trip_driver->getProfileDriver($data_trip['id_driver'])];
+        return ['status' => true, 'message' => 'Dapat Driver', 'data_trip' => $data_trip, 'data_driver' => $trip_driver->getProfileDriver($data_trip['id_driver'])];
 
     }
 
@@ -130,7 +131,7 @@ class Umum {
 
     }
 
-    public function getPosition($id,$id_trip) {
+    public function getPosition($id, $id_trip) {
         $sql = "SELECT * FROM position
                 WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
@@ -142,23 +143,23 @@ class Umum {
             $data_trip = $trip_cek_status->getTripDetail($id_trip);
             switch ($data_trip['status_trip']) {
                 case '2':
-                    $pesan_status = "Driver Dalam Perjalanan Menjemput";
+                    $pesan_status = STATUS_TRIP_MENJEMPUT;
                     break;
                 case '3':
-                    $pesan_status = "Driver Sedang Mengantar Anda";
+                    $pesan_status = STATUS_TRIP_MENGANTAR;
                     break;
                 case '4':
-                    $pesan_status = "Selamat Anda Telah Sampai Tujuan";
-                    break;    
+                    $pesan_status = STATUS_TRIP_SELESAI;
+                    break;
             }
-            return ['status' => 'Success', 'data' => $stmt , 'message'=>$pesan_status];
+            return ['status' => 'Success', 'data' => $stmt, 'message' => $pesan_status];
         }return ['status' => 'Error', 'message' => 'Posisi Tidak Ditemukan'];
     }
 
     public function updateStatusTrip($id, $status) {
         $trip_cek = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         $trip_cek->setDb($this->db);
-        if(empty($trip_cek->getTripDetail($id))){
+        if (empty($trip_cek->getTripDetail($id))) {
             return ['status' => 'Error', 'message' => 'Trip Tidak Ditemukan'];
         }
         $sql = "UPDATE trip
@@ -190,8 +191,129 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
     }
 
-    public function inputSaldo($jumlahSaldo, $id_user) {
-        $sql = "INSERT INTO top_up ()";
+    public function inputSaldo($jumlah_topup, $id_user) {
+        while (true) {
+            $id = randomNum() . randomLett();
+            if (empty($this->cekTopup($id))) {
+                break;
+            }
+        }
+        $sql = "INSERT INTO top_up (id_topup,id_user,jumlah_topup,status_topup,admin)
+                VALUES('$id','$id_user','$jumlah_topup',:status,:admin)";
+        $data = [
+            ':status' => STATUS_TOPUP_PENDING,
+            ':admin' => ADMIN_SILUMAN_MOUGO,
+        ];
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id];
+        }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
+    }
+
+    public function cekTopup($id) {
+        $sql = "SELECT * FROM top_up
+                WHERE id_topup LIKE '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getAllTopUp() {
+        $sql = "SELECT * FROM top_up
+            INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function insertBuktiPembayaran($id_topup, $path) {
+        $sql = 'INSERT INTO bukti_pembayaran( id_topup , foto_transfer )
+        VALUE( :id_topup, :foto_transfer)';
+        $est = $this->db->prepare($sql);
+        $data = [
+            ":id_topup" => $id_topup,
+            ":foto_transfer" => $path,
+        ];
+
+        if ($est->execute($data)) {
+            return ['Status' => 'Success', 'message' => 'Upload Bukti Pembayaran Berhasil, Silahkan Tunggu Konfirmasi Admin'];
+        }return ['Status' => 'Error', 'message' => 'Gagal Upload Bukti Pembayaran'];
+
+    }
+
+    public function topupUpdate($id, $status) {
+        switch ($status) {
+            case TOPUP_ACCEPT:
+                $detail_topup = $this->getDetailTopup($id);
+                if(empty($detail_topup)){
+                    return ['Status' => 'Error', 'message' => 'Topup Tidak Ditemukan'];
+                }
+                $detail_saldo = $this->getSaldoUser($detail_topup['id_user']);
+                $detail_saldo['jumlah_saldo'] = $detail_saldo['jumlah_saldo'] + $detail_topup['jumlah_topup'];
+                if(!$this->updateSaldo($detail_topup['id_user'],$detail_saldo['jumlah_saldo'])){
+                    return ['Status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
+                }
+                if(!$this->updateTopup($id,STATUS_TOPUP_ACCEPT)){
+                    return ['Status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
+                }
+                return ['Status' => 'Success', 'message' => 'Saldo User Berhasil Diterima'];
+            case TOPUP_REJECT:
+                if(!$this->deleteBuktiPembayaran($id)){
+                    return ['Status' => 'Error', 'message' => 'Gagal Menolak Topup'];
+                }
+                return ['Status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
+            
+        }
+    }
+
+    public function deleteBuktiPembayaran($id_topup){
+        $sql = "DELETE FROM bukti_pembayaran
+                WHERE id_topup = '$id_topup'";
+        $est = $this->getDb()->prepare($sql);
+        if($est->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function getDetailTopup($id) {
+        $sql = "SELECT * FROM top_up
+                WHERE id_topup = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function updateSaldo($id_user, $saldo) {
+        $sql = "UPDATE saldo
+                SET jumlah_saldo = '$saldo'
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            return true;
+        }return false;
+    }
+
+    public function getSaldoUser($id_user){
+        $sql = "SELECT * FROM saldo
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function updateTopup($id, $status) {
+        $sql = "UPDATE top_up
+                SET status_topup = '$status'
+                WHERE id_topup = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            return true;
+        }return false;
     }
 
 }

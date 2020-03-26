@@ -45,9 +45,25 @@ define('STATUS_MENGANTAR_KETUJUAN',3);
 define('STATUS_SAMPAI_TUJUAN',4);
 define('STATUS_CANCEL',5);
 
+// POSITION STATUS TRIP
+define('STATUS_TRIP_MENJEMPUT',"Driver Dalam Perjalanan Menjemput");
+define('STATUS_TRIP_MENGANTAR',"Driver Sedang Mengantar Anda");
+define('STATUS_TRIP_SELESAI',"Selamat Anda Telah Sampai Tujuan");
+
 // POSITION SET
 define('POSITION_LAT',-2.980670100);
 define('POSITION_LONG',104.726203500);
 
 // DRIVER SILUMAN
 define('ID_DRIVER_SILUMAN', "f768adacff6bb95eafb7d9a2d56be1c2f2ef6d13");
+
+// ADMIN MOUGO
+define('ADMIN_SILUMAN_MOUGO', "mougodms@gmail.com");
+
+// STATUS TOPUP
+define('STATUS_TOPUP_PENDING',1);
+define('STATUS_TOPUP_ACCEPT',2);
+
+// STATUS TOPUP
+define('TOPUP_ACCEPT',1);
+define('TOPUP_REJECT',2);

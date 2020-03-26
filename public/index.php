@@ -35,6 +35,12 @@ require __DIR__ . '/../src/driver/routesDriver.php';
 // Register routesDriver
 require __DIR__ . '/../src/umum/routesUmum.php';
 
+// Register routesAdmin
+require __DIR__ . '/../src/admin/routesAdmin.php';
+
+// Register routesOwner
+require __DIR__ . '/../src/owner/routesOwner.php';
+
 // Constant 
 require __DIR__ . '/../src/constantText.php';
 
