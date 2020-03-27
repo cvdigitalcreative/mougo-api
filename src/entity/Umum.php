@@ -116,6 +116,9 @@ class Umum {
         $trip_cek->setDb($this->db);
         $trip_driver->setDb($this->db);
         $data_trip = $trip_cek->getTripDetail($id);
+        if($data_trip['id_driver']==ID_DRIVER_SILUMAN){
+            return ['status' => false, 'message' => 'Trip Telah Dibatalkan'];
+        }
         return ['status' => true, 'message' => 'Dapat Driver', 'data_trip' => $data_trip, 'data_driver' => $trip_driver->getProfileDriver($data_trip['id_driver'])];
 
     }
