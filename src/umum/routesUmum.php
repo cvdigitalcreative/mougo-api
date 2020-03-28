@@ -29,6 +29,9 @@ $app->get('/customer/trip/harga/{jarak}', function ($request, $response, $args) 
 // ISI SALDO
 $app->post('/common/topup/{id_user}', function ($request, $response,$args) {
     $saldo = $request->getParsedBody();
+    if($saldo['saldo']<50000){
+        return $response->withJson(['status'=>'Error','message'=>'Pengisian Saldo Tidak Boleh Kurang Dari Rp50.000'], SERVER_OK);
+    }
     $topup = new Umum();
     $topup->setDb($this->db);
     return $response->withJson($topup->inputSaldo($saldo['saldo'], $args['id_user']), SERVER_OK);
