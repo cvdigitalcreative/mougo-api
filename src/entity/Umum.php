@@ -245,45 +245,45 @@ class Umum {
         ];
 
         if ($est->execute($data)) {
-            return ['Status' => 'Success', 'message' => 'Upload Bukti Pembayaran Berhasil, Silahkan Tunggu Konfirmasi Admin'];
-        }return ['Status' => 'Error', 'message' => 'Gagal Upload Bukti Pembayaran'];
+            return ['status' => 'Success', 'message' => 'Upload Bukti Pembayaran Berhasil, Silahkan Tunggu Konfirmasi Admin'];
+        }return ['status' => 'Error', 'message' => 'Gagal Upload Bukti Pembayaran'];
 
     }
 
     public function topupUpdate($id, $status) {
         $data_topup = $this->getDetailTopup($id);
         if(empty($data_topup)){
-            return ['Status' => 'Error', 'message' => 'ID Topup Tidak Ditemukan'];
+            return ['status' => 'Error', 'message' => 'ID Topup Tidak Ditemukan'];
         }
         if(empty($this->getBuktiPembayaran($id))){
-            return ['Status' => 'Error', 'message' => 'User Belum Memberikan Bukti Pembayaran'];
+            return ['status' => 'Error', 'message' => 'User Belum Memberikan Bukti Pembayaran'];
         }
         switch ($status) {
             case TOPUP_ACCEPT:
                 $detail_topup = $data_topup;
                 if (empty($detail_topup)) {
-                    return ['Status' => 'Error', 'message' => 'Topup Tidak Ditemukan'];
+                    return ['status' => 'Error', 'message' => 'Topup Tidak Ditemukan'];
                 }
                 if ($detail_topup['status_topup']==2) {
-                    return ['Status' => 'Error', 'message' => 'Gagal, Topup Ini Telah Diterima Oleh Admin'];
+                    return ['status' => 'Error', 'message' => 'Gagal, Topup Ini Telah Diterima Oleh Admin'];
                 }
                 $detail_saldo = $this->getSaldoUser($detail_topup['id_user']);
                 $detail_saldo['jumlah_saldo'] = $detail_saldo['jumlah_saldo'] + $detail_topup['jumlah_topup'];
                 if (!$this->updateSaldo($detail_topup['id_user'], $detail_saldo['jumlah_saldo'])) {
-                    return ['Status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
+                    return ['status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
                 }
                 if (!$this->updateTopup($id, STATUS_TOPUP_ACCEPT)) {
-                    return ['Status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
+                    return ['status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
                 }
-                return ['Status' => 'Success', 'message' => 'Saldo User Berhasil Diterima'];
+                return ['status' => 'Success', 'message' => 'Saldo User Berhasil Diterima'];
             case TOPUP_REJECT:
                 if($data_topup['status_topup']==2){
-                    return ['Status' => 'Error', 'message' => 'Gagal, Topup User Telah Berhasil Diterima Oleh Admin'];
+                    return ['status' => 'Error', 'message' => 'Gagal, Topup User Telah Berhasil Diterima Oleh Admin'];
                 }
                 if (!$this->deleteBuktiPembayaran($id)) {
-                    return ['Status' => 'Error', 'message' => 'Gagal Menolak Topup'];
+                    return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                 }
-                return ['Status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
+                return ['status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
 
         }
     }

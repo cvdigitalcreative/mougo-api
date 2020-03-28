@@ -57,21 +57,21 @@ $app->get('/customer/trip/orderan/',function ($request,$response){
 $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,$args) {
     $uploadedFiles = $request->getUploadedFiles();
     if(empty($uploadedFiles['gambar']->file)){
-        return $response->withJson(['Status'=>'Error','message'=>'Gambar Tidak Boleh Kosong'],SERVER_OK);
+        return $response->withJson(['status'=>'Error','message'=>'Gambar Tidak Boleh Kosong'],SERVER_OK);
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $topup = new Umum();
     $topup->setDb($this->db);
     if(empty($topup->getDetailTopup($args['id_topup']))){
-        return $response->withJson(['Status'=>'Error','message'=>'ID Topup Tidak Ditemukan'],SERVER_OK);
+        return $response->withJson(['status'=>'Error','message'=>'ID Topup Tidak Ditemukan'],SERVER_OK);
    }
    if(!empty($topup->getBuktiPembayaran($args['id_topup']))){
-        return $response->withJson(['Status'=>'Error','message'=>'Anda Telah Mengirim Bukti Pembayaran'],SERVER_OK);
+        return $response->withJson(['status'=>'Error','message'=>'Anda Telah Mengirim Bukti Pembayaran'],SERVER_OK);
     }
     if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
         if($extension!="jpg"&&$extension!="png"&&$extension!="JPG"&&$extension!="PNG"){
-                return $response->withJson(['Status'=>'Error','message'=>'Bukti Transfer Harus JPG atau PNG'],SERVER_OK);
+                return $response->withJson(['status'=>'Error','message'=>'Bukti Transfer Harus JPG atau PNG'],SERVER_OK);
         }
         $filename = md5($uploadedFile->getClientFilename()).time().".".$extension;
         $directory = $this->get('settings')['upload_directory'];
