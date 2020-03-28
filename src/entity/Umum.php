@@ -227,7 +227,8 @@ class Umum {
 
     public function getAllTopUp() {
         $sql = "SELECT * FROM top_up
-            INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup";
+            INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup
+            WHERE top_up.status_topup = 1";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
@@ -250,11 +251,21 @@ class Umum {
     }
 
     public function topupUpdate($id, $status) {
+        $data_topup = $this->getDetailTopup($id);
+        if(empty($data_topup)){
+            return ['Status' => 'Error', 'message' => 'ID Topup Tidak Ditemukan'];
+        }
+        if(empty($this->getBuktiPembayaran($id))){
+            return ['Status' => 'Error', 'message' => 'User Belum Memberikan Bukti Pembayaran'];
+        }
         switch ($status) {
             case TOPUP_ACCEPT:
-                $detail_topup = $this->getDetailTopup($id);
+                $detail_topup = $data_topup;
                 if (empty($detail_topup)) {
                     return ['Status' => 'Error', 'message' => 'Topup Tidak Ditemukan'];
+                }
+                if ($detail_topup['status_topup']==2) {
+                    return ['Status' => 'Error', 'message' => 'Gagal, Topup Ini Telah Diterima Oleh Admin'];
                 }
                 $detail_saldo = $this->getSaldoUser($detail_topup['id_user']);
                 $detail_saldo['jumlah_saldo'] = $detail_saldo['jumlah_saldo'] + $detail_topup['jumlah_topup'];
@@ -266,12 +277,24 @@ class Umum {
                 }
                 return ['Status' => 'Success', 'message' => 'Saldo User Berhasil Diterima'];
             case TOPUP_REJECT:
+                if($data_topup['status_topup']==2){
+                    return ['Status' => 'Error', 'message' => 'Gagal, Topup User Telah Berhasil Diterima Oleh Admin'];
+                }
                 if (!$this->deleteBuktiPembayaran($id)) {
                     return ['Status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                 }
                 return ['Status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
 
         }
+    }
+
+    public function getBuktiPembayaran($id) {
+        $sql = "SELECT * FROM bukti_pembayaran
+                WHERE id_topup = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
     }
 
     public function deleteBuktiPembayaran($id_topup) {
