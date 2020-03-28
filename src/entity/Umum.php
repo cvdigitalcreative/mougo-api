@@ -116,7 +116,7 @@ class Umum {
         $trip_cek->setDb($this->db);
         $trip_driver->setDb($this->db);
         $data_trip = $trip_cek->getTripDetail($id);
-        if($data_trip['id_driver']==ID_DRIVER_SILUMAN){
+        if ($data_trip['id_driver'] == ID_DRIVER_SILUMAN) {
             return ['status' => false, 'message' => 'Trip Telah Dibatalkan'];
         }
         return ['status' => true, 'message' => 'Dapat Driver', 'data_trip' => $data_trip, 'data_driver' => $trip_driver->getProfileDriver($data_trip['id_driver'])];
@@ -195,6 +195,9 @@ class Umum {
     }
 
     public function inputSaldo($jumlah_topup, $id_user) {
+        if($jumlah_topup<50000){
+            return ['status'=>'Error','message'=>'Pengisian Saldo Tidak Boleh Kurang Dari Rp50.000'];
+        }
         while (true) {
             $id = randomNum() . randomLett();
             if (empty($this->cekTopup($id))) {
@@ -209,7 +212,7 @@ class Umum {
         ];
         $est = $this->getDb()->prepare($sql);
         if ($est->execute($data)) {
-            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id , 'no_rek'=>NO_REK_PERUSAHAAN , 'nama_rek' => NAMA_REK_PERUSAHAAN];
+            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id, 'jumlah_topup' => $jumlah_topup, 'no_rek' => NO_REK_PERUSAHAAN, 'nama_rek' => NAMA_REK_PERUSAHAAN];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
     }
 
@@ -250,32 +253,32 @@ class Umum {
         switch ($status) {
             case TOPUP_ACCEPT:
                 $detail_topup = $this->getDetailTopup($id);
-                if(empty($detail_topup)){
+                if (empty($detail_topup)) {
                     return ['Status' => 'Error', 'message' => 'Topup Tidak Ditemukan'];
                 }
                 $detail_saldo = $this->getSaldoUser($detail_topup['id_user']);
                 $detail_saldo['jumlah_saldo'] = $detail_saldo['jumlah_saldo'] + $detail_topup['jumlah_topup'];
-                if(!$this->updateSaldo($detail_topup['id_user'],$detail_saldo['jumlah_saldo'])){
+                if (!$this->updateSaldo($detail_topup['id_user'], $detail_saldo['jumlah_saldo'])) {
                     return ['Status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
                 }
-                if(!$this->updateTopup($id,STATUS_TOPUP_ACCEPT)){
+                if (!$this->updateTopup($id, STATUS_TOPUP_ACCEPT)) {
                     return ['Status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
                 }
                 return ['Status' => 'Success', 'message' => 'Saldo User Berhasil Diterima'];
             case TOPUP_REJECT:
-                if(!$this->deleteBuktiPembayaran($id)){
+                if (!$this->deleteBuktiPembayaran($id)) {
                     return ['Status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                 }
                 return ['Status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
-            
+
         }
     }
 
-    public function deleteBuktiPembayaran($id_topup){
+    public function deleteBuktiPembayaran($id_topup) {
         $sql = "DELETE FROM bukti_pembayaran
                 WHERE id_topup = '$id_topup'";
         $est = $this->getDb()->prepare($sql);
-        if($est->execute()){
+        if ($est->execute()) {
             return true;
         }
         return false;
@@ -300,7 +303,7 @@ class Umum {
         }return false;
     }
 
-    public function getSaldoUser($id_user){
+    public function getSaldoUser($id_user) {
         $sql = "SELECT * FROM saldo
                 WHERE id_user = '$id_user'";
         $est = $this->getDb()->prepare($sql);
