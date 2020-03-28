@@ -209,7 +209,7 @@ class Umum {
         ];
         $est = $this->getDb()->prepare($sql);
         if ($est->execute($data)) {
-            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id];
+            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id , 'no_rek'=>NO_REK_PERUSAHAAN , 'nama_rek' => NAMA_REK_PERUSAHAAN];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
     }
 
