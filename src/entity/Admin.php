@@ -25,12 +25,12 @@ class Admin {
     public function isValid($status) {
         switch ($status) {
             case LOGIN:
-                if (empty($this->email_admin || $this->password)) {
+                if (empty($this->email_admin) || empty($this->password)) {
                     return false;
                 }return true;
 
             case REGISTER:
-                if (empty($this->email_admin || $this->nama_admin || $this->no_telpon || $this->password)) {
+                if (empty($this->email_admin) || empty($this->nama_admin) || empty($this->no_telpon) || empty($this->password)) {
                     return false;
                 }return true;
 
