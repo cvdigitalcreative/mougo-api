@@ -195,8 +195,8 @@ class Umum {
     }
 
     public function inputSaldo($jumlah_topup, $id_user) {
-        if($jumlah_topup<50000){
-            return ['status'=>'Error','message'=>'Pengisian Saldo Tidak Boleh Kurang Dari Rp50.000'];
+        if ($jumlah_topup < 50000) {
+            return ['status' => 'Error', 'message' => 'Pengisian Saldo Tidak Boleh Kurang Dari Rp50.000'];
         }
         while (true) {
             $id = randomNum() . randomLett();
@@ -252,10 +252,11 @@ class Umum {
 
     public function topupUpdate($id, $status) {
         $data_topup = $this->getDetailTopup($id);
-        if(empty($data_topup)){
+        if (empty($data_topup)) {
             return ['status' => 'Error', 'message' => 'ID Topup Tidak Ditemukan'];
         }
-        if(empty($this->getBuktiPembayaran($id))){
+        $bukti_pembayaran = $this->getBuktiPembayaran($id);
+        if (empty($this->getBuktiPembayaran($id))) {
             return ['status' => 'Error', 'message' => 'User Belum Memberikan Bukti Pembayaran'];
         }
         switch ($status) {
@@ -264,7 +265,7 @@ class Umum {
                 if (empty($detail_topup)) {
                     return ['status' => 'Error', 'message' => 'Topup Tidak Ditemukan'];
                 }
-                if ($detail_topup['status_topup']==2) {
+                if ($detail_topup['status_topup'] == 2) {
                     return ['status' => 'Error', 'message' => 'Gagal, Topup Ini Telah Diterima Oleh Admin'];
                 }
                 $detail_saldo = $this->getSaldoUser($detail_topup['id_user']);
@@ -277,14 +278,17 @@ class Umum {
                 }
                 return ['status' => 'Success', 'message' => 'Saldo User Berhasil Diterima'];
             case TOPUP_REJECT:
-                if($data_topup['status_topup']==2){
+                if ($data_topup['status_topup'] == 2) {
                     return ['status' => 'Error', 'message' => 'Gagal, Topup User Telah Berhasil Diterima Oleh Admin'];
                 }
+                if(unlink($bukti_pembayaran['foto_transfer'])){
                 if (!$this->deleteBuktiPembayaran($id)) {
                     return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                 }
+            }
                 return ['status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
-
+                
+             
         }
     }
 
@@ -343,6 +347,26 @@ class Umum {
         if ($est->execute()) {
             return true;
         }return false;
+    }
+
+    public function getDriverAdmin() {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                WHERE driver.foto_skck AND driver.foto_sim AND driver.foto_stnk IS NOT NULL AND driver.status_akun_aktif = 0";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function editDriverStatus($id_driver,$status){
+        $sql = "UPDATE driver
+                SET status_akun_aktif = '$status'
+                WHERE id_user = '$id_driver'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Berhasil Mengaktifkan Driver'];
+        }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
     }
 
 }

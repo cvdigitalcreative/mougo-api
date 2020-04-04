@@ -25,6 +25,8 @@ define('LOGIN', 'login');
 define('STATUS_ONLINE',0);
 define('STATUS_AKUN_AKTIF',0);
 define('STATUS_AKTIF_USER',2);
+define('STATUS_DRIVER_UPLOAD_FOTO',2);
+define('STATUS_DRIVER_AKTIF',1);
 
 // USER HITS, SALDO, POINT AWAL
 define('HITS_AWAL',0);

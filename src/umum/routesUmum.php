@@ -82,3 +82,11 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
 
 })->add($tokenCheck);
 
+// Customer
+// GET SALDO
+$app->get('/common/saldo/{id_user}', function ($request, $response, $args) {
+    $saldo = new Umum();
+    $saldo->setDb($this->db);
+    return $response->withJson($saldo->getSaldoUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
