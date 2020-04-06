@@ -41,7 +41,7 @@ class Admin {
         if (!$this->isValid(REGISTER)) {
             return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
         }
-        if (empty($this->cekDataAdmin($this->email_admin, $this->no_telpon))) {
+        if (!empty($this->cekDataAdmin($this->email_admin, $this->no_telpon))) {
             return ['status' => 'Error', 'message' => 'Email Atau Nomor Telpon Telah Digunakan'];
         }
         if ($this->inputAdmin()) {
