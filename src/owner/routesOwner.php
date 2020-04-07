@@ -30,7 +30,7 @@ $app->post('/owner/event/',function($request,$response){
     $owner->setDb($this->db);
     if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-        if($extension!="jpg"&&$extension!="png"&&$extension!="JPG"&&$extension!="PNG"){
+        if($extension!="jpg"&&$extension!="png"&&$extension!="JPG"&&$extension!="PNG"&&$extension!="jpeg"&&$extension!="JPEG"){
                 return $response->withJson(['status'=>'Error','message'=>'Gambar Event Harus JPG atau PNG'],SERVER_OK);
         }
         $filename = md5($uploadedFile->getClientFilename()).time().".".$extension;
