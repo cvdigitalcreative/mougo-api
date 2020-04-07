@@ -1,5 +1,78 @@
 <?php
-require_once dirname(__FILE__) . '/../entity/Umum.php';
+require_once dirname(__FILE__) . '/../entity/Umum.php'; 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP; 
+
+// USER
+// Lupa Password
+$app->post('/common/lupa_password/{emailTelpon}', function ($request, $response, $args) {
+    $lupaPass = new Umum();
+    $lupaPass->setDb($this->db);
+    $data = $lupaPass->lupaPassword($args['emailTelpon']);
+    if(empty($data)){
+        return $response->withJson(['status' => 'Error','message' => 'Email atau Nomor Telpon Tidak Ditemukan'], SERVER_OK);
+    }
+    $mail = new PHPMailer();
+    $mail->isSMTP();
+    $mail->SMTPDebug = SMTP::DEBUG_OFF;
+    // $mail->SMTPDebug = 0;
+    $mail->Host = 'smtp.gmail.com';
+    $mail->Port = 587;
+    $mail->SMTPSecure = "tls";
+    $mail->SMTPAuth = true;
+
+    $mail->Username = "mougo.noreply@gmail.com";
+    $mail->Password = "mougodms1@!";
+
+    $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
+    $mail->addAddress($data['email'],$data['nama']);
+    $mail->isHTML(true);
+    $mail->Subject = "MOUGO DMS Reset Password";
+    $mail->Body = "Hello " . $data['nama'] . " \nBerikut Adalah Link Untuk Mereset Password Mougo Anda ". $data['token'];
+    
+    if ($mail->send()) {
+        return $response->withJson(['status' => 'Success','message'=>'Konfirmasi Lupa Password Akan Dikirim Melalui Email'], SERVER_OK);
+    }
+    echo 'Mailer Error: ' . $mail->ErrorInfo;
+ 
+    return $response->withJson(['status' => 'Error','message'=>'Gagal Mengirim Konfirmasi Email'], SERVER_BAD);
+});
+
+// Konfirmasi Email
+// Lupa Password
+$app->get('/common/lupa_password/konfirmasi/{token}', function ($request, $response ,$args) {
+    $confirm = new Umum();
+    $confirm->setDb($this->db);
+    $status = $confirm->getUserLupaPasswordToken($args['token']);
+    if(empty($status)){
+        return $response->withJson(['status' => false,'message'=>'Konfirmasi Lupa Password Tidak Ditemukan'], SERVER_OK);
+    }
+    if($status['day']!= DATE('d')){
+        $confirm->deleteUserLupaPassword($args['token']);
+        return $response->withJson(['status' => false, 'message'=>'Waktu Untuk Konfirmasi Lupa Password Telah Habis'], SERVER_OK);
+    }
+    return $response->withJson(['status' => true, 'id_user'=>$status['id_user']], SERVER_OK);
+});
+
+// Ganti Password
+// Lupa Password
+$app->get('/common/lupa_password/ganti/{id_user}', function ($request, $response ,$args) {
+    $password = $request->getParsedBody();
+    $user = new User(null,null,null,null,null,null);
+    $user->setDb($this->db);
+    if(empty($user->getProfileUser($args['id_user']))){
+        return $response->withJson(['status' => 'Error','message'=>'User Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $ganti = new Umum();
+    $ganti->setDb($this->db);
+    $status = $ganti->updatePassword($args['id_user'],$password['password']);
+    if($status){
+        return $response->withJson(['status' => 'Success','message'=>'Password Berhasil Diganti'], SERVER_OK);
+    }
+
+    return $response->withJson(['status' => 'Error', 'message'=>'Password Gagal Diganti'], SERVER_OK);
+});
 
 // Driver
 // Get Cabang

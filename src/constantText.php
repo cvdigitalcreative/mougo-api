@@ -1,6 +1,7 @@
 <?php
 // HTTP RESPONSE
 define('SERVER_OK', 200);
+define('SERVER_BAD', 400);
 
 // ROLE
 define('USER_ROLE', 1);
@@ -73,3 +74,7 @@ define('TOPUP_REJECT',2);
 // REK MOUGO 
 define('NO_REK_PERUSAHAAN',"081231251924");
 define('NAMA_REK_PERUSAHAAN',"PT. DMS MOUGO");
+
+// STATUS TOKEN LUPA PASSWORD
+define('STATUS_TOKEN_UNACTIVE',2);
+define('STATUS_TOKEN_ACTIVE',1);

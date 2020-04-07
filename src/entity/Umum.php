@@ -369,4 +369,77 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
     }
 
+    public function lupaPassword($emailTelpon) {
+        $user = $this->getUser($emailTelpon);
+        if(empty($user)){
+            return $user;
+        }
+        $lupa_password = $this->getUserLupaPassword($user['id_user']);
+        if(!empty($lupa_password)){
+            $this->deleteUserLupaPassword($lupa_password['token']);
+        }
+        $this->insertLupaPassword($user['id_user'],sha1(rand()));
+        $user['token'] = $lupa_password['token'];
+        return $user;
+    }
+
+    public function deleteUserLupaPassword($token) {
+        $sql = "DELETE FROM lupa_password
+                WHERE token = '$token'";
+        $est = $this->getDb()->prepare($sql);
+        if($est->execute()){
+            return true;
+        }
+        return false;
+    }
+
+    public function getUserLupaPassword($id) {
+        $sql = "SELECT * FROM lupa_password
+                WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function getUserLupaPasswordToken($id) {
+        $sql = "SELECT id_user, DAY(expired_date) AS day FROM lupa_password
+                WHERE token = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function insertLupaPassword($id,$token) {
+        $sql = "INSERT INTO lupa_password(id_user, token, expired_date, status_token )
+                VALUE ('$id', '$token', CURRENT_TIMESTAMP, :status )";
+        $est = $this->getDb()->prepare($sql);
+        $data = [
+            ':status' => STATUS_TOKEN_ACTIVE
+        ];
+        if ($est->execute($data)) {
+            return true;
+        }return false;
+    }
+
+    public function getUser($emailTelpon) {
+        $sql = "SELECT * FROM user
+                WHERE user.email = '$emailTelpon' OR user.no_telpon = '$emailTelpon'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function updatePassword($id, $password) {
+        $sql = "UPDATE user
+                SET password = '$password'
+                WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            return true;
+        }return false;
+    }
+
 }
