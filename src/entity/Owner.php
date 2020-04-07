@@ -1,6 +1,6 @@
 <?php
 
-class Owner{
+class Owner {
     private $email_owner;
     private $password;
     private $db;
@@ -23,14 +23,14 @@ class Owner{
             return ['status' => 'Error', 'message' => 'Email atau Password Harus Di isi'];
         }
         $data_owner = $this->cekDataOwner($this->email_owner);
-        if(empty($data_owner)){
-        return ['status' => 'Error', 'message' => 'Email atau Password salah'];
+        if (empty($data_owner)) {
+            return ['status' => 'Error', 'message' => 'Email atau Password salah'];
         }
         if ($data_owner['password'] == $this->password) {
             return ['status' => 'Success', 'data' => $data_owner['email_owner']];
         }
         return ['status' => 'Error', 'message' => 'Email atau Password Salah'];
-    
+
     }
 
     public function isValid($status) {
@@ -39,7 +39,7 @@ class Owner{
                 if (empty($this->email_owner) || empty($this->password)) {
                     return false;
                 }return true;
-            }
+        }
     }
 
     public function cekDataOwner($email) {
@@ -51,17 +51,14 @@ class Owner{
         return $temp;
     }
 
-    public function inputEvent($judul,$deskripsi,$gambar)
-    {
+    public function inputEvent($judul, $deskripsi, $gambar) {
         $sql = "INSERT INTO event (judul_event,deskripsi_event,gambar_event)
                 VALUE('$judul','$deskripsi','$gambar')";
         $est = $this->db->prepare($sql);
-        if($est->execute()){
-            return ['status'=>'Success','message'=>'Event Berhasil Dipublikasi'];
-        }return ['status'=>'Error','message'=>'Event Gagal Diupload'];
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Event Berhasil Dipublikasi'];
+        }return ['status' => 'Error', 'message' => 'Event Gagal Diupload'];
 
     }
-    
-}
 
-?>
+}

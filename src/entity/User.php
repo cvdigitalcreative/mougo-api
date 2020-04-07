@@ -60,7 +60,6 @@ class User {
         $user_email = $this->email;
         $user_no_tlp = $this->no_telpon;
 
-
         //Kode Referal dan sponsor regenerate
         $kodeRefSp = $this->generateKodeRefSp();
 
@@ -71,7 +70,7 @@ class User {
         if (empty($atasanRefSp)) {
             return ['status' => 'Error', 'message' => 'Referal Atasan Tidak Ditemukan'];
         }
-        
+
         if ($this->cekUserEmailTelpon($user_email, $user_no_tlp)) {
             return ['status' => 'Error', 'message' => 'Email / Nomor Telpon Telah digunakan'];
         }

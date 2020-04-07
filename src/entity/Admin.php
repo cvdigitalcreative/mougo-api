@@ -34,7 +34,7 @@ class Admin {
                     return false;
                 }return true;
 
-            }
+        }
     }
 
     public function registerAdmin() {
@@ -56,14 +56,14 @@ class Admin {
             return ['status' => 'Error', 'message' => 'Email atau Password Harus Di isi'];
         }
         $data_admin = $this->cekDataAdmin($this->email_admin, $this->no_telpon);
-        if(empty($data_admin)){
-        return ['status' => 'Error', 'message' => 'Email atau Password salah'];
+        if (empty($data_admin)) {
+            return ['status' => 'Error', 'message' => 'Email atau Password salah'];
         }
         if ($data_admin['password'] == $this->password) {
             return ['status' => 'Success', 'data' => $data_admin['email_admin']];
         }
         return ['status' => 'Error', 'message' => 'Email atau Password Salah'];
-    
+
     }
 
     public function inputAdmin() {

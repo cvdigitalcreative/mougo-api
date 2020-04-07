@@ -281,14 +281,13 @@ class Umum {
                 if ($data_topup['status_topup'] == 2) {
                     return ['status' => 'Error', 'message' => 'Gagal, Topup User Telah Berhasil Diterima Oleh Admin'];
                 }
-                if(unlink($bukti_pembayaran['foto_transfer'])){
-                if (!$this->deleteBuktiPembayaran($id)) {
-                    return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
+                if (unlink($bukti_pembayaran['foto_transfer'])) {
+                    if (!$this->deleteBuktiPembayaran($id)) {
+                        return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
+                    }
                 }
-            }
                 return ['status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
-                
-             
+
         }
     }
 
@@ -359,7 +358,7 @@ class Umum {
         return $stmt;
     }
 
-    public function editDriverStatus($id_driver,$status){
+    public function editDriverStatus($id_driver, $status) {
         $sql = "UPDATE driver
                 SET status_akun_aktif = '$status'
                 WHERE id_user = '$id_driver'";
@@ -371,14 +370,14 @@ class Umum {
 
     public function lupaPassword($emailTelpon) {
         $user = $this->getUser($emailTelpon);
-        if(empty($user)){
+        if (empty($user)) {
             return $user;
         }
         $lupa_password = $this->getUserLupaPassword($user['id_user']);
-        if(!empty($lupa_password)){
+        if (!empty($lupa_password)) {
             $this->deleteUserLupaPassword($lupa_password['token']);
         }
-        $this->insertLupaPassword($user['id_user'],sha1(rand()));
+        $this->insertLupaPassword($user['id_user'], sha1(rand()));
         $user['token'] = $lupa_password['token'];
         return $user;
     }
@@ -387,7 +386,7 @@ class Umum {
         $sql = "DELETE FROM lupa_password
                 WHERE token = '$token'";
         $est = $this->getDb()->prepare($sql);
-        if($est->execute()){
+        if ($est->execute()) {
             return true;
         }
         return false;
@@ -411,12 +410,12 @@ class Umum {
         return $stmt;
     }
 
-    public function insertLupaPassword($id,$token) {
+    public function insertLupaPassword($id, $token) {
         $sql = "INSERT INTO lupa_password(id_user, token, expired_date, status_token )
                 VALUE ('$id', '$token', CURRENT_TIMESTAMP, :status )";
         $est = $this->getDb()->prepare($sql);
         $data = [
-            ':status' => STATUS_TOKEN_ACTIVE
+            ':status' => STATUS_TOKEN_ACTIVE,
         ];
         if ($est->execute($data)) {
             return true;
