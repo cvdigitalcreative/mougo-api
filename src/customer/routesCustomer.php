@@ -58,5 +58,5 @@ $app->get('/customer/trip/position/{id_driver}', function ($request, $response, 
     $id_trip = $request->getQueryParam("id_trip");
     $position = new Umum();
     $position->setDb($this->db);
-    return $response->withJson($position->getPosition($id,$id_trip), SERVER_OK);
+    return $response->withJson($position->getPosition($id, $id_trip), SERVER_OK);
 })->add($tokenCheck);

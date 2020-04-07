@@ -3,7 +3,6 @@ require_once dirname(__FILE__) . '/../randomGen.php';
 require_once dirname(__FILE__) . '/../entity/Driver.php';
 require_once dirname(__FILE__) . '/../entity/Umum.php';
 
-
 // Driver
 // REGISTER
 $app->post('/driver/register/', function ($request, $response) {
@@ -63,7 +62,7 @@ $app->get('/driver/trip/search/', function ($request, $response) {
 $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $id_trip = $args['id_trip'];
     $id_driver = $request->getParsedBody();
-    $user = new User(null,null,null, null, null, null);
+    $user = new User(null, null, null, null, null, null);
     $user->setDB($this->db);
     if (empty($id_driver['id_driver'])) {
         return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
@@ -81,13 +80,13 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Input Data'], SERVER_OK);
     }
     $data_user = $user->getProfileUser($data_trip['id_customer']);
-    $data_trip['id_trip'] =(int)$data_trip['id_trip'];
-    $data_trip['status_trip'] =(int)$data_trip['status_trip']; 
-    $data_trip['jenis_pembayaran'] =(int)$data_trip['jenis_pembayaran']; 
-    $data_trip['jenis_trip'] =(int)$data_trip['jenis_trip']; 
+    $data_trip['id_trip'] = (int) $data_trip['id_trip'];
+    $data_trip['status_trip'] = (int) $data_trip['status_trip'];
+    $data_trip['jenis_pembayaran'] = (int) $data_trip['jenis_pembayaran'];
+    $data_trip['jenis_trip'] = (int) $data_trip['jenis_trip'];
     $data_trip['no_telpon'] = $data_user['no_telpon'];
     $data_trip['nama'] = $data_user['nama'];
-    return $response->withJson(['status' => 'Success', 'data' => $data_trip ], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
 })->add($tokenCheck);
 
 // DRIVER
@@ -110,19 +109,18 @@ $app->put('/driver/trip/finish/{id_trip}', function ($request, $response, $args)
     return $response->withJson($data_trip, SERVER_OK);
 })->add($tokenCheck);
 
-
 // DRIVER
 // Cek Posisi Driver dan Customer
-$app->get('/driver/trip/position/' ,function($request,$response){
+$app->get('/driver/trip/position/', function ($request, $response) {
     $lat = $request->getQueryParam("lat_driver");
     $long = $request->getQueryParam("long_driver");
     $lat_dest = $request->getQueryParam("lat_customer");
-    $long_dest = $request->getQueryParam("long_customer");  
+    $long_dest = $request->getQueryParam("long_customer");
     $jarak = new Umum();
     $jarak->setDb($this->db);
-    $jarak = ($jarak->getDistance($lat,$long,$lat_dest,$long_dest))*1000;
-    if($jarak<=50){
-        return $response->withJson(['status'=>'Success','jarak'=>$jarak], SERVER_OK);
+    $jarak = ($jarak->getDistance($lat, $long, $lat_dest, $long_dest)) * 1000;
+    if ($jarak <= 50) {
+        return $response->withJson(['status' => 'Success', 'jarak' => $jarak], SERVER_OK);
     }
-    return $response->withJson(['status'=>'Error','jarak'=>$jarak], SERVER_OK);
+    return $response->withJson(['status' => 'Error', 'jarak' => $jarak], SERVER_OK);
 })->add($tokenCheck);
