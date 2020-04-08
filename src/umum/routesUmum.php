@@ -1,14 +1,16 @@
 <?php
 require_once dirname(__FILE__) . '/../entity/Umum.php';
+require_once dirname(__FILE__) . '/../aes.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 
 // USER
 // Lupa Password
-$app->post('/common/lupa_password/{emailTelpon}', function ($request, $response, $args) {
+$app->post('/common/lupa_password/', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $lupaPass = new Umum();
     $lupaPass->setDb($this->db);
-    $data = $lupaPass->lupaPassword($args['emailTelpon']);
+    $data = $lupaPass->lupaPassword($data['emailTelpon']);
     if (empty($data)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Email atau Nomor Telpon Tidak Ditemukan'], SERVER_OK);
     }
@@ -20,15 +22,15 @@ $app->post('/common/lupa_password/{emailTelpon}', function ($request, $response,
     $mail->Port = 587;
     $mail->SMTPSecure = "tls";
     $mail->SMTPAuth = true;
-
     $mail->Username = "mougo.noreply@gmail.com";
     $mail->Password = "mougodms1@!";
-
+    $email = decrypt($data['email'],MOUGO_CRYPTO_KEY);
+    $nama = decrypt($data['nama'],MOUGO_CRYPTO_KEY);
     $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
-    $mail->addAddress($data['email'], $data['nama']);
+    $mail->addAddress($email, $nama);
     $mail->isHTML(true);
     $mail->Subject = "MOUGO DMS Reset Password";
-    $mail->Body = "Hello " . $data['nama'] . " \nBerikut Adalah Link Untuk Mereset Password Mougo Anda " . $data['token'];
+    $mail->Body = "Hello " . $nama  . " \nBerikut Adalah Link Untuk Mereset Password Mougo Anda " . $data['token'];
 
     if ($mail->send()) {
         return $response->withJson(['status' => 'Success', 'message' => 'Konfirmasi Lupa Password Akan Dikirim Melalui Email'], SERVER_OK);
