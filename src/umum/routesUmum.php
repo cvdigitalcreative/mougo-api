@@ -8,10 +8,18 @@ use PHPMailer\PHPMailer\SMTP;
 // Lupa Password
 $app->post('/common/lupa_password/', function ($request, $response, $args) {
     $data = $request->getParsedBody();
+    if(empty($data['emailTelpon'])){
+       return $response->withJson(['status' => 'Error', 'message' => 'Email atau Nomor Telpon Tidak Boleh Kosong'], SERVER_OK);
+    }
     $lupaPass = new Umum();
     $lupaPass->setDb($this->db);
     $data = $lupaPass->lupaPassword($data['emailTelpon']);
     if (empty($data)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Email atau Nomor Telpon Tidak Ditemukan'], SERVER_OK);
+    }
+    $email = decrypt($data['email'],MOUGO_CRYPTO_KEY);
+    $nama = decrypt($data['nama'],MOUGO_CRYPTO_KEY);
+    if ($email==false) {
         return $response->withJson(['status' => 'Error', 'message' => 'Email atau Nomor Telpon Tidak Ditemukan'], SERVER_OK);
     }
     $mail = new PHPMailer();
@@ -24,8 +32,7 @@ $app->post('/common/lupa_password/', function ($request, $response, $args) {
     $mail->SMTPAuth = true;
     $mail->Username = "mougo.noreply@gmail.com";
     $mail->Password = "mougodms1@!";
-    $email = decrypt($data['email'],MOUGO_CRYPTO_KEY);
-    $nama = decrypt($data['nama'],MOUGO_CRYPTO_KEY);
+    
     $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
     $mail->addAddress($email, $nama);
     $mail->isHTML(true);
