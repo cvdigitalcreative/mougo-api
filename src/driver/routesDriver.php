@@ -27,6 +27,14 @@ $app->post('/driver/register/', function ($request, $response) {
     return $response->withJson($resultUser, SERVER_OK);
 });
 
+$app->post('/driver/konfirmasi/register/{id_user}', function($request,$response,$args){
+    $id = $args['id_user'];
+    $userKonfirmasi = new User(null,null,null,null,null,null);
+    $userKonfirmasi->setDb($this->db);
+    $hasil = $userKonfirmasi->konfirmasiSelesai($id);
+    return $response->withJson($hasil, SERVER_OK);
+});
+
 // Driver
 // LOGIN
 $app->post('/driver/login/', function ($request, $response) {

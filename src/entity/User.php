@@ -1,4 +1,7 @@
 <?php
+require_once dirname(__FILE__) . '/../aes.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 
 class User {
     private $id_user;
@@ -51,12 +54,16 @@ class User {
         return $this->id_user;
     }
 
+    public function setId_user($id_user) {
+        $this->id_user = $id_user;
+    }
+
     public function register($role) {
         if (!$this->isDataValid(REGISTER)) {
             return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
         }
 
-        $status_aktif_user = STATUS_AKTIF_USER; //unactive
+        $status_aktif_user = STATUS_AKTIF_USER_REGISTER; //belum konfirmasi
         $user_email = $this->email;
         $user_no_tlp = $this->no_telpon;
 
@@ -64,7 +71,6 @@ class User {
         $kodeRefSp = $this->generateKodeRefSp();
 
         //CEK Kode Referal dan Sponsor Atasan
-
         $atasanRefSp = $this->atasanRefSp();
 
         if (empty($atasanRefSp)) {
@@ -84,8 +90,8 @@ class User {
 
         if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
 
-            //Token saldo point input
-            if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition()) {
+            if ($this->emailKonfirmasi($this->email, $this->nama)) {
+
                 return ['status' => 'Success', 'message' => 'Pendaftaran Sukses'];
             }
 
@@ -104,9 +110,10 @@ class User {
 
         $result = $this->getToken();
 
-        if (empty($result)) {
-            return ['status' => 'Error', 'message' => 'Email dan No Telpon atau Password Salah'];
+        if (empty($result) || $result['status_akun']==3) {
+            return ['status' => 'Error', 'message' => 'Email atau No telpon salah, atau Belum Konfirmasi Akun'];
         }
+
         $res = [
             'id_user' => $result['id_user'],
             'token' => $result['token'],
@@ -145,6 +152,90 @@ class User {
 
         }
 
+    }
+
+    public function konfirmasiSelesai($id_user) {
+        $data = $this->cekStatusUser($id_user,STATUS_AKUN_AKTIF);
+        if(empty($id_user) || empty($data)){
+            return ['status' => 'Error', 'message' => 'Konfirmasi Gagal'];
+        }
+        $this->setId_user($id_user);
+        if($data['status_aktif_trip']!=3){
+            return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun, Akun Telah Aktif'];
+        }
+        //Token saldo point input
+        if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition() && $this->insertDetailProfile() &&$this->gantiStatusAkun() ) {
+            return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
+        }
+        return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];
+    }
+
+    public function insertDetailProfile() {
+        $sql = "INSERT INTO detail_user (id_user , no_ktp , provinsi , kota , bank, no_rekening, atas_nama_bank , foto_ktp , foto_kk )
+                VALUES (:id_user , :no_ktp , :provinsi , :kota , :bank, :no_rekening, :atas_nama_bank , :foto_ktp , :foto_kk )";
+        $data = [
+            ':id_user' => $this->getId_user(),
+            ':no_ktp' => "-",
+            ':provinsi' => "-",
+            ':kota' => "-",
+            ':bank' => "-",
+            ':no_rekening' => "-",
+            ':atas_nama_bank' => "-",
+            ':foto_ktp' => "-",
+            ':foto_kk' => "-",
+        ];
+        $estimate = $this->db->prepare($sql);
+        if ($estimate->execute($data)) {
+            return true;
+        }return false;
+    }
+
+    public function cekStatusUser($id,$status) {
+        $sql = "SELECT * FROM user
+                WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function gantiStatusAkun() {
+        $sql = "UPDATE user
+                SET status_aktif_trip = :status_aktif_trip
+                WHERE id_user = :id_user";
+        $data = [
+            ':status_aktif_trip' => STATUS_AKTIF_USER,
+            ':id_user' => $this->getId_user()
+        ];
+        $est = $this->getDb()->prepare($sql);
+        if($est->execute($data)){
+            return true;
+        }return false;
+    }
+
+    public function emailKonfirmasi($email, $nama) {
+        $email = decrypt($email, MOUGO_CRYPTO_KEY);
+        $nama = decrypt($nama, MOUGO_CRYPTO_KEY);
+        $mail = new PHPMailer();
+        $mail->isSMTP();
+        $mail->SMTPDebug = SMTP::DEBUG_OFF;
+        // $mail->SMTPDebug = 0;
+        $mail->Host = 'smtp.gmail.com';
+        $mail->Port = 587;
+        $mail->SMTPSecure = "tls";
+        $mail->SMTPAuth = true;
+        $mail->Username = "mougo.noreply@gmail.com";
+        $mail->Password = "mougodms1@!";
+
+        $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
+        $mail->addAddress($email, $nama);
+        $mail->isHTML(true);
+        $mail->Subject = "MOUGO DMS Register Akun";
+        $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Anda , ID ".$this->id_user;
+
+        if ($mail->send()) {
+            return true;
+        }return false;
     }
 
     public function cekUserEmailTelpon($email, $no_telpon) {
@@ -324,7 +415,7 @@ class User {
     }
 
     public function getToken() {
-        $sql = "SELECT user.id_user , token , password FROM user
+        $sql = "SELECT user.id_user , token , password , status_aktif_trip FROM user
                         INNER JOIN api_token ON api_token.id_user = user.id_user
                         WHERE email = :email AND password = :pass OR no_telpon = :email AND password = :pass";
         $data_token = [
@@ -339,6 +430,7 @@ class User {
                 'id_user' => $stmt['id_user'],
                 'token' => $stmt['token'],
                 'password' => $stmt['password'],
+                'status_akun' => $stmt['status_aktif_trip']
             ];
         }return;
     }

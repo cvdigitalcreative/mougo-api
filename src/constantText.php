@@ -26,6 +26,7 @@ define('LOGIN', 'login');
 define('STATUS_ONLINE', 0);
 define('STATUS_AKUN_AKTIF', 0);
 define('STATUS_AKTIF_USER', 2);
+define('STATUS_AKTIF_USER_REGISTER', 3);
 define('STATUS_DRIVER_UPLOAD_FOTO', 2);
 define('STATUS_DRIVER_AKTIF', 1);
 

@@ -42,7 +42,6 @@ $app->post('/common/lupa_password/', function ($request, $response, $args) {
     if ($mail->send()) {
         return $response->withJson(['status' => 'Success', 'message' => 'Konfirmasi Lupa Password Akan Dikirim Melalui Email'], SERVER_OK);
     }
-    echo 'Mailer Error: ' . $mail->ErrorInfo;
 
     return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengirim Konfirmasi Email'], SERVER_BAD);
 });
