@@ -451,7 +451,7 @@ class User {
                 'token' => $stmt['token'],
                 'password' => $stmt['password']
             ];
-        }return;
+        }
     }
 
 }
