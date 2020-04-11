@@ -20,14 +20,19 @@ $app->post('/owner/login/', function ($request, $response) {
 
 // OWNER EVENT
 $app->post('/owner/event/', function ($request, $response) {
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    $event = $owner->getEvent();
+    if(count($event)>=5){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Event Telah Penuh'], SERVER_OK);
+    }
     $data = $request->getParsedBody();
     $uploadedFiles = $request->getUploadedFiles();
     if (empty($uploadedFiles['gambar']->file) || empty($data['judul']) || empty($data['deskripsi'])) {
         return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
     }
     $uploadedFile = $uploadedFiles['gambar'];
-    $owner = new Owner(null, null);
-    $owner->setDb($this->db);
+    
     if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
         if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {

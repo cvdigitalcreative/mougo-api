@@ -58,7 +58,15 @@ class Owner {
         if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Event Berhasil Dipublikasi'];
         }return ['status' => 'Error', 'message' => 'Event Gagal Diupload'];
+    }
 
+    public function getEvent(){
+        $sql = "SELECT * FROM event  ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+        
     }
 
 }

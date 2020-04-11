@@ -89,4 +89,122 @@ class Admin {
         $temp = $est->fetch();
         return $temp;
     }
+
+    private $column_search = array('nama', 'id_topup', 'jumlah_topup', 'foto_transfer');
+    private $orderan = array('nama' => 'asc');
+
+    public function getTopupWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getTopupQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTopupQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup
+                WHERE status_topup = 1 ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+                    
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 2) {
+                $temp = "top_up";
+            } else {
+                $temp = "bukti_transfer";
+            }
+            $order_in = $this->column_search[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+            
+        } else if (isset($this->orderan)) {
+            $order_by = $this->orderan;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+           
+        }
+        return $sql;
+    }
+
+    public function counts() {
+        $sql = "SELECT * FROM top_up
+        INNER JOIN user ON user.id_user = top_up.id_user
+        INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_driver = array('nama', 'email', 'no_telpon', 'alamat_domisili','cabang','jenis_kendaraan','merk_kendaraan','no_polisi');
+    private $order_driver = array('nama' => 'asc');
+
+    public function getDriverAdminWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getDriverQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+
+    }
+
+    public function getDriverQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                WHERE driver.foto_skck AND driver.foto_sim AND driver.foto_stnk IS NOT NULL AND driver.status_akun_aktif = 0 ";
+        // foreach ($this->column_driver as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+                    
+        //         } else {
+        //             $sql = $sql . " OR $value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by < 3 ) {
+                $temp = "user";
+            } else {
+                $temp = "driver";
+            }
+            $order_in = $this->column_driver[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+            
+        } else if (isset($this->order_driver)) {
+            $order_by = $this->order_driver;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+           
+        }
+        return $sql;
+    }
+
 }

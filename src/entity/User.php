@@ -108,9 +108,14 @@ class User {
             return ['status' => 'Error', 'message' => 'Akun Tidak Ditemukan'];
         }
 
+        $user = $this->getUserData();
         $result = $this->getToken();
 
-        if (empty($result) || $result['status_akun']==3) {
+        if ($user['status_akun']==3) {
+            return ['status' => 'Error', 'message' => 'Email atau No telpon salah, atau Belum Konfir  masi Akun'];
+        }
+
+        if (empty($result)) {
             return ['status' => 'Error', 'message' => 'Email atau No telpon salah, atau Belum Konfirmasi Akun'];
         }
 
@@ -123,6 +128,25 @@ class User {
             return ['status' => 'Success', 'data' => $res];
         }
         return ['status' => 'Error', 'message' => 'Password Salah'];
+    }
+
+    public function getUserData() {
+        $sql = "SELECT user.id_user , password , status_aktif_trip FROM user
+                WHERE email = :email AND password = :pass OR no_telpon = :email AND password = :pass";
+        $data_token = [
+            ":email" => (!empty($this->email)) ? $this->email : $this->no_telpon,
+            ":pass" => $this->password,
+        ];
+        $est = $this->db->prepare($sql);
+        $est->execute($data_token);
+        $stmt = $est->fetch();
+        if (!empty($stmt)) {
+            return [
+                'id_user' => $stmt['id_user'],
+                'password' => $stmt['password'],
+                'status_akun' => $stmt['status_aktif_trip']
+            ];
+        }return;
     }
 
     private function isDataValid($type) {
@@ -190,7 +214,7 @@ class User {
         }return false;
     }
 
-    public function cekStatusUser($id,$status) {
+    public function cekStatusUser($id) {
         $sql = "SELECT * FROM user
                 WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
