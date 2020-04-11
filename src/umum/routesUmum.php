@@ -42,7 +42,6 @@ $app->post('/common/lupa_password/', function ($request, $response, $args) {
     if ($mail->send()) {
         return $response->withJson(['status' => 'Success', 'message' => 'Konfirmasi Lupa Password Akan Dikirim Melalui Email'], SERVER_OK);
     }
-    echo 'Mailer Error: ' . $mail->ErrorInfo;
 
     return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengirim Konfirmasi Email'], SERVER_BAD);
 });
@@ -171,3 +170,15 @@ $app->get('/common/saldo/{id_user}', function ($request, $response, $args) {
     $saldo->setDb($this->db);
     return $response->withJson($saldo->getSaldoUser($args['id_user']), SERVER_OK);
 })->add($tokenCheck);
+
+// UMUM
+// GET Event
+$app->get('/common/event/', function ($request, $response, $args) {
+    $getevent = new Owner(null,null);
+    $getevent->setDb($this->db);
+    $event = $getevent->getEvent();
+    if(empty($event)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Event Tidak Ditemukan'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Success' , 'data' => $event ], SERVER_OK);
+});

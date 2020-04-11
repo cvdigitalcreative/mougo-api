@@ -3,6 +3,7 @@ require_once dirname(__FILE__) . '/../randomGen.php';
 require_once dirname(__FILE__) . '/../entity/User.php';
 require_once dirname(__FILE__) . '/../entity/Trip.php';
 
+
 //Customer
 //REGISTER
 $app->post('/customer/register/', function ($request, $response) {
@@ -11,6 +12,14 @@ $app->post('/customer/register/', function ($request, $response) {
     $userData->setDB($this->db);
     $result = $userData->register(USER_ROLE);
     return $response->withJson($result, SERVER_OK);
+});
+
+$app->post('/customer/konfirmasi/register/{id_user}', function($request,$response,$args){
+    $id = $args['id_user'];
+    $userKonfirmasi = new User(null,null,null,null,null,null);
+    $userKonfirmasi->setDb($this->db);
+    $hasil = $userKonfirmasi->konfirmasiSelesai($id);
+    return $response->withJson($hasil, SERVER_OK);
 });
 
 //Customer

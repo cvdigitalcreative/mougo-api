@@ -26,6 +26,7 @@ define('LOGIN', 'login');
 define('STATUS_ONLINE', 0);
 define('STATUS_AKUN_AKTIF', 0);
 define('STATUS_AKTIF_USER', 2);
+define('STATUS_AKTIF_USER_REGISTER', 3);
 define('STATUS_DRIVER_UPLOAD_FOTO', 2);
 define('STATUS_DRIVER_AKTIF', 1);
 
@@ -82,3 +83,5 @@ define('STATUS_TOKEN_ACTIVE', 1);
 // PASSWORD AES
 define('MOUGO_CRYPTO_KEY', '0eGKi0b67fGRNJVgSDmyP+Ien68bN2KliJ6S/DlrV9M=');
 
+// MAKSIMAL EVENT
+define('EVENT_MAKSIMAL', 5);

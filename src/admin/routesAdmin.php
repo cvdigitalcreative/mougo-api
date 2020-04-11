@@ -11,9 +11,23 @@ $app->post('/admin/login/', function ($request, $response) {
 
 // ADMIN GET ALL TOPUP DAN BUKTI PEMBAYARAN
 $app->get('/admin/topup/', function ($request, $response) {
-    $admin = new Umum();
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
-    return $response->withJson($admin->getAllTopUp(), SERVER_OK);
+
+    $topup = $admin->getTopupWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($topup)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Topup Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for($i = 0 ; $i < count($topup) ; $i++ ){
+        $topup[$i]['nama'] = decrypt($topup[$i]['nama'],MOUGO_CRYPTO_KEY);
+        $topup[$i]['email'] = decrypt($topup[$i]['email'],MOUGO_CRYPTO_KEY);
+        
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->counts(), 'recordsFiltered' => count($topup), 'data' => $topup], SERVER_OK);
 });
 
 // ADMIN Accept Konfirmasi Pembayaran
@@ -32,13 +46,25 @@ $app->put('/admin/topup/reject/{id_topup}', function ($request, $response, $args
 
 // ADMIN Semua Data Driver (Belum Konfirmasi)
 $app->get('/admin/driver/', function ($request, $response) {
-    $admin = new Umum();
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
-    $data = $admin->getDriverAdmin();
-    if (empty($data)) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Driver Belum Ada Yang Mendaftar'], SERVER_OK);
+
+    $topup = $admin->getDriverAdminWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($topup)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Topup Tidak Ditemukan'], SERVER_OK);
     }
-    return $response->withJson(['status' => 'Success', 'data' => $data], SERVER_OK);
+
+    for($i = 0 ; $i < count($topup) ; $i++ ){
+        $topup[$i]['nama'] = decrypt($topup[$i]['nama'],MOUGO_CRYPTO_KEY);
+        $topup[$i]['email'] = decrypt($topup[$i]['email'],MOUGO_CRYPTO_KEY);
+        $topup[$i]['no_telpon'] = decrypt($topup[$i]['no_telpon'],MOUGO_CRYPTO_KEY);
+        $topup[$i]['no_polisi'] = decrypt($topup[$i]['no_polisi'],MOUGO_CRYPTO_KEY);
+        $topup[$i]['alamat_domisili'] = decrypt($topup[$i]['alamat_domisili'],MOUGO_CRYPTO_KEY);
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->counts(), 'recordsFiltered' => count($topup), 'data' => $topup], SERVER_OK);
 });
 
 // ADMIN Accept Driver
