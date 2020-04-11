@@ -112,11 +112,11 @@ class User {
         $result = $this->getToken();
 
         if ($user['status_akun']==3) {
-            return ['status' => 'Error', 'message' => 'Email atau No telpon salah, atau Belum Konfir  masi Akun'];
+            return ['status' => 'Error', 'message' => 'Belum Konfirmasi Akun'];
         }
 
         if (empty($result)) {
-            return ['status' => 'Error', 'message' => 'Email atau No telpon salah, atau Belum Konfirmasi Akun'];
+            return ['status' => 'Error', 'message' => 'Email atau Nomor telpon salah'];
         }
 
         $res = [
@@ -209,9 +209,8 @@ class User {
             ':foto_kk' => "-",
         ];
         $estimate = $this->db->prepare($sql);
-        if ($estimate->execute($data)) {
-            return true;
-        }return false;
+        return $estimate->execute($data);
+        
     }
 
     public function cekStatusUser($id) {
@@ -219,8 +218,7 @@ class User {
                 WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetch();
-        return $stmt;
+        return $est->fetch();
     }
 
     public function gantiStatusAkun() {
@@ -232,9 +230,8 @@ class User {
             ':id_user' => $this->getId_user()
         ];
         $est = $this->getDb()->prepare($sql);
-        if($est->execute($data)){
-            return true;
-        }return false;
+        return $est->execute($data);
+        
     }
 
     public function emailKonfirmasi($email, $nama) {
@@ -256,10 +253,9 @@ class User {
         $mail->isHTML(true);
         $mail->Subject = "MOUGO DMS Register Akun";
         $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Anda , ID ".$this->id_user;
-
-        if ($mail->send()) {
-            return true;
-        }return false;
+        
+        return $mail->send();
+        
     }
 
     public function cekUserEmailTelpon($email, $no_telpon) {
@@ -439,7 +435,7 @@ class User {
     }
 
     public function getToken() {
-        $sql = "SELECT user.id_user , token , password , status_aktif_trip FROM user
+        $sql = "SELECT user.id_user , token , password  FROM user
                         INNER JOIN api_token ON api_token.id_user = user.id_user
                         WHERE email = :email AND password = :pass OR no_telpon = :email AND password = :pass";
         $data_token = [
@@ -453,10 +449,9 @@ class User {
             return [
                 'id_user' => $stmt['id_user'],
                 'token' => $stmt['token'],
-                'password' => $stmt['password'],
-                'status_akun' => $stmt['status_aktif_trip']
+                'password' => $stmt['password']
             ];
-        }return;
+        }
     }
 
 }

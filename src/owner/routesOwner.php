@@ -23,7 +23,7 @@ $app->post('/owner/event/', function ($request, $response) {
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
     $event = $owner->getEvent();
-    if(count($event)>=5){
+    if (count($event) >= EVENT_MAKSIMAL) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Event Telah Penuh'], SERVER_OK);
     }
     $data = $request->getParsedBody();
@@ -32,7 +32,7 @@ $app->post('/owner/event/', function ($request, $response) {
         return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
     }
     $uploadedFile = $uploadedFiles['gambar'];
-    
+
     if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
         if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
