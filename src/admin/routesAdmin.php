@@ -10,7 +10,7 @@ $app->post('/admin/login/', function ($request, $response) {
 });
 
 // ADMIN GET ALL TOPUP DAN BUKTI PEMBAYARAN
-$app->get('/admin/topup/', function ($request, $response) {
+$app->post('/admin/topup/', function ($request, $response) {
     $data = $request->getParsedBody();
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
@@ -45,7 +45,7 @@ $app->put('/admin/topup/reject/{id_topup}', function ($request, $response, $args
 });
 
 // ADMIN Semua Data Driver (Belum Konfirmasi)
-$app->get('/admin/driver/', function ($request, $response) {
+$app->post('/admin/driver/', function ($request, $response) {
     $data = $request->getParsedBody();
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
