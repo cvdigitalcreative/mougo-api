@@ -46,7 +46,11 @@ $app->put('/customer/profile/{id_user}', function ($request, $response, $args) {
 $app->get('/customer/profile/{id_user}', function ($request, $response, $args) {
     $profile = new Profile(null, null, null, null, null, null, null, null, null);
     $profile->setDb($this->db);
-    return $response->withJson($profile->getDetailUser($args['id_user']), SERVER_OK);
+    $data = $profile->getDetailUser($args['id_user']);
+    if(empty($data)){
+        return $response->withJson(['status' => 'Error', 'message' => 'Profile Driver Tidak Ditemukan'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Success', 'data' => $data], SERVER_OK);
 })->add($tokenCheck);
 
 // Customer
