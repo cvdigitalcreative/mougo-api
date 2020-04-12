@@ -181,10 +181,10 @@ $app->get('/common/event/', function ($request, $response, $args) {
         return $response->withJson(['status' => 'Error' , 'message' => 'Event Tidak Ditemukan'], SERVER_OK);
     }
    
-    foreach($event as $index => $i){
-        $tanggal = $event[$index]['tanggal_event'];
+    foreach($event as $index => $value){
+        $tanggal = $value['tanggal_event'];
         $timestamp = strtotime($tanggal);
-        $timestamp = date("m-d-Y", $timestamp);
+        $timestamp = date("d-m-Y", $timestamp);
         $event[$index]['tanggal_event'] = $timestamp;
     }
     return $response->withJson(['status' => 'Success' , 'data' => $event ], SERVER_OK);
