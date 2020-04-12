@@ -46,7 +46,7 @@ $app->put('/customer/profile/{id_user}', function ($request, $response, $args) {
 $app->get('/customer/profile/{id_user}', function ($request, $response, $args) {
     $profile = new Profile(null, null, null, null, null, null, null, null, null);
     $profile->setDb($this->db);
-    $data = $profile->getDetailUser($args['id_user']);
+    $data = $profile->getAllProfile($args['id_user'],USER_ROLE);
     if(empty($data)){
         return $response->withJson(['status' => 'Error', 'message' => 'Profile Driver Tidak Ditemukan'], SERVER_OK);
     }
@@ -64,6 +64,22 @@ $app->put('/customer/user/{id_user}', function ($request, $response, $args) {
         return $response->withJson(['status' => 'Error', 'message' => 'Konfirmasi Password Anda Salah'], SERVER_OK);
     }
     return $response->withJson($profile->editUser(), SERVER_OK);
+})->add($tokenCheck);
+
+// Driver
+// Ahli Waris
+$app->post('/customer/ahli-waris/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $user = new Umum();
+    $user->setDb($this->db);
+    $waris = $user->cekAhliWaris($args['id_user']);
+    if(count($waris)>=AHLI_WARIS){
+        return $response->withJson(['status' => 'Error', 'message' => 'Ahli Waris Anda Telah Penuh'], SERVER_OK);
+    }
+    if($user->insertAhliWaris($args['id_user'],$data['nama'])){
+        return $response->withJson(['status' => 'Success', 'message' => 'Ahli Waris Anda Telah Berhasil Ditambahkan'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengisi Ahli Waris'], SERVER_OK);
 })->add($tokenCheck);
 
 //Customer

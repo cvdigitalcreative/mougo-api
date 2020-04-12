@@ -64,10 +64,10 @@ $app->put('/driver/profile/{id_user}', function ($request, $response, $args) {
 
 // Driver
 // PROFILE
-$app->get('/driver/profile/{id_user}', function ($request, $response, $args) {
+$app->get('/driver/profile/{id_user}', function ($request, $response, $args) {    
     $profile = new Profile(null, null, null, null, null, null, null, null, null);
     $profile->setDb($this->db);
-    $dataDriver = $profile->getDetailUser($args['id_user']);
+    $dataDriver = $profile->getAllProfile($args['id_user'],DRIVER_ROLE);
     if(empty($dataDriver)){
         return $response->withJson(['status' => 'Error', 'message' => 'Profile Driver Tidak Ditemukan'], SERVER_OK);
     }
@@ -87,7 +87,24 @@ $app->put('/driver/user/{id_user}', function ($request, $response, $args) {
     return $response->withJson($profile->editUser(), SERVER_OK);
 })->add($tokenCheck);
 
+// Driver
+// Ahli Waris
+$app->post('/driver/ahli-waris/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $driver = new Umum();
+    $driver->setDb($this->db);
+    $waris = $driver->cekAhliWaris($args['id_user']);
+    if(count($waris)>=AHLI_WARIS){
+        return $response->withJson(['status' => 'Error', 'message' => 'Ahli Waris Anda Telah Penuh'], SERVER_OK);
+    }
+    if($driver->insertAhliWaris($args['id_user'],$data['nama'])){
+        return $response->withJson(['status' => 'Success', 'message' => 'Ahli Waris Anda Telah Berhasil Ditambahkan'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengisi Ahli Waris'], SERVER_OK);
+})->add($tokenCheck);
+
 // UPDATE
+// POSITION
 $app->put('/driver/position/{id_user}', function ($request, $response, $args) {
     $lat = $request->getQueryParam("lat");
     $long = $request->getQueryParam("long");
