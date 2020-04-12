@@ -232,7 +232,10 @@ class Umum {
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
-        return $temp;
+        if (!empty($temp)) {
+            return ['status' => 'Success', 'data' => $temp];
+        }return ['status' => 'Error', 'message' => 'Belum ada topup'];
+
     }
 
     public function insertBuktiPembayaran($id_topup, $path) {
@@ -439,6 +442,14 @@ class Umum {
         if ($est->execute()) {
             return true;
         }return false;
+    }
+
+    public function getBank() {
+        $sql = "SELECT * FROM bank";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
     }
 
 }

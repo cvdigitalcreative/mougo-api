@@ -149,6 +149,77 @@ class User {
         }return;
     }
 
+    public function cekEditUserPassword($id,$password) {
+        $sql = "SELECT * FROM user
+                WHERE id_user = '$id' AND password = '$password'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function editUser() {
+       
+        if(!empty($this->email) || !empty($this->no_telpon)){
+            if ($this->cekUserEmailTelpon($this->email, $this->no_telpon)) {
+                return ['status' => 'Error', 'message' => 'Email atau Nomor Telepon Telah digunakan'];
+            }
+        }
+        if(!empty($this->email)){
+            $this->editUserEmailSql();
+        }
+        if(!empty($this->no_telpon)){
+            $this->editUserNoTelponSql() ;
+        }
+        if(!empty($this->nama)){
+            $this->editUserNamaSql() ;
+        }
+        if(!empty($this->password)){
+            $this->editUserpasswordSql() ;
+        }
+
+        return ['status' => 'Success', 'message' => 'Profile Telah Diupdate'];
+    }
+
+    public function editUserNamaSql() {
+        $nama = $this->nama;
+        $id = $this->id_user;
+        $sql = " UPDATE user
+                 SET nama = '$nama' 
+                 WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function editUserEmailSql() {
+        $email = $this->email;
+        $id = $this->id_user;
+        $sql = " UPDATE user
+                 SET email = '$email' 
+                 WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function editUserNoTelponSql() {
+        $no_telpon = $this->no_telpon;
+        $id = $this->id_user;
+        $sql = " UPDATE user
+                 SET no_telpon = '$no_telpon' 
+                 WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function editUserPasswordSql() {
+        $password = $this->password;
+        $id = $this->id_user;
+        $sql = " UPDATE user
+                 SET password = '$password' 
+                 WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
     private function isDataValid($type) {
         switch ($type) {
             case LOGIN:
@@ -202,7 +273,7 @@ class User {
             ':no_ktp' => "-",
             ':provinsi' => "-",
             ':kota' => "-",
-            ':bank' => "-",
+            ':bank' => 0,
             ':no_rekening' => "-",
             ':atas_nama_bank' => "-",
             ':foto_ktp' => "-",
@@ -252,7 +323,7 @@ class User {
         $mail->addAddress($email, $nama);
         $mail->isHTML(true);
         $mail->Subject = "MOUGO DMS Register Akun";
-        $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Anda , ID ".$this->id_user;
+        $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Anda , http://45.114.118.64/mougo-api/public/driver/konfirmasi/register/".$this->id_user;
         
         return $mail->send();
         
