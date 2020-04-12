@@ -2,6 +2,7 @@
 require_once dirname(__FILE__) . '/../randomGen.php';
 require_once dirname(__FILE__) . '/../entity/Driver.php';
 require_once dirname(__FILE__) . '/../entity/Umum.php';
+require_once dirname(__FILE__) . '/../entity/Profile.php';
 
 // Driver
 // REGISTER
@@ -24,12 +25,12 @@ $app->post('/driver/register/', function ($request, $response) {
         return $response->withJson($resultDriver, SERVER_OK);
     }
 
-    return $response->withJson($resultUser, SERVER_OK);
+    return $response->withJson($resultDriver, SERVER_OK);
 });
 
-$app->post('/driver/konfirmasi/register/{id_user}', function($request,$response,$args){
+$app->post('/driver/konfirmasi/register/{id_user}', function ($request, $response, $args) {
     $id = $args['id_user'];
-    $userKonfirmasi = new User(null,null,null,null,null,null);
+    $userKonfirmasi = new User(null, null, null, null, null, null);
     $userKonfirmasi->setDb($this->db);
     $hasil = $userKonfirmasi->konfirmasiSelesai($id);
     return $response->withJson($hasil, SERVER_OK);
@@ -44,6 +45,43 @@ $app->post('/driver/login/', function ($request, $response) {
     $result = $user->login(DRIVER_ROLE);
     return $response->withJson($result, SERVER_OK);
 });
+
+// Driver
+// PROFILE
+$app->put('/driver/profile/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $driver = new Driver(null, null, null, null, null);
+    $driver->setDb($this->db);
+    $data_driver = $driver->getProfileDriver($args['id_user']);
+    $ktp = $data['no_ktp'];
+    if ($data_driver['status_akun_aktif'] == STATUS_DRIVER_AKTIF) {
+        $ktp = null;
+    }
+    $profile = new Profile($args['id_user'], $ktp, $data['provinsi'], $data['kota'], $data['bank'], $data['no_rekening'], $data['atas_nama_bank'], null, null);
+    $profile->setDb($this->db);
+    return $response->withJson($profile->inputProfile(PROFILE_DRIVER), SERVER_OK);
+})->add($tokenCheck);
+
+// Driver
+// PROFILE
+$app->get('/driver/profile/{id_user}', function ($request, $response, $args) {
+    $profile = new Profile(null, null, null, null, null, null, null, null, null);
+    $profile->setDb($this->db);
+    return $response->withJson($profile->getDetailUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// Driver
+// USER
+$app->put('/driver/user/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $profile = new User(null, $data['email'], $data['no_telpon'], $data['password'], null, null);
+    $profile->setId_user($args['id_user']);
+    $profile->setDb($this->db);
+    if (empty($profile->cekEditUserPassword($args['id_user'], $data['konfirmasi_password']))) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Konfirmasi Password Anda Salah'], SERVER_OK);
+    }
+    return $response->withJson($profile->editUser(), SERVER_OK);
+})->add($tokenCheck);
 
 // UPDATE
 $app->put('/driver/position/{id_user}', function ($request, $response, $args) {

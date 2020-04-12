@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/../randomGen.php';
 require_once dirname(__FILE__) . '/../entity/User.php';
 require_once dirname(__FILE__) . '/../entity/Trip.php';
-
+require_once dirname(__FILE__) . '/../entity/Profile.php';
 
 //Customer
 //REGISTER
@@ -14,9 +14,9 @@ $app->post('/customer/register/', function ($request, $response) {
     return $response->withJson($result, SERVER_OK);
 });
 
-$app->post('/customer/konfirmasi/register/{id_user}', function($request,$response,$args){
+$app->post('/customer/konfirmasi/register/{id_user}', function ($request, $response, $args) {
     $id = $args['id_user'];
-    $userKonfirmasi = new User(null,null,null,null,null,null);
+    $userKonfirmasi = new User(null, null, null, null, null, null);
     $userKonfirmasi->setDb($this->db);
     $hasil = $userKonfirmasi->konfirmasiSelesai($id);
     return $response->withJson($hasil, SERVER_OK);
@@ -31,6 +31,36 @@ $app->post('/customer/login/', function ($request, $response) {
     $result = $user->login(USER_ROLE);
     return $response->withJson($result, SERVER_OK);
 });
+
+// Customer
+// PROFILE
+$app->put('/customer/profile/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $profile = new Profile($args['id_user'], $data['no_ktp'], $data['provinsi'], $data['kota'], $data['bank'], $data['no_rekening'], $data['atas_nama_bank'], null, null);
+    $profile->setDb($this->db);
+    return $response->withJson($profile->inputProfile(PROFILE), SERVER_OK);
+})->add($tokenCheck);
+
+// Customer
+// PROFILE
+$app->get('/customer/profile/{id_user}', function ($request, $response, $args) {
+    $profile = new Profile(null, null, null, null, null, null, null, null, null);
+    $profile->setDb($this->db);
+    return $response->withJson($profile->getDetailUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// Customer
+// USER
+$app->put('/customer/user/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $profile = new User($data['nama'], $data['email'], $data['no_telpon'], $data['password'],  null, null);
+    $profile->setId_user($args['id_user']);
+    $profile->setDb($this->db);
+    if(empty($profile->cekEditUserPassword($args['id_user'],$data['konfirmasi_password']))){
+        return $response->withJson(['status' => 'Error', 'message' => 'Konfirmasi Password Anda Salah'], SERVER_OK);
+    }
+    return $response->withJson($profile->editUser(), SERVER_OK);
+})->add($tokenCheck);
 
 //Customer
 //Trip

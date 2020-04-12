@@ -21,6 +21,9 @@ define('TAMBAH_SALDO', 1);
 // FUNGSI USER
 define('REGISTER', 'register');
 define('LOGIN', 'login');
+define('PROFILE', 'profile');
+
+define('PROFILE_DRIVER', 'profile_driver');
 
 // DRIVER
 define('STATUS_ONLINE', 0);
@@ -85,3 +88,7 @@ define('MOUGO_CRYPTO_KEY', '0eGKi0b67fGRNJVgSDmyP+Ien68bN2KliJ6S/DlrV9M=');
 
 // MAKSIMAL EVENT
 define('EVENT_MAKSIMAL', 5);
+
+// Foto Role
+define('FOTO_KTP', 0);
+define('FOTO_KK', 1);

@@ -189,3 +189,12 @@ $app->get('/common/event/', function ($request, $response, $args) {
     }
     return $response->withJson(['status' => 'Success' , 'data' => $event ], SERVER_OK);
 });
+
+// UMUM
+// GET Bank
+$app->get('/common/bank/', function ($request, $response, $args) {
+    $getbank = new Umum();
+    $getbank->setDb($this->db);
+    $bank = $getbank->getBank();
+    return $response->withJson(['status' => 'Success' , 'data' => $bank ], SERVER_OK);
+});
