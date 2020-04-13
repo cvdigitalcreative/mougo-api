@@ -88,8 +88,8 @@ class Driver extends User {
     }
 
     public function insertDriver() {
-        $sql_driver = "INSERT INTO driver (id_user , status_online , no_polisi , cabang , alamat_domisili , merk_kendaraan , jenis_kendaraan , status_akun_aktif , foto_skck , foto_sim , foto_stnk)
-                                VALUES (:id_user , :status_online , :no_polisi , :cabang , :alamat_domisili , :merk_kendaraan , :jenis_kendaraan , :status_akun_aktif , '' , '' , '')";
+        $sql_driver = "INSERT INTO driver (id_user , status_online , no_polisi , cabang , alamat_domisili , merk_kendaraan , jenis_kendaraan , status_akun_aktif , foto_skck , foto_sim , foto_stnk , foto_diri)
+                                VALUES (:id_user , :status_online , :no_polisi , :cabang , :alamat_domisili , :merk_kendaraan , :jenis_kendaraan , :status_akun_aktif , '-' , '-' , '-' , '-')";
         $data_driver = [
             ':id_user' => $this->getId_user(),
             ':status_online' => STATUS_ONLINE,
