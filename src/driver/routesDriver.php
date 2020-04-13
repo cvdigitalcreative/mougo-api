@@ -103,6 +103,126 @@ $app->post('/driver/ahli-waris/{id_user}', function ($request, $response, $args)
     return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengisi Ahli Waris'], SERVER_OK);
 })->add($tokenCheck);
 
+// Driver
+// FOTO KTP
+$app->post('/driver/foto_ktp/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoCustomer($args['id_user']);
+    if($data['foto_ktp']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_ktp'];
+    $path_name = "../assets/foto/ktp/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KTP, $directory, $path_name), SERVER_OK);
+
+})->add($tokenCheck);
+
+// Driver
+// FOTO KK
+$app->post('/driver/foto_kk/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoCustomer($args['id_user']);
+    if($data['foto_kk']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_kk'];
+    $path_name = "../assets/foto/kk/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KK, $directory, $path_name), SERVER_OK);
+
+})->add($tokenCheck);
+
+// Driver
+// FOTO DIRI
+$app->post('/driver/foto_diri/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoDriver($args['id_user']);
+    if($data['foto_diri']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_diri'];
+    $path_name = "../assets/foto/diri/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_DIRI, $directory, $path_name), SERVER_OK);
+
+})->add($tokenCheck);
+
+// Driver
+// FOTO SIM
+$app->post('/driver/foto_sim/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoDriver($args['id_user']);
+    if($data['foto_sim']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_sim'];
+    $path_name = "../assets/foto/sim/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_SIM, $directory, $path_name), SERVER_OK);
+
+})->add($tokenCheck);
+
+// Driver
+// FOTO SIM
+$app->post('/driver/foto_skck/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoDriver($args['id_user']);
+    if($data['foto_skck']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_skck'];
+    $path_name = "../assets/foto/skck/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_SKCK, $directory, $path_name), SERVER_OK);
+
+})->add($tokenCheck);
+
+// Driver
+// FOTO SIM
+$app->post('/driver/foto_stnk/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoDriver($args['id_user']);
+    if($data['foto_stnk']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_stnk'];
+    $path_name = "../assets/foto/stnk/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_STNK, $directory, $path_name), SERVER_OK);
+
+})->add($tokenCheck);
+
 // UPDATE
 // POSITION
 $app->put('/driver/position/{id_user}', function ($request, $response, $args) {

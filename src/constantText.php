@@ -92,6 +92,11 @@ define('EVENT_MAKSIMAL', 5);
 // Foto Role
 define('FOTO_KTP', 0);
 define('FOTO_KK', 1);
+define('FOTO_SKCK', 2);
+define('FOTO_DIRI', 3);
+define('FOTO_SIM', 4);
+define('FOTO_STNK', 5);
+
 
 // AHLI WARIS MAKS
 define('AHLI_WARIS', 4);
