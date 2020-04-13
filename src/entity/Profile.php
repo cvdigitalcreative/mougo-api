@@ -133,17 +133,21 @@ class Profile {
         $data = $est->fetch();
         $waris = $this->getAhliWaris($id_user);
         if(!empty($waris)){
-            foreach($waris as $index => $value){
-                $data['ahli_waris'][$index] = $value;
+            for($i=0;$i<count($waris);$i++){
+                $data['ahli_waris'][$i]['id'] =(int) $waris[$i]['id'];
+                $data['ahli_waris'][$i]['nama_ahliwaris'] = $waris[$i]['nama_ahliwaris'];
             }
         }else{
             $data['ahli_waris']=[];
         }
+        $data['kode_bank'] = (int) $data['kode_bank'];
+        $data['jumlah_saldo'] = (double) $data['jumlah_saldo'];
+        $data['jumlah_point'] = (double) $data['jumlah_point'];
         return $data;
     }
 
     public function getAhliWaris($id_user) {
-        $sql = "SELECT * FROM ahli_waris
+        $sql = "SELECT id, nama_ahliwaris FROM ahli_waris
                 WHERE id_user = '$id_user'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
