@@ -174,10 +174,10 @@ class Admin {
 
     public function getDriverQuery($order_by, $order, $search) {
         $sql = "SELECT * FROM user
-                INNER JOIN driver ON driver.id_user = user.id_user
-                INNER JOIN cabang ON cabang.id = driver.cabang
-                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
-                WHERE driver.foto_skck AND driver.foto_sim AND driver.foto_stnk IS NOT NULL AND driver.status_akun_aktif = 0 ";
+        INNER JOIN driver ON driver.id_user = user.id_user
+        INNER JOIN cabang ON cabang.id = driver.cabang
+        INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+        WHERE driver.foto_skck AND driver.foto_sim AND driver.foto_stnk AND driver.foto_diri <> '-' AND driver.status_akun_aktif = 0 ";
         // foreach ($this->column_driver as $index => $value) {
         //     if (!empty($search)) {
         //         if ($index === 0) {

@@ -367,14 +367,38 @@ class Umum {
         }return false;
     }
 
-    public function getDriverAdmin() {
-        $sql = "SELECT * FROM user
-                INNER JOIN driver ON driver.id_user = user.id_user
-                WHERE driver.foto_skck AND driver.foto_sim AND driver.foto_stnk IS NOT NULL AND driver.status_akun_aktif = 0";
+    public function getDriverAdmin($id_user) {
+        $sql = "SELECT * FROM driver
+                WHERE id_user = '$id_user'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetchAll();
+        $stmt = $est->fetch();
         return $stmt;
+    }
+
+    public function deleteDriverFoto($id_user) {
+        $sql = "UPDATE driver
+                SET foto_skck = '-', foto_sim = '-', foto_stnk = '-',foto_diri = '-'
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function rejectDriver($id_user) {
+        $data = $this->getDriverAdmin($id_user);
+        if($data['status_akun_aktif']==STATUS_DRIVER_AKTIF){
+            return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Diterima Oleh Admin'];
+        }
+        if ($data['foto_skck'] == '-' && $data['foto_stnk'] == '-' && $data['foto_sim'] == '-' && $data['foto_diri'] == '-') {
+            return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Direject Oleh Admin'];
+        }
+        if (unlink($data['foto_skck']) && unlink($data['foto_stnk']) && unlink($data['foto_sim']) && unlink($data['foto_diri'])) {
+            if (!$this->deleteDriverFoto($id_user)) {
+                return ['status' => 'Error', 'message' => 'Gagal Reject Driver'];
+            }
+        }
+        return ['status' => 'Success', 'message' => 'Berhasil Reject Driver'];
+   
     }
 
     public function editDriverStatus($id_driver, $status) {
