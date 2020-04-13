@@ -111,11 +111,15 @@ class Profile {
     }
 
     public function getAllProfile($id_user,$role) {
-        $sql = "SELECT * FROM user
-                INNER JOIN detail_user ON detail_user.id_user = user.id_user ";
+        $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, user.status_aktif_trip, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank  FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user 
+                INNER JOIN bank ON bank.code = detail_user.bank ";
         
         if($role==DRIVER_ROLE){
-            $sql = $sql."INNER JOIN driver ON driver.id_user = user.id_user ";
+            $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, user.status_aktif_trip, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank , cabang.id AS id_cabang , cabang.cabang FROM user
+            INNER JOIN detail_user ON detail_user.id_user = user.id_user 
+            INNER JOIN bank ON bank.code = detail_user.bank INNER JOIN driver ON driver.id_user = user.id_user
+                         INNER JOIN cabang ON driver.cabang = cabang.id  ";
         }
 
         $sql = $sql." WHERE user.id_user = '$id_user' ";
