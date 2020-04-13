@@ -111,16 +111,21 @@ class Profile {
     }
 
     public function getAllProfile($id_user,$role) {
-        $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, user.status_aktif_trip, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank  FROM user
-                INNER JOIN detail_user ON detail_user.id_user = user.id_user 
-                INNER JOIN bank ON bank.code = detail_user.bank ";
+        $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, user.status_aktif_trip, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank, saldo.jumlah_saldo, point.jumlah_point, kode_referal.kode_referal, kode_sponsor.kode_sponsor  FROM user
+                ";
         
         if($role==DRIVER_ROLE){
-            $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, user.status_aktif_trip, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank , cabang.id AS id_cabang , cabang.cabang FROM user
-            INNER JOIN detail_user ON detail_user.id_user = user.id_user 
-            INNER JOIN bank ON bank.code = detail_user.bank INNER JOIN driver ON driver.id_user = user.id_user
-                         INNER JOIN cabang ON driver.cabang = cabang.id  ";
+            $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank , cabang.id AS id_cabang , cabang.cabang, saldo.jumlah_saldo, point.jumlah_point, driver.foto_diri, driver.foto_skck, driver.foto_sim, driver.foto_stnk, kode_referal.kode_referal, kode_sponsor.kode_sponsor FROM user
+            INNER JOIN driver ON driver.id_user = user.id_user
+            INNER JOIN cabang ON driver.cabang = cabang.id  ";
         }
+
+        $sql = $sql." INNER JOIN detail_user ON detail_user.id_user = user.id_user 
+        INNER JOIN bank ON bank.code = detail_user.bank 
+        INNER JOIN saldo ON saldo.id_user = user.id_user
+        INNER JOIN point ON point.id_user = user.id_user
+        INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+        INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user ";
 
         $sql = $sql." WHERE user.id_user = '$id_user' ";
         $est = $this->getDb()->prepare($sql);
