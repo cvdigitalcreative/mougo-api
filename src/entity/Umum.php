@@ -468,4 +468,72 @@ class Umum {
         return $stmt;
     }
 
+    public function uploadFileFoto($id_user, $uploadedFile, $role, $directory, $path_name) {
+        if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+            $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+            if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
+                return ['status' => 'Error', 'message' => 'Gambar Event Harus JPG atau PNG'];
+            }
+            $filename = $id_user . "." . $extension;
+            $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+            $path_name = $path_name . $filename;
+            if ($this->updateFoto($id_user, $path_name, $role)) {
+                return ['status' => 'Success', 'message' => 'Foto Berhasil Diupload'];
+            }
+        }
+    }
+
+    public function updateFoto($id, $path, $role) {
+        if ($role == FOTO_KTP || $role == FOTO_KK) {
+            $sql = "UPDATE detail_user ";
+        }
+        if ($role == FOTO_SIM || $role == FOTO_DIRI || $role == FOTO_SKCK || $role == FOTO_STNK) {
+            $sql = "UPDATE driver ";
+        }
+        if ($role == FOTO_KTP) {
+            $sql = $sql . "SET foto_ktp = '$path'
+            WHERE id_user = '$id'";
+        }
+        if ($role == FOTO_KK) {
+            $sql = $sql . "SET foto_kk = '$path'
+            WHERE id_user = '$id'";
+        }
+        if ($role == FOTO_SIM) {
+            $sql = $sql . "SET foto_sim = '$path'
+            WHERE id_user = '$id'";
+        }
+        if ($role == FOTO_DIRI) {
+            $sql = $sql . "SET foto_diri = '$path'
+            WHERE id_user = '$id'";
+        }
+        if ($role == FOTO_SKCK) {
+            $sql = $sql . "SET foto_skck = '$path'
+            WHERE id_user = '$id'";
+        }
+        if ($role == FOTO_STNK) {
+            $sql = $sql . "SET foto_stnk = '$path'
+            WHERE id_user = '$id'";
+        }
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function cekFotoCustomer($id) {
+        $sql = "SELECT * FROM detail_user
+                WHERE id_user ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function cekFotoDriver($id) {
+        $sql = "SELECT * FROM driver
+                WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
 }

@@ -66,7 +66,7 @@ $app->put('/customer/user/{id_user}', function ($request, $response, $args) {
     return $response->withJson($profile->editUser(), SERVER_OK);
 })->add($tokenCheck);
 
-// Driver
+// Customer
 // Ahli Waris
 $app->post('/customer/ahli-waris/{id_user}', function ($request, $response, $args) {
     $data = $request->getParsedBody();
@@ -80,6 +80,46 @@ $app->post('/customer/ahli-waris/{id_user}', function ($request, $response, $arg
         return $response->withJson(['status' => 'Success', 'message' => 'Ahli Waris Anda Telah Berhasil Ditambahkan'], SERVER_OK);
     }
     return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengisi Ahli Waris'], SERVER_OK);
+})->add($tokenCheck);
+
+// Customer
+// FOTO KTP
+$app->post('/customer/foto_ktp/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoCustomer($args['id_user']);
+    if($data['foto_ktp']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_ktp'];
+    $path_name = "../assets/foto/ktp/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KTP, $directory, $path_name), SERVER_OK);
+
+})->add($tokenCheck);
+
+// Customer
+// FOTO KK
+$app->post('/customer/foto_kk/{id_user}', function ($request, $response, $args) {
+    $foto = new Umum();
+    $foto->setDb($this->db);
+    $data = $foto->cekFotoCustomer($args['id_user']);
+    if($data['foto_kk']!='-'){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
+    }
+    $uploadedFiles = $request->getUploadedFiles();
+    if (empty($uploadedFiles['gambar']->file)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    $uploadedFile = $uploadedFiles['gambar'];
+    $directory = $this->get('settings')['upload_dir_foto_kk'];
+    $path_name = "../assets/foto/kk/";
+   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KK, $directory, $path_name), SERVER_OK);
+
 })->add($tokenCheck);
 
 //Customer
