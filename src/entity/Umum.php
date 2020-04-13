@@ -253,6 +253,22 @@ class Umum {
 
     }
 
+    public function insertAhliWaris($id_user, $nama_waris) {
+        $sql = "INSERT INTO ahli_waris(nama_ahliwaris,id_user)
+                VALUE ('$nama_waris','$id_user')";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function cekAhliWaris($id_user) {
+        $sql = "SELECT * FROM ahli_waris
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
     public function topupUpdate($id, $status) {
         $data_topup = $this->getDetailTopup($id);
         if (empty($data_topup)) {

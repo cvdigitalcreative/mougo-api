@@ -52,7 +52,7 @@ class Profile {
             return ['status' => 'Error', 'message' => 'ID tidak ditemukan'];
         }
         if ($status == PROFILE_DRIVER) {
-            if($this->no_ktp==null){
+            if ($this->no_ktp == null) {
                 if ($this->insertDetailUserDriver()) {
                     return ['status' => 'Success', 'message' => 'Profile Berhasil Terupdate'];
                 }
@@ -109,4 +109,36 @@ class Profile {
         $est = $this->getDb()->prepare($sql);
         return $est->execute($data);
     }
+
+    public function getAllProfile($id_user,$role) {
+        $sql = "SELECT * FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user ";
+        
+        if($role==DRIVER_ROLE){
+            $sql = $sql."INNER JOIN driver ON driver.id_user = user.id_user ";
+        }
+
+        $sql = $sql." WHERE user.id_user = '$id_user' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $data = $est->fetch();
+        $waris = $this->getAhliWaris($id_user);
+        if(!empty($waris)){
+            foreach($waris as $index => $value){
+                $data['ahli_waris'][$index] = $value;
+            }
+        }else{
+            $data['ahli_waris']=[];
+        }
+        return $data;
+    }
+
+    public function getAhliWaris($id_user) {
+        $sql = "SELECT * FROM ahli_waris
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
 }
