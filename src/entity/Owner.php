@@ -61,7 +61,18 @@ class Owner {
     }
 
     public function getEvent(){
-        $sql = "SELECT * FROM event  ";
+        $sql = "SELECT * FROM event ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+        
+    }
+
+    public function getEventCommon(){
+        $sql = "SELECT * FROM event 
+                ORDER BY tanggal_event DESC
+                LIMIT 5";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();

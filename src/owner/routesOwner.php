@@ -46,3 +46,22 @@ $app->post('/owner/event/', function ($request, $response) {
     }return $response->withJson($owner->inputEvent($data['judul'], $data['deskripsi'], $path_name), SERVER_OK);
 
 });
+
+// UMUM
+// GET Event
+$app->get('/owner/event/', function ($request, $response, $args) {
+    $getevent = new Owner(null,null);
+    $getevent->setDb($this->db);
+    $event = $getevent->getEvent();
+    if(empty($event)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Event Tidak Ditemukan'], SERVER_OK);
+    }
+   
+    foreach($event as $index => $value){
+        $tanggal = $value['tanggal_event'];
+        $timestamp = strtotime($tanggal);
+        $timestamp = date("d-m-Y", $timestamp);
+        $event[$index]['tanggal_event'] = $timestamp;
+    }
+    return $response->withJson(['status' => 'Success' , 'data' => $event ], SERVER_OK);
+});

@@ -176,7 +176,7 @@ $app->get('/common/saldo/{id_user}', function ($request, $response, $args) {
 $app->get('/common/event/', function ($request, $response, $args) {
     $getevent = new Owner(null,null);
     $getevent->setDb($this->db);
-    $event = $getevent->getEvent();
+    $event = $getevent->getEventCommon();
     if(empty($event)){
         return $response->withJson(['status' => 'Error' , 'message' => 'Event Tidak Ditemukan'], SERVER_OK);
     }

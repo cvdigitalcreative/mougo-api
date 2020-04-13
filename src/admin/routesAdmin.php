@@ -58,7 +58,7 @@ $app->post('/admin/driver/', function ($request, $response) {
     $topup = $admin->getDriverAdminWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
 
     if (empty($topup)) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Topup Tidak Ditemukan'], SERVER_OK);
+        return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
     }
 
     $dataDriver = [];
@@ -82,4 +82,11 @@ $app->put('/admin/driver/accept/{id_user}', function ($request, $response, $args
     $admin = new Umum();
     $admin->setDb($this->db);
     return $response->withJson($admin->editDriverStatus($args['id_user'], STATUS_DRIVER_AKTIF), SERVER_OK);
+});
+
+// ADMIN Accept Driver
+$app->put('/admin/driver/reject/{id_user}', function ($request, $response, $args) {
+    $admin = new Umum();
+    $admin->setDb($this->db);
+    return $response->withJson($admin->rejectDriver($args['id_user']), SERVER_OK);
 });
