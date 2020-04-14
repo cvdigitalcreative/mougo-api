@@ -418,7 +418,7 @@ class Umum {
         if (file_exists($data['foto_ktp'])) {
             unlink($data['foto_ktp']);
         }
-        if($this->deleteUserFoto($id)){
+        if ($this->deleteUserFoto($id)) {
             return ['status' => 'Success', 'message' => 'Berhasil Mereset Foto KK dan KTP'];
         }return ['status' => 'Error', 'message' => 'Gagal Mereset Foto KK dan KTP'];
     }
@@ -582,6 +582,16 @@ class Umum {
         $est->execute();
         $stmt = $est->fetch();
         return $stmt;
+    }
+
+    public function deleteWaris($id_user,$id) {
+        $sql = "DELETE FROM ahli_waris
+                WHERE id_user = '$id_user' AND id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()){
+            return ['status' => 'Success', 'message' => 'Berhasil Menghapus Ahli Waris'];
+        }
+        return ['status' => 'Error', 'message' => 'Gagal Menghapus Ahli Waris'];
     }
 
 }

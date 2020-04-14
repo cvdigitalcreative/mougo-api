@@ -88,22 +88,6 @@ $app->put('/driver/user/{id_user}', function ($request, $response, $args) {
 })->add($tokenCheck);
 
 // Driver
-// Ahli Waris
-$app->post('/driver/ahli-waris/{id_user}', function ($request, $response, $args) {
-    $data = $request->getParsedBody();
-    $driver = new Umum();
-    $driver->setDb($this->db);
-    $waris = $driver->cekAhliWaris($args['id_user']);
-    if(count($waris)>=AHLI_WARIS){
-        return $response->withJson(['status' => 'Error', 'message' => 'Ahli Waris Anda Telah Penuh'], SERVER_OK);
-    }
-    if($driver->insertAhliWaris($args['id_user'],$data['nama'])){
-        return $response->withJson(['status' => 'Success', 'message' => 'Ahli Waris Anda Telah Berhasil Ditambahkan'], SERVER_OK);
-    }
-    return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengisi Ahli Waris'], SERVER_OK);
-})->add($tokenCheck);
-
-// Driver
 // FOTO KTP
 $app->post('/driver/foto_ktp/{id_user}', function ($request, $response, $args) {
     $foto = new Umum();

@@ -78,22 +78,6 @@ $app->put('/customer/user/{id_user}', function ($request, $response, $args) {
 })->add($tokenCheck);
 
 // Customer
-// Ahli Waris
-$app->post('/customer/ahli-waris/{id_user}', function ($request, $response, $args) {
-    $data = $request->getParsedBody();
-    $user = new Umum();
-    $user->setDb($this->db);
-    $waris = $user->cekAhliWaris($args['id_user']);
-    if(count($waris)>=AHLI_WARIS){
-        return $response->withJson(['status' => 'Error', 'message' => 'Ahli Waris Anda Telah Penuh'], SERVER_OK);
-    }
-    if($user->insertAhliWaris($args['id_user'],$data['nama'])){
-        return $response->withJson(['status' => 'Success', 'message' => 'Ahli Waris Anda Telah Berhasil Ditambahkan'], SERVER_OK);
-    }
-    return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengisi Ahli Waris'], SERVER_OK);
-})->add($tokenCheck);
-
-// Customer
 // FOTO KTP
 $app->post('/customer/foto_ktp/{id_user}', function ($request, $response, $args) {
     $foto = new Umum();
