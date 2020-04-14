@@ -311,3 +311,11 @@ $app->get('/driver/trip/position/', function ($request, $response) {
     }
     return $response->withJson(['status' => 'Error', 'jarak' => $jarak], SERVER_OK);
 })->add($tokenCheck);
+
+// DRIVER
+// SET STATUS
+$app->put('/driver/status/{status}/{id_user}', function ($request, $response, $args) {
+    $driver = new Driver(null, null, null, null, null);
+    $driver->setDb($this->db);
+    return $response->withJson($driver->updateStatus($args['id_user'],$args['status']), SERVER_OK);
+})->add($tokenCheck);
