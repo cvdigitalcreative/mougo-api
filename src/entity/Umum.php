@@ -496,9 +496,10 @@ class Umum {
         if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
             $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
             if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
-                return ['status' => 'Error', 'message' => 'Gambar Event Harus JPG atau PNG'];
+                return ['status' => 'Error', 'message' => 'Gambar Yang Dipilih Harus JPG atau PNG'];
             }
             $filename = $id_user . "." . $extension;
+            if(file_exists("$directory/$filename")) unlink("$directory/$filename");
             $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
             $path_name = $path_name . $filename;
             if ($this->updateFoto($id_user, $path_name, $role)) {
