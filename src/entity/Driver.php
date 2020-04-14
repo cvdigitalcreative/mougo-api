@@ -106,4 +106,34 @@ class Driver extends User {
         }return false;
     }
 
+    public function updateStatus($id_user, $status) {
+        $data_driver = $this->getProfileDriver($id_user);
+        if (empty($data_driver)) {
+            return ['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'];
+        }
+        if ($data_driver['status_akun_aktif'] == STATUS_ONLINE) {
+            return ['status' => 'Error', 'message' => 'Driver Belum Diverifikasi Oleh Admin'];
+        }
+        if ($status == STATUS_ONLINE) {
+            if($this->setStatus($id_user,STATUS_ONLINE)){
+                return ['status' => 'Success', 'message' => 'Driver Telah Offline'];
+            }
+        }
+        if ($status == STATUS_DRIVER_AKTIF) {
+            if($this->setStatus($id_user,STATUS_DRIVER_AKTIF)){
+                return ['status' => 'Success', 'message' => 'Driver Telah Online'];
+            }
+        }
+        return ['status' => 'Error', 'message' => 'Gagal set Status Driver'];
+
+    }
+
+    public function setStatus($id,$status) {
+        $sql = "UPDATE driver
+        SET status_online = '$status'
+        WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
 }
