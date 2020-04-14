@@ -214,3 +214,10 @@ $app->get('/common/ahli-waris/{id_user}', function ($request, $response, $args) 
     }
     return $response->withJson(['status' => 'Success' , 'data' => $data ], SERVER_OK);
 })->add($tokenCheck);
+
+// DELETE FOTO KTP KK USER
+$app->delete('/common/foto/{id_user}', function ($request, $response, $args) {
+    $comon = new Umum();
+    $comon->setDb($this->db);
+    return $response->withJson($comon->resetFoto($args['id_user']), SERVER_OK);
+});
