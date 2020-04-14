@@ -60,10 +60,21 @@ $app->put('/customer/user/{id_user}', function ($request, $response, $args) {
     $profile = new User($data['nama'], $data['email'], $data['no_telpon'], $data['password'],  null, null);
     $profile->setId_user($args['id_user']);
     $profile->setDb($this->db);
-    if(empty($profile->cekEditUserPassword($args['id_user'],$data['konfirmasi_password']))){
+    $data_user = $profile->cekEditUserPassword($args['id_user'],$data['konfirmasi_password']);
+    if(empty($data_user)){
         return $response->withJson(['status' => 'Error', 'message' => 'Konfirmasi Password Anda Salah'], SERVER_OK);
     }
-    return $response->withJson($profile->editUser(), SERVER_OK);
+    
+    if($data_user['email'] == $data['email']){
+        $data['email'] = null;
+    }
+    if($data_user['no_telpon'] == $data['no_telpon']){
+        $data['no_telpon'] = null;
+    }
+    $profiles = new User($data['nama'], $data['email'], $data['no_telpon'], $data['password'],  null, null);
+    $profiles->setId_user($args['id_user']);
+    $profiles->setDb($this->db);
+    return $response->withJson($profiles->editUser(), SERVER_OK);
 })->add($tokenCheck);
 
 // Customer
