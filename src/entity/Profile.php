@@ -115,7 +115,7 @@ class Profile {
                 ";
         
         if($role==DRIVER_ROLE){
-            $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank , cabang.id AS id_cabang , cabang.cabang, saldo.jumlah_saldo, point.jumlah_point, driver.foto_diri, driver.foto_skck, driver.foto_sim, driver.foto_stnk, kode_referal.kode_referal, kode_sponsor.kode_sponsor FROM user
+            $sql = "SELECT user.id_user, user.nama, user.email, user.no_telpon, detail_user.no_ktp, detail_user.provinsi, detail_user.kota, detail_user.no_rekening, detail_user.atas_nama_bank, detail_user.foto_ktp, detail_user.foto_kk, bank.code AS kode_bank, bank.name AS nama_bank , cabang.id AS id_cabang , cabang.cabang, saldo.jumlah_saldo, point.jumlah_point, driver.foto_diri, driver.foto_skck, driver.foto_sim, driver.foto_stnk, kode_referal.kode_referal, kode_sponsor.kode_sponsor, driver.status_akun_aktif FROM user
             INNER JOIN driver ON driver.id_user = user.id_user
             INNER JOIN cabang ON driver.cabang = cabang.id  ";
         }
@@ -139,6 +139,9 @@ class Profile {
             }
         }else{
             $data['ahli_waris']=[];
+        }
+        if($role == DRIVER_ROLE){
+            $data['status_akun_aktif'] = (int) $data['status_akun_aktif'];
         }
         $data['kode_bank'] = (int) $data['kode_bank'];
         $data['jumlah_saldo'] = (double) $data['jumlah_saldo'];

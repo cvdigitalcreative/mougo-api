@@ -198,3 +198,19 @@ $app->get('/common/bank/', function ($request, $response, $args) {
     $bank = $getbank->getBank();
     return $response->withJson(['status' => 'Success' , 'data' => $bank ], SERVER_OK);
 });
+
+// UMUM
+// GET Ahli Waris
+$app->get('/common/ahli-waris/{id_user}', function ($request, $response, $args) {
+    $profile = new Profile(null, null, null, null, null, null, null, null, null);
+    $profile->setDb($this->db);
+    $waris = $profile->getAhliWaris($args['id_user']);
+    if(empty($waris)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Ahli Waris Belum Ditambahkan' ], SERVER_OK);
+    }
+    for($i=0;$i<count($waris);$i++){
+        $data[$i]['id'] =(int) $waris[$i]['id'];
+        $data[$i]['nama_ahliwaris'] = $waris[$i]['nama_ahliwaris'];
+    }
+    return $response->withJson(['status' => 'Success' , 'data' => $data ], SERVER_OK);
+})->add($tokenCheck);
