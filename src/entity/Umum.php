@@ -386,7 +386,7 @@ class Umum {
 
     public function rejectDriver($id_user) {
         $data = $this->getDriverAdmin($id_user);
-        if($data['status_akun_aktif']==STATUS_DRIVER_AKTIF){
+        if ($data['status_akun_aktif'] == STATUS_DRIVER_AKTIF) {
             return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Diterima Oleh Admin'];
         }
         if ($data['foto_skck'] == '-' && $data['foto_stnk'] == '-' && $data['foto_sim'] == '-' && $data['foto_diri'] == '-') {
@@ -398,7 +398,6 @@ class Umum {
             }
         }
         return ['status' => 'Success', 'message' => 'Berhasil Reject Driver'];
-   
     }
 
     public function editDriverStatus($id_driver, $status) {
@@ -409,6 +408,27 @@ class Umum {
         if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Berhasil Mengaktifkan Driver'];
         }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
+    }
+
+    public function resetFoto($id) {
+        $data = $this->cekFotoCustomer($id);
+        if (file_exists($data['foto_kk'])) {
+            unlink($data['foto_kk']);
+        }
+        if (file_exists($data['foto_ktp'])) {
+            unlink($data['foto_ktp']);
+        }
+        if($this->deleteUserFoto($id)){
+            return ['status' => 'Success', 'message' => 'Berhasil Mereset Foto KK dan KTP'];
+        }return ['status' => 'Error', 'message' => 'Gagal Mereset Foto KK dan KTP'];
+    }
+
+    public function deleteUserFoto($id_user) {
+        $sql = "UPDATE detail_user
+                SET foto_ktp = '-', foto_kk = '-'
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
     }
 
     public function lupaPassword($emailTelpon) {
@@ -499,7 +519,10 @@ class Umum {
                 return ['status' => 'Error', 'message' => 'Gambar Yang Dipilih Harus JPG atau PNG'];
             }
             $filename = $id_user . "." . $extension;
-            if(file_exists("$directory/$filename")) unlink("$directory/$filename");
+            if (file_exists("$directory/$filename")) {
+                unlink("$directory/$filename");
+            }
+
             $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
             $path_name = $path_name . $filename;
             if ($this->updateFoto($id_user, $path_name, $role)) {
