@@ -64,7 +64,7 @@ $app->get('/common/lupa_password/konfirmasi/{token}', function ($request, $respo
 
 // Ganti Password
 // Lupa Password
-$app->get('/common/lupa_password/ganti/{id_user}', function ($request, $response, $args) {
+$app->post('/common/lupa_password/ganti/{id_user}', function ($request, $response, $args) {
     $password = $request->getParsedBody();
     $user = new User(null, null, null, null, null, null);
     $user->setDb($this->db);
