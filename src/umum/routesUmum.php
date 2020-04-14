@@ -199,6 +199,22 @@ $app->get('/common/bank/', function ($request, $response, $args) {
     return $response->withJson(['status' => 'Success' , 'data' => $bank ], SERVER_OK);
 });
 
+// COMMON
+// Ahli Waris
+$app->post('/common/ahli-waris/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $user = new Umum();
+    $user->setDb($this->db);
+    $waris = $user->cekAhliWaris($args['id_user']);
+    if(count($waris)>=AHLI_WARIS){
+        return $response->withJson(['status' => 'Error', 'message' => 'Ahli Waris Anda Telah Penuh'], SERVER_OK);
+    }
+    if($user->insertAhliWaris($args['id_user'],$data['nama'])){
+        return $response->withJson(['status' => 'Success', 'message' => 'Ahli Waris Anda Telah Berhasil Ditambahkan'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengisi Ahli Waris'], SERVER_OK);
+})->add($tokenCheck);
+
 // UMUM
 // GET Ahli Waris
 $app->get('/common/ahli-waris/{id_user}', function ($request, $response, $args) {
@@ -214,6 +230,13 @@ $app->get('/common/ahli-waris/{id_user}', function ($request, $response, $args) 
     }
     return $response->withJson(['status' => 'Success' , 'data' => $data ], SERVER_OK);
 })->add($tokenCheck);
+
+// DELETE Ahli Waris
+$app->delete('/common/ahli-waris/{id_waris}/{id_user}', function ($request, $response, $args) {
+    $comon = new Umum();
+    $comon->setDb($this->db);
+    return $response->withJson($comon->deleteWaris($args['id_user'],$args['id_waris']), SERVER_OK);
+});
 
 // DELETE FOTO KTP KK USER
 $app->delete('/common/foto/{id_user}', function ($request, $response, $args) {
