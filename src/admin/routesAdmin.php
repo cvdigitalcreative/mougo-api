@@ -83,7 +83,7 @@ $app->get('/admin/driver/confirm/', function ($request, $response) {
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
 
-    $driver = $admin->getDriverConfirm($data['id']);
+    $driver = $admin->getDriverConfirm(encrypt($data['id'],MOUGO_CRYPTO_KEY));
     if (empty($driver)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
     }
