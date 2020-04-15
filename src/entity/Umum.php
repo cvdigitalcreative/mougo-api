@@ -162,7 +162,8 @@ class Umum {
     public function updateStatusTrip($id, $status) {
         $trip_cek = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         $trip_cek->setDb($this->db);
-        if (empty($trip_cek->getTripDetail($id))) {
+        $data_trip = $trip_cek->getTripDetail($id);
+        if (empty($data_trip)) {
             return ['status' => 'Error', 'message' => 'Trip Tidak Ditemukan'];
         }
         $sql = "UPDATE trip
@@ -175,6 +176,9 @@ class Umum {
             }
             if ($status == STATUS_SAMPAI_TUJUAN) {
                 return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
+                // if($trip_cek->bonusFinish($id,$data_trip['id_customer'],$data_trip['id_driver'],$data_trip['total_harga'],$data_trip['jenis_pembayaran'])){
+                //     return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
+                // }
             }
             if ($status == STATUS_CANCEL) {
                 return ['status' => 'Success', 'message' => 'Trip Telah Dibatalkan'];
@@ -445,11 +449,11 @@ class Umum {
         if (empty($user)) {
             return $user;
         }
+        $this->insertLupaPassword($user['id_user'], sha1(rand()));
         $lupa_password = $this->getUserLupaPassword($user['id_user']);
         if (!empty($lupa_password)) {
             $this->deleteUserLupaPassword($lupa_password['token']);
         }
-        $this->insertLupaPassword($user['id_user'], sha1(rand()));
         $user['token'] = $lupa_password['token'];
         return $user;
     }
