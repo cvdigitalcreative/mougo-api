@@ -163,7 +163,7 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
 
 })->add($tokenCheck);
 
-// Customer
+// USER
 // GET SALDO dan Point
 $app->get('/common/saldo-point/{id_user}', function ($request, $response, $args) {
     $user = new Umum();

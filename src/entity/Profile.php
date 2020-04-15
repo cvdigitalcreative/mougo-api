@@ -146,6 +146,14 @@ class Profile {
         $data['kode_bank'] = (int) $data['kode_bank'];
         $data['jumlah_saldo'] = (double) $data['jumlah_saldo'];
         $data['jumlah_point'] = (double) $data['jumlah_point'];
+
+        $nama = decrypt($data['nama'],MOUGO_CRYPTO_KEY);
+        $temp = explode(' ', $nama);
+        if(isset($temp[1])){
+            $data['avatar_ui'] = "https://ui-avatars.com/api/?name=".$temp[0]."+".$temp[1]."&rounded=true";
+        }else{
+        $data['avatar_ui'] = "https://ui-avatars.com/api/?name=".$temp[0]."&rounded=true";
+        }
         return $data;
     }
 
