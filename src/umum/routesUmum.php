@@ -37,8 +37,7 @@ $app->post('/common/lupa_password/', function ($request, $response, $args) {
     $mail->addAddress($email, $nama);
     $mail->isHTML(true);
     $mail->Subject = "MOUGO DMS Reset Password";
-    $mail->Body = "Hello " . $nama  . " \nBerikut Adalah Link Untuk Mereset Password Mougo Anda http://45.114.118.64/mougo-web/mougo/resetpassword/" . $data['token'];
-
+    $mail->Body = "Hello " . $nama  . " Berikut Adalah Link Untuk Mereset Password Mougo Anda http://45.114.118.64/mougo-web/mougo/resetpassword/" . $data['token'];
     if ($mail->send()) {
         return $response->withJson(['status' => 'Success', 'message' => 'Konfirmasi Lupa Password Akan Dikirim Melalui Email'], SERVER_OK);
     }
@@ -71,9 +70,11 @@ $app->post('/common/lupa_password/ganti/{id_user}', function ($request, $respons
     if (empty($user->getProfileUser($args['id_user']))) {
         return $response->withJson(['status' => 'Error', 'message' => 'User Tidak Ditemukan'], SERVER_OK);
     }
-
+    
     $ganti = new Umum();
     $ganti->setDb($this->db);
+    $data = $ganti->getUserLupaPassword($args['id_user']);
+    $ganti->deleteUserLupaPassword($data['token']);
     $status = $ganti->updatePassword($args['id_user'], $password['password']);
     if ($status) {
         return $response->withJson(['status' => 'Success', 'message' => 'Password Berhasil Diganti'], SERVER_OK);

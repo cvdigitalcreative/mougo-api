@@ -449,11 +449,12 @@ class Umum {
         if (empty($user)) {
             return $user;
         }
-        $this->insertLupaPassword($user['id_user'], sha1(rand()));
         $lupa_password = $this->getUserLupaPassword($user['id_user']);
         if (!empty($lupa_password)) {
             $this->deleteUserLupaPassword($lupa_password['token']);
         }
+        $this->insertLupaPassword($user['id_user'], sha1(rand()));
+        $lupa_password = $this->getUserLupaPassword($user['id_user']);
         $user['token'] = $lupa_password['token'];
         return $user;
     }
