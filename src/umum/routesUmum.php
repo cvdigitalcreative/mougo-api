@@ -164,11 +164,15 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
 })->add($tokenCheck);
 
 // Customer
-// GET SALDO
-$app->get('/common/saldo/{id_user}', function ($request, $response, $args) {
-    $saldo = new Umum();
-    $saldo->setDb($this->db);
-    return $response->withJson($saldo->getSaldoUser($args['id_user']), SERVER_OK);
+// GET SALDO dan Point
+$app->get('/common/saldo-point/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    $saldo = $user->getSaldoUser($args['id_user']);
+    $data['saldo'] =(double) $saldo['jumlah_saldo'];
+    $point = $user->getPointUser($args['id_user']);
+    $data['point'] =(double) $point['jumlah_point'];
+    return $response->withJson(['status'=>'Success','data'=>$data], SERVER_OK);
 })->add($tokenCheck);
 
 // UMUM
