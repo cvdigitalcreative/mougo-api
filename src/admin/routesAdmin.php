@@ -78,7 +78,7 @@ $app->post('/admin/driver/', function ($request, $response) {
 });
 
 // ADMIN Data Driver (Belum Konfirmasi)
-$app->get('/admin/driver/confirm/', function ($request, $response) {
+$app->post('/admin/driver/confirm/', function ($request, $response) {
     $data = $request->getParsedBody();
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
