@@ -37,7 +37,7 @@ $app->post('/common/lupa_password/', function ($request, $response, $args) {
     $mail->addAddress($email, $nama);
     $mail->isHTML(true);
     $mail->Subject = "MOUGO DMS Reset Password";
-    $mail->Body = "Hello " . $nama  . " \nBerikut Adalah Link Untuk Mereset Password Mougo Anda " . $data['token'];
+    $mail->Body = "Hello " . $nama  . " \nBerikut Adalah Link Untuk Mereset Password Mougo Anda http://45.114.118.64/mougo-web/mougo/resetpassword/" . $data['token'];
 
     if ($mail->send()) {
         return $response->withJson(['status' => 'Success', 'message' => 'Konfirmasi Lupa Password Akan Dikirim Melalui Email'], SERVER_OK);
@@ -164,11 +164,15 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
 })->add($tokenCheck);
 
 // Customer
-// GET SALDO
-$app->get('/common/saldo/{id_user}', function ($request, $response, $args) {
-    $saldo = new Umum();
-    $saldo->setDb($this->db);
-    return $response->withJson($saldo->getSaldoUser($args['id_user']), SERVER_OK);
+// GET SALDO dan Point
+$app->get('/common/saldo-point/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    $saldo = $user->getSaldoUser($args['id_user']);
+    $data['saldo'] =(double) $saldo['jumlah_saldo'];
+    $point = $user->getPointUser($args['id_user']);
+    $data['point'] =(double) $point['jumlah_point'];
+    return $response->withJson(['status'=>'Success','data'=>$data], SERVER_OK);
 })->add($tokenCheck);
 
 // UMUM

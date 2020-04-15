@@ -303,3 +303,13 @@ $app->put('/driver/status/{status}/{id_user}', function ($request, $response, $a
     $driver->setDb($this->db);
     return $response->withJson($driver->updateStatus($args['id_user'],$args['status']), SERVER_OK);
 })->add($tokenCheck);
+
+// DRIVER
+// SEARCH TRIP
+$app->get('/driver/status/{id_user}', function ($request, $response, $args) {
+    $status = new Umum();
+    $status->setDb($this->db);
+    $data = $status->getDriverAdmin($args['id_user']);
+    $data_driver =(int) $data['status_akun_aktif'];
+    return $response->withJson(['status'=>'Success','status_driver'=>$data_driver], SERVER_OK);
+})->add($tokenCheck);

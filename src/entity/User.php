@@ -323,7 +323,7 @@ class User {
         $mail->addAddress($email, $nama);
         $mail->isHTML(true);
         $mail->Subject = "MOUGO DMS Register Akun";
-        $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Anda , http://45.114.118.64/mougo-api/public/driver/konfirmasi/register/".$this->id_user;
+        $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Anda http://45.114.118.64/mougo-web/mougo/driverRegister/".$this->id_user;
         
         return $mail->send();
         

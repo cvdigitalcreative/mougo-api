@@ -356,6 +356,15 @@ class Umum {
         $stmt = $est->fetch();
         return $stmt;
     }
+    
+    public function getPointUser($id_user) {
+        $sql = "SELECT * FROM point
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
 
     public function updateTopup($id, $status) {
         $sql = "UPDATE top_up
