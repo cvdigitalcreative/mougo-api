@@ -114,7 +114,7 @@ class Admin {
         //     if (!empty($search)) {
         //         if ($index === 0) {
         //             $sql = $sql . " AND $value LIKE '%$search%' ";
-                    
+
         //         } else {
         //             $sql = $sql . " OR ";
         //             if($index === 1){
@@ -136,13 +136,13 @@ class Admin {
             }
             $order_in = $this->column_search[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
-            
+
         } else if (isset($this->orderan)) {
             $order_by = $this->orderan;
             $key = key($order_by);
             $order = $order_by[key($order_by)];
             $sql = $sql . " ORDER BY $key $order ";
-           
+
         }
         return $sql;
     }
@@ -156,7 +156,7 @@ class Admin {
         return $est->rowCount();
     }
 
-    private $column_driver = array('nama', 'email', 'no_telpon', 'alamat_domisili','cabang','jenis_kendaraan','merk_kendaraan','no_polisi');
+    private $column_driver = array('nama', 'email', 'no_telpon', 'alamat_domisili', 'cabang', 'jenis_kendaraan', 'merk_kendaraan', 'no_polisi');
     private $order_driver = array('nama' => 'asc');
 
     public function getDriverAdminWeb($order_by, $order, $start, $length, $search) {
@@ -172,17 +172,34 @@ class Admin {
 
     }
 
+    public function getDriverConfirm($id) {
+        $sql = "SELECT * FROM user
+        INNER JOIN detail_user ON detail_user.id_user = user.id_user
+        INNER JOIN driver ON driver.id_user = user.id_user
+        INNER JOIN cabang ON cabang.id = driver.cabang
+        INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+        WHERE (driver.foto_skck <> '-' 
+        AND driver.foto_sim <> '-' 
+        AND driver.foto_stnk <> '-' 
+        AND driver.foto_diri <> '-' 
+        AND driver.status_akun_aktif = 0) 
+        AND (no_ktp = '$id' OR user.nama = '$id' OR user.email = '$id' OR user.no_telpon = '$id')";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
     public function getDriverQuery($order_by, $order, $search) {
         $sql = "SELECT * FROM user
         INNER JOIN driver ON driver.id_user = user.id_user
         INNER JOIN cabang ON cabang.id = driver.cabang
         INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
-        WHERE driver.foto_skck <> '-' AND driver.foto_sim <> '-' AND driver.foto_stnk <> '-' AND driver.foto_diri <> '-' AND driver.status_akun_aktif = 0";
+        WHERE driver.foto_skck <> '-' AND driver.foto_sim <> '-' AND driver.foto_stnk <> '-' AND driver.foto_diri <> '-' AND driver.status_akun_aktif = 0 ";
         // foreach ($this->column_driver as $index => $value) {
         //     if (!empty($search)) {
         //         if ($index === 0) {
         //             $sql = $sql . " AND $value LIKE '%$search%' ";
-                    
+
         //         } else {
         //             $sql = $sql . " OR $value LIKE '%$search%' ";
         //         }
@@ -191,20 +208,20 @@ class Admin {
 
         if (isset($order_by)) {
             $temp = "";
-            if ($order_by < 3 ) {
+            if ($order_by < 3) {
                 $temp = "user";
             } else {
                 $temp = "driver";
             }
             $order_in = $this->column_driver[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
-            
+
         } else if (isset($this->order_driver)) {
             $order_by = $this->order_driver;
             $key = key($order_by);
             $order = $order_by[key($order_by)];
             $sql = $sql . " ORDER BY $key $order ";
-           
+
         }
         return $sql;
     }

@@ -77,6 +77,40 @@ $app->post('/admin/driver/', function ($request, $response) {
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->counts(), 'recordsFiltered' => count($topup), 'data' => $dataDriver], SERVER_OK);
 });
 
+// ADMIN Data Driver (Belum Konfirmasi)
+$app->get('/admin/driver/confirm/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+
+    $driver = $admin->getDriverConfirm($data['id']);
+    if (empty($driver)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $dataDriver = [];
+    $dataDriver['id_user'] = $driver['id_user'];
+    $dataDriver['nama'] = decrypt($driver['nama'],MOUGO_CRYPTO_KEY);
+    $dataDriver['email'] = decrypt($driver['email'],MOUGO_CRYPTO_KEY);
+    $dataDriver['no_telpon'] = decrypt($driver['no_telpon'],MOUGO_CRYPTO_KEY);
+    $dataDriver['no_ktp'] = decrypt($driver['no_ktp'],MOUGO_CRYPTO_KEY);
+    $dataDriver['no_polisi'] = decrypt($driver['no_polisi'],MOUGO_CRYPTO_KEY);
+    $dataDriver['alamat_domisili'] = decrypt($driver['alamat_domisili'],MOUGO_CRYPTO_KEY);
+    $dataDriver['cabang'] = $driver['cabang'];
+    $dataDriver['jenis_kendaraan'] = $driver['jenis_kendaraan'];
+    $dataDriver['merk_kendaraan'] = $driver['merk_kendaraan'];
+    $dataDriver['foto_ktp'] = $driver['foto_ktp'];
+    $dataDriver['foto_kk'] = $driver['foto_kk'];
+    $dataDriver['foto_sim'] = $driver['foto_sim'];
+    $dataDriver['foto_skck'] = $driver['foto_skck'];
+    $dataDriver['foto_stnk'] = $driver['foto_stnk'];
+    $dataDriver['foto_diri'] = $driver['foto_diri'];
+    
+
+    return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
+});
+
+
 // ADMIN Accept Driver
 $app->put('/admin/driver/accept/{id_user}', function ($request, $response, $args) {
     $admin = new Umum();
@@ -84,7 +118,7 @@ $app->put('/admin/driver/accept/{id_user}', function ($request, $response, $args
     return $response->withJson($admin->editDriverStatus($args['id_user'], STATUS_DRIVER_AKTIF), SERVER_OK);
 });
 
-// ADMIN Accept Driver
+// ADMIN Reject Driver
 $app->put('/admin/driver/reject/{id_user}', function ($request, $response, $args) {
     $admin = new Umum();
     $admin->setDb($this->db);
