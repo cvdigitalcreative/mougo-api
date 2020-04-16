@@ -183,7 +183,7 @@ class Admin {
         AND driver.foto_stnk <> '-' 
         AND driver.foto_diri <> '-' 
         AND driver.status_akun_aktif = 0) 
-        AND (no_ktp = '$id' OR user.nama = '$id' OR user.email = '$id' OR user.no_telpon = '$id')";
+        AND (no_ktp = '$id' OR user.email = '$id' OR user.no_telpon = '$id')";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->fetch();
