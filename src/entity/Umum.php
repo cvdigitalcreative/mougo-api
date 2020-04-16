@@ -397,6 +397,21 @@ class Umum {
         return $stmt;
     }
 
+    public function getAllDriver() {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                WHERE user.role = 2
+                LIMIT 100";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
     public function deleteDriverFoto($id_user) {
         $sql = "UPDATE driver
                 SET foto_skck = '-', foto_sim = '-', foto_stnk = '-',foto_diri = '-'
