@@ -78,12 +78,8 @@ $app->get('/owner/driver/', function ($request, $response, $args) {
     $dataDriver = [];
     for ($i=0; $i < count($driver); $i++) { 
     $dataDriver[$i]['id_user'] = $driver[$i]['id_user'];
-    $dataDriver[$i]['nama'] = $driver[$i]['nama'];
-    $dataDriver[$i]['email'] = $driver[$i]['email'];
-    $dataDriver[$i]['no_telpon'] = $driver[$i]['no_telpon'];
-    $dataDriver[$i]['no_ktp'] = $driver[$i]['no_ktp'];
-    $dataDriver[$i]['no_polisi'] = $driver[$i]['no_polisi'];
-    $dataDriver[$i]['alamat_domisili'] = $driver[$i]['alamat_domisili'];
+    $dataDriver[$i]['nama'] = decrypt($driver[$i]['nama'],MOUGO_CRYPTO_KEY);
+    $dataDriver[$i]['no_polisi'] =  decrypt($driver[$i]['no_polisi'],MOUGO_CRYPTO_KEY);
     $dataDriver[$i]['cabang'] = $driver[$i]['cabang'];
     $dataDriver[$i]['jenis_kendaraan'] = $driver[$i]['jenis_kendaraan'];
     $dataDriver[$i]['merk_kendaraan'] = $driver[$i]['merk_kendaraan'];
