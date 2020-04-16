@@ -244,6 +244,13 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     if (empty($data_trip)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Order Tidak Ada Atau Telah Diambil'], SERVER_OK);
     }
+    $cek = new Umum();
+    $cek->setDb($this->db);
+    $saldo = $cek->getSaldoUser($id_driver['id_driver']);
+    $data['saldo'] =(double) $saldo['jumlah_saldo'];
+    if($data_trip['total_harga']>$data['saldo']){
+        return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);  
+    }
     if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
     }
@@ -305,7 +312,7 @@ $app->put('/driver/status/{status}/{id_user}', function ($request, $response, $a
 })->add($tokenCheck);
 
 // DRIVER
-// SEARCH TRIP
+// STATUS DRIVER AKTIF
 $app->get('/driver/status/{id_user}', function ($request, $response, $args) {
     $status = new Umum();
     $status->setDb($this->db);

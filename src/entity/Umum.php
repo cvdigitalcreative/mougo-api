@@ -175,10 +175,10 @@ class Umum {
                 return ['status' => 'Success', 'message' => 'Mengantar Customer'];
             }
             if ($status == STATUS_SAMPAI_TUJUAN) {
-                return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
-                // if($trip_cek->bonusFinish($id,$data_trip['id_customer'],$data_trip['id_driver'],$data_trip['total_harga'],$data_trip['jenis_pembayaran'])){
-                //     return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
-                // }
+                // return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
+                if($trip_cek->bonusFinish($id,$data_trip['id_customer'],$data_trip['id_driver'],$data_trip['total_harga'],$data_trip['jenis_pembayaran'])){
+                    return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
+                }
             }
             if ($status == STATUS_CANCEL) {
                 return ['status' => 'Success', 'message' => 'Trip Telah Dibatalkan'];
@@ -368,6 +368,14 @@ class Umum {
         $est->execute();
         $stmt = $est->fetch();
         return $stmt;
+    }
+
+    public function updatePoint($id_user, $point) {
+        $sql = "UPDATE point
+                SET jumlah_point = '$point'
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
     }
 
     public function updateTopup($id, $status) {

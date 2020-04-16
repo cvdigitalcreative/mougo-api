@@ -76,6 +76,7 @@ define('TOPUP_ACCEPT', 1);
 define('TOPUP_REJECT', 2);
 
 // REK MOUGO
+define('ID_PERUSAHAAN','2de2df615a5209a97f75218ebe2f335049f47fb0');
 define('NO_REK_PERUSAHAAN', "081231251924");
 define('NAMA_REK_PERUSAHAAN', "PT. DMS MOUGO");
 
@@ -97,6 +98,9 @@ define('FOTO_DIRI', 3);
 define('FOTO_SIM', 4);
 define('FOTO_STNK', 5);
 
-
 // AHLI WARIS MAKS
 define('AHLI_WARIS', 4);
+
+// JENIS PEMBAYARAN
+define('PEMBAYARAN_CASH', 1);
+define('PEMBAYARAN_SALDO', 2);
