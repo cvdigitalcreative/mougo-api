@@ -47,7 +47,7 @@ $app->post('/owner/event/', function ($request, $response) {
 
 });
 
-// UMUM
+// OWNER
 // GET Event
 $app->get('/owner/event/', function ($request, $response, $args) {
     $getevent = new Owner(null,null);
@@ -64,4 +64,35 @@ $app->get('/owner/event/', function ($request, $response, $args) {
         $event[$index]['tanggal_event'] = $timestamp;
     }
     return $response->withJson(['status' => 'Success' , 'data' => $event ], SERVER_OK);
+});
+
+// OWNER
+// GET Driver
+$app->get('/owner/driver/', function ($request, $response, $args) {
+    $getdriver = new Umum();
+    $getdriver->setDb($this->db);
+    $driver = $getdriver->getAllDriver();
+    if(empty($driver)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+    }
+    $dataDriver = [];
+    for ($i=0; $i < count($driver); $i++) { 
+    $dataDriver[$i]['id_user'] = $driver[$i]['id_user'];
+    $dataDriver[$i]['nama'] = $driver[$i]['nama'];
+    $dataDriver[$i]['email'] = $driver[$i]['email'];
+    $dataDriver[$i]['no_telpon'] = $driver[$i]['no_telpon'];
+    $dataDriver[$i]['no_ktp'] = $driver[$i]['no_ktp'];
+    $dataDriver[$i]['no_polisi'] = $driver[$i]['no_polisi'];
+    $dataDriver[$i]['alamat_domisili'] = $driver[$i]['alamat_domisili'];
+    $dataDriver[$i]['cabang'] = $driver[$i]['cabang'];
+    $dataDriver[$i]['jenis_kendaraan'] = $driver[$i]['jenis_kendaraan'];
+    $dataDriver[$i]['merk_kendaraan'] = $driver[$i]['merk_kendaraan'];
+    $dataDriver[$i]['foto_ktp'] = $driver[$i]['foto_ktp'];
+    $dataDriver[$i]['foto_kk'] = $driver[$i]['foto_kk'];
+    $dataDriver[$i]['foto_sim'] = $driver[$i]['foto_sim'];
+    $dataDriver[$i]['foto_skck'] = $driver[$i]['foto_skck'];
+    $dataDriver[$i]['foto_stnk'] = $driver[$i]['foto_stnk'];
+    $dataDriver[$i]['foto_diri'] = $driver[$i]['foto_diri'];   
+    }
+    return $response->withJson(['status' => 'Success' , 'data' => $dataDriver ], SERVER_OK);
 });

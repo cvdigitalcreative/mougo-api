@@ -83,19 +83,19 @@ $app->post('/admin/driver/confirm/', function ($request, $response) {
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
 
-    $driver = $admin->getDriverConfirm(encrypt($data['id'],MOUGO_CRYPTO_KEY));
+    $driver = $admin->getDriverConfirm($data['id']);
     if (empty($driver)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
     }
 
     $dataDriver = [];
     $dataDriver['id_user'] = $driver['id_user'];
-    $dataDriver['nama'] = decrypt($driver['nama'],MOUGO_CRYPTO_KEY);
-    $dataDriver['email'] = decrypt($driver['email'],MOUGO_CRYPTO_KEY);
-    $dataDriver['no_telpon'] = decrypt($driver['no_telpon'],MOUGO_CRYPTO_KEY);
-    $dataDriver['no_ktp'] = decrypt($driver['no_ktp'],MOUGO_CRYPTO_KEY);
-    $dataDriver['no_polisi'] = decrypt($driver['no_polisi'],MOUGO_CRYPTO_KEY);
-    $dataDriver['alamat_domisili'] = decrypt($driver['alamat_domisili'],MOUGO_CRYPTO_KEY);
+    $dataDriver['nama'] = $driver['nama'];
+    $dataDriver['email'] = $driver['email'];
+    $dataDriver['no_telpon'] = $driver['no_telpon'];
+    $dataDriver['no_ktp'] = $driver['no_ktp'];
+    $dataDriver['no_polisi'] = $driver['no_polisi'];
+    $dataDriver['alamat_domisili'] = $driver['alamat_domisili'];
     $dataDriver['cabang'] = $driver['cabang'];
     $dataDriver['jenis_kendaraan'] = $driver['jenis_kendaraan'];
     $dataDriver['merk_kendaraan'] = $driver['merk_kendaraan'];
