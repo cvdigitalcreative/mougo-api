@@ -51,9 +51,9 @@ class Owner {
         return $temp;
     }
 
-    public function inputEvent($judul, $deskripsi, $gambar) {
-        $sql = "INSERT INTO event (judul_event,deskripsi_event,gambar_event)
-                VALUE('$judul','$deskripsi','$gambar')";
+    public function inputEvent($judul, $deskripsi, $gambar, $tanggal) {
+        $sql = "INSERT INTO event (judul_event,deskripsi_event,gambar_event,tanggal_event)
+                VALUE('$judul','$deskripsi','$gambar','$tanggal')";
         $est = $this->db->prepare($sql);
         if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Event Berhasil Dipublikasi'];
