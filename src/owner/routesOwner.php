@@ -28,7 +28,7 @@ $app->post('/owner/event/', function ($request, $response) {
     }
     $data = $request->getParsedBody();
     $uploadedFiles = $request->getUploadedFiles();
-    if (empty($uploadedFiles['gambar']->file) || empty($data['judul']) || empty($data['deskripsi'])) {
+    if (empty($uploadedFiles['gambar']->file) || empty($data['judul']) || empty($data['deskripsi']) || empty($data['tanggal_event'])) {
         return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
     }
     $uploadedFile = $uploadedFiles['gambar'];
@@ -40,10 +40,13 @@ $app->post('/owner/event/', function ($request, $response) {
         }
         $filename = md5($uploadedFile->getClientFilename()) . time() . "." . $extension;
         $directory = $this->get('settings')['upload_directory2'];
+        if(!is_dir($directory)){
+            mkdir($directory, 0755, true);
+        }
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
         $path_name = "../assets-event/" . $filename;
 
-    }return $response->withJson($owner->inputEvent($data['judul'], $data['deskripsi'], $path_name), SERVER_OK);
+    }return $response->withJson($owner->inputEvent($data['judul'], $data['deskripsi'], $path_name, $data['tanggal_event']), SERVER_OK);
 
 });
 
