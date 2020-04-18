@@ -126,3 +126,42 @@ $app->delete('/owner/event/{id}', function ($request, $response, $args) {
     return $response->withJson(['status' => 'Error' , 'message' => 'Event Gagal Dihapus' ], SERVER_OK);
 });
 
+// OWNER
+// EDIT Event
+$app->post('/owner/event/{id}', function ($request, $response, $args) {
+    $getevent = new Owner(null,null);
+    $getevent->setDb($this->db);
+    $event = $getevent->cekEvent($args['id']);
+    if(empty($event)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Event Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $data = $request->getParsedBody();
+    $uploadedFiles = $request->getUploadedFiles();
+    if ( empty($data['judul']) || empty($data['deskripsi']) || empty($data['tanggal_event'])) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+    if(empty($uploadedFiles['gambar']->file)){
+        return $response->withJson($getevent->editEventWithoutImage($args['id'],$data['judul'], $data['deskripsi'], $data['tanggal_event']), SERVER_OK);
+    }
+
+    $uploadedFile = $uploadedFiles['gambar'];
+
+    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+        if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
+            return $response->withJson(['status' => 'Error', 'message' => 'Gambar Event Harus JPG atau PNG'], SERVER_OK);
+        }
+        if(unlink($event['gambar_event'])){
+            $filename = md5($uploadedFile->getClientFilename()) . time() . "." . $extension;
+            $directory = $this->get('settings')['upload_directory2'];
+            if(!is_dir($directory)){
+                mkdir($directory, 0755, true);
+            }
+            $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+            $path_name = "../assets-event/" . $filename;
+        }
+        
+    }return $response->withJson($getevent->editEvent($args['id'],$data['judul'], $data['deskripsi'], $path_name, $data['tanggal_event']), SERVER_OK);
+
+});
