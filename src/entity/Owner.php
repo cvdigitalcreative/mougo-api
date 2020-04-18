@@ -60,6 +60,19 @@ class Owner {
         }return ['status' => 'Error', 'message' => 'Event Gagal Diupload'];
     }
 
+    public function editEvent($id,$judul, $deskripsi, $gambar, $tanggal) {
+        $sql = "UPDATE event 
+                SET judul_event = '$judul', deskripsi_event = '$deskripsi', tanggal_event = '$tanggal'";
+        if(!empty($gambar)){
+            $sql = $sql.", gambar_event = '$gambar' ";
+        }
+        $sql = $sql . " WHERE id = '$id'";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Event Berhasil Dipublikasi'];
+        }return ['status' => 'Error', 'message' => 'Event Gagal Diupload'];
+    }
+
     public function getEvent(){
         $sql = "SELECT * FROM event ";
         $est = $this->getDb()->prepare($sql);
@@ -73,6 +86,33 @@ class Owner {
         $sql = "SELECT * FROM event 
                 ORDER BY tanggal_event DESC
                 LIMIT 5";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+        
+    }
+
+    public function cekEvent($id){
+        $sql = "SELECT * FROM event 
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+        
+    }
+
+    public function deleteEvent($id){
+        $sql = "DELETE FROM event 
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+        
+    }
+
+    public function getAdmin(){
+        $sql = "SELECT email_admin, nama_admin, no_telpon FROM admin ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
