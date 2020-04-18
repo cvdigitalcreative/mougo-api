@@ -17,6 +17,14 @@ session_start();
 $settings = require __DIR__ . '/../src/settings.php';
 $app = new \Slim\App($settings);
 
+$app->add(function ($req, $res, $next) {
+    $response = $next($req, $res);
+    return $response
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+});
+
 // Set up dependencies
 require __DIR__ . '/../src/dependencies.php';
 
@@ -27,10 +35,23 @@ require __DIR__ . '/../src/middleware.php';
 require __DIR__ . '/../src/routes.php';
 
 // Register routesCustomer
-require __DIR__ . '/../src/routesCustomer.php';
+require __DIR__ . '/../src/customer/routesCustomer.php';
 
 // Register routesDriver
-require __DIR__ . '/../src/routesDriver.php';
+require __DIR__ . '/../src/driver/routesDriver.php';
+
+// Register routesDriver
+require __DIR__ . '/../src/umum/routesUmum.php';
+
+// Register routesAdmin
+require __DIR__ . '/../src/admin/routesAdmin.php';
+
+// Register routesOwner
+require __DIR__ . '/../src/owner/routesOwner.php';
+
+// Constant 
+require __DIR__ . '/../src/constantText.php';
+
 
 // Run app
 $app->run();

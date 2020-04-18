@@ -29,10 +29,9 @@ $tokenCheck = function($request, $response, $next){
                 ':token'=>$token
             ];
             $stmt->execute($dataUpdate);
-            var_dump($next);
             return $response = $next($request,$response);
 
         }
     }
-    return $response->withJson(['status'=>'error','message'=>'Unauthorized'],401);
+    return $response->withJson(['status'=>'Error','message'=>'Unauthorized'],401);
 };
