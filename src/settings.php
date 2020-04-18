@@ -26,7 +26,7 @@ return [
         ],
         'db' => [
             'host'=>'localhost',
-            'dbname'=>'db_mougo',
+            'dbname'=>'db_mougo_production',
             'user'=>'root',
             'password'=>'DigitalCreativeCrew1!@2',
             'driver' => 'mysql'
