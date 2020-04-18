@@ -80,4 +80,31 @@ class Owner {
         
     }
 
+    public function cekEvent($id){
+        $sql = "SELECT * FROM event 
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+        
+    }
+
+    public function deleteEvent($id){
+        $sql = "DELETE FROM event 
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+        
+    }
+
+    public function getAdmin(){
+        $sql = "SELECT email_admin, nama_admin, no_telpon FROM admin ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+        
+    }
+
 }

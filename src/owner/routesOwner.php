@@ -95,3 +95,34 @@ $app->get('/owner/driver/', function ($request, $response, $args) {
     }
     return $response->withJson(['status' => 'Success' , 'data' => $dataDriver ], SERVER_OK);
 });
+
+// OWNER
+// GET Admin
+$app->get('/owner/admin/', function ($request, $response, $args) {
+    $getadmin = new Owner(null,null);
+    $getadmin->setDb($this->db);
+    $admin = $getadmin->getAdmin();
+    if(empty($admin)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Admin Tidak Ditemukan'], SERVER_OK);
+    }
+
+    return $response->withJson(['status' => 'Success' , 'data' => $admin ], SERVER_OK);
+});
+
+// OWNER
+// DELETE Event
+$app->delete('/owner/event/{id}', function ($request, $response, $args) {
+    $getevent = new Owner(null,null);
+    $getevent->setDb($this->db);
+    $event = $getevent->cekEvent($args['id']);
+    if(empty($event)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Event Tidak Ditemukan'], SERVER_OK);
+    }
+
+    if($getevent->deleteEvent($args['id'])){
+        return $response->withJson(['status' => 'Success' , 'message' => 'Event Berhasil Dihapus' ], SERVER_OK);
+
+    }
+    return $response->withJson(['status' => 'Error' , 'message' => 'Event Gagal Dihapus' ], SERVER_OK);
+});
+

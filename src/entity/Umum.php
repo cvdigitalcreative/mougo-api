@@ -422,16 +422,19 @@ class Umum {
 
     public function rejectDriver($id_user) {
         $data = $this->getDriverAdmin($id_user);
+        $user = $this->cekFotoCustomer($id_user);
         if ($data['status_akun_aktif'] == STATUS_DRIVER_AKTIF) {
             return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Diterima Oleh Admin'];
         }
         if ($data['foto_skck'] == '-' && $data['foto_stnk'] == '-' && $data['foto_sim'] == '-' && $data['foto_diri'] == '-') {
             return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Direject Oleh Admin'];
         }
-        if (unlink($data['foto_skck']) && unlink($data['foto_stnk']) && unlink($data['foto_sim']) && unlink($data['foto_diri'])) {
+        if (unlink($data['foto_skck']) && unlink($data['foto_stnk']) && unlink($data['foto_sim']) && unlink($data['foto_diri']) && unlink($user['foto_ktp']) && unlink($user['foto_kk'])) {
+            if($this->deleteUserFoto($id_user)){
             if (!$this->deleteDriverFoto($id_user)) {
                 return ['status' => 'Error', 'message' => 'Gagal Reject Driver'];
             }
+        }
         }
         return ['status' => 'Success', 'message' => 'Berhasil Reject Driver'];
     }
