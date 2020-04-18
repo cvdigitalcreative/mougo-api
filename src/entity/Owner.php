@@ -62,18 +62,11 @@ class Owner {
 
     public function editEvent($id,$judul, $deskripsi, $gambar, $tanggal) {
         $sql = "UPDATE event 
-                SET judul_event = '$judul', deskripsi_event = '$deskripsi', gambar_event = '$gambar', tanggal_event = '$tanggal'
-                WHERE id = '$id'";
-        $est = $this->db->prepare($sql);
-        if ($est->execute()) {
-            return ['status' => 'Success', 'message' => 'Event Berhasil Dipublikasi'];
-        }return ['status' => 'Error', 'message' => 'Event Gagal Diupload'];
-    }
-
-    public function editEventWithoutImage($id,$judul, $deskripsi, $tanggal) {
-        $sql = "UPDATE event 
-                SET judul_event = '$judul', deskripsi_event = '$deskripsi', tanggal_event = '$tanggal'
-                WHERE id = '$id'";
+                SET judul_event = '$judul', deskripsi_event = '$deskripsi', tanggal_event = '$tanggal'";
+        if(!empty($gambar)){
+            $sql = $sql.", gambar_event = '$gambar' ";
+        }
+        $sql = $sql . " WHERE id = '$id'";
         $est = $this->db->prepare($sql);
         if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Event Berhasil Dipublikasi'];

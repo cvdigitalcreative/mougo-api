@@ -142,7 +142,7 @@ $app->post('/owner/event/{id}', function ($request, $response, $args) {
         return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
     }
     if(empty($uploadedFiles['gambar']->file)){
-        return $response->withJson($getevent->editEventWithoutImage($args['id'],$data['judul'], $data['deskripsi'], $data['tanggal_event']), SERVER_OK);
+        return $response->withJson($getevent->editEvent($args['id'],$data['judul'], $data['deskripsi'], null, $data['tanggal_event']), SERVER_OK);
     }
 
     $uploadedFile = $uploadedFiles['gambar'];
