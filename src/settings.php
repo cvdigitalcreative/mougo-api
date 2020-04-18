@@ -1,7 +1,7 @@
 <?php
 return [
     'settings' => [
-        'displayErrorDetails' => true, // set to false in production
+        'displayErrorDetails' => false, // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
         'upload_directory' => __DIR__ . '/../assets/', // upload directory
         'upload_directory2' => __DIR__ . '/../assets-event/', // upload directory
