@@ -12,6 +12,7 @@ class User {
     private $kode_referal;
     private $kode_sponsor;
     private $db;
+    private $web_url;
 
     public function __construct($nama, $email, $no_telpon, $password, $kode_referal, $kode_sponsor) {
         $this->nama = $nama;
@@ -37,6 +38,14 @@ class User {
 
     public function getDb() {
         return $this->db;
+    }
+
+    public function setWeb_url($web_url) {
+        $this->web_url = $web_url;
+    }
+
+    public function getWeb_url() {
+        return $this->web_url;
     }
 
     public function getProfileUser($id) {
@@ -90,7 +99,7 @@ class User {
 
         if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
 
-            if ($this->emailKonfirmasi($this->email, $this->nama)) {
+            if ($this->emailKonfirmasi($this->email, $this->nama, $role)) {
 
                 return ['status' => 'Success', 'message' => 'Pendaftaran Sukses'];
             }
@@ -305,7 +314,7 @@ class User {
         
     }
 
-    public function emailKonfirmasi($email, $nama) {
+    public function emailKonfirmasi($email, $nama, $role) {
         $email = decrypt($email, MOUGO_CRYPTO_KEY);
         $nama = decrypt($nama, MOUGO_CRYPTO_KEY);
         $mail = new PHPMailer();
@@ -323,8 +332,12 @@ class User {
         $mail->addAddress($email, $nama);
         $mail->isHTML(true);
         $mail->Subject = "MOUGO DMS Register Akun";
-        $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Anda http://45.114.118.64/mougo-web/mougo/driverRegister/".$this->id_user;
-        
+        if($role == USER_ROLE){
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Anda ".$this->getWeb_url()."/mougo/customerRegister/".$this->id_user;
+        }
+        if($role == DRIVER_ROLE){
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Driver Anda ".$this->getWeb_url()."/mougo/driverRegister/".$this->id_user;
+        }
         return $mail->send();
         
     }
