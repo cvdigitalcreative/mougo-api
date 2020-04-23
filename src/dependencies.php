@@ -27,3 +27,8 @@ $container['db'] = function ($c) {
     $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $conn;
 };
+
+// env
+$container['web_url'] = function ($c){
+    return ($_ENV['type'] == 'development') ? $_ENV['web_development'] : $_ENV['web_production'];
+};

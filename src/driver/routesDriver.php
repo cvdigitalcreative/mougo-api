@@ -12,6 +12,7 @@ $app->post('/driver/register/', function ($request, $response) {
     $userData = new Driver($user['no_polisi'], $user['cabang'], $user['alamat_domisili'], $user['merk_kendaraan'], $user['jenis_kendaraan']);
     $userData->setDB($this->db);
     $userData->setUser($user['nama'], $user['email'], $user['no_telpon'], $user['password'], $user['kode_referal'], $user['kode_sponsor']);
+    $userData->setWeb_url($this->web_url);
     if (!$userData->driverData()) {
         return $response->withJson(['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'], SERVER_OK);
     }

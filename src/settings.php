@@ -1,4 +1,8 @@
 <?php
+$_ENV['type'] = 'development';
+$_ENV['web_development'] = 'http://45.114.118.64:72';
+$_ENV['web_production'] = 'http://45.114.118.64:73';
+
 return [
     'settings' => [
         'displayErrorDetails' => false, // set to false in production
