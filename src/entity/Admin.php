@@ -189,6 +189,18 @@ class Admin {
         return $est->fetch();
     }
 
+    public function cekDriverConfirm($id) {
+        $sql = "SELECT * FROM user
+        INNER JOIN detail_user ON detail_user.id_user = user.id_user
+        INNER JOIN driver ON driver.id_user = user.id_user
+        INNER JOIN cabang ON cabang.id = driver.cabang
+        INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+        WHERE (no_ktp = '$id' OR user.email = '$id' OR user.no_telpon = '$id')";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+    
     public function getDriverQuery($order_by, $order, $search) {
         $sql = "SELECT * FROM user
         INNER JOIN driver ON driver.id_user = user.id_user

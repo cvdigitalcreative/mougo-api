@@ -65,7 +65,7 @@ define('POSITION_LONG', 104.726203500);
 define('ID_DRIVER_SILUMAN', "f768adacff6bb95eafb7d9a2d56be1c2f2ef6d13");
 
 // ADMIN MOUGO
-define('ADMIN_SILUMAN_MOUGO', "mougodms@gmail.com");
+define('ADMIN_SILUMAN_MOUGO', "mougoadmin@gmail.com");
 
 // STATUS TOPUP
 define('STATUS_TOPUP_PENDING', 1);
@@ -104,3 +104,6 @@ define('AHLI_WARIS', 4);
 // JENIS PEMBAYARAN
 define('PEMBAYARAN_CASH', 1);
 define('PEMBAYARAN_SALDO', 2);
+
+// JARAK TERJAUH DRIVER DAN KUSTOMER UNTUK JEMPUT DAN FINISH TRIP
+define('JARAK_MAKS_USER_TRIP', 200);

@@ -83,9 +83,12 @@ $app->post('/admin/driver/confirm/', function ($request, $response) {
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
 
+    if(empty($admin->cekDriverConfirm($data['id']))){
+        return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+    }
     $driver = $admin->getDriverConfirm($data['id']);
     if (empty($driver)) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+        return $response->withJson(['status' => 'Error', 'message' => 'Driver Belum Memenuhi Syarat'], SERVER_OK);
     }
 
     $dataDriver = [];

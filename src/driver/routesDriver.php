@@ -298,7 +298,7 @@ $app->get('/driver/trip/position/', function ($request, $response) {
     $jarak = new Umum();
     $jarak->setDb($this->db);
     $jarak = ($jarak->getDistance($lat, $long, $lat_dest, $long_dest)) * 1000;
-    if ($jarak <= 50) {
+    if ($jarak <= JARAK_MAKS_USER_TRIP) {
         return $response->withJson(['status' => 'Success', 'jarak' => $jarak], SERVER_OK);
     }
     return $response->withJson(['status' => 'Error', 'jarak' => $jarak], SERVER_OK);
