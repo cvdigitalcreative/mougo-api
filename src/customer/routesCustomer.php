@@ -10,6 +10,7 @@ $app->post('/customer/register/', function ($request, $response) {
     $user = $request->getParsedBody();
     $userData = new User($user['nama'], $user['email'], $user['no_telpon'], $user['password'], $user['kode_referal'], $user['kode_sponsor']);
     $userData->setDB($this->db);
+    $userData->setWeb_url($this->web_url);
     $result = $userData->register(USER_ROLE);
     return $response->withJson($result, SERVER_OK);
 });
