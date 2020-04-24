@@ -103,7 +103,7 @@ $app->get('/owner/customer/', function ($request, $response) {
     $getcustomer->setDb($this->db);
     $customer = $getcustomer->getAllCustomer();
     if(empty($customer)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+        return $response->withJson(['status' => 'Error' , 'message' => 'Customer Tidak Ditemukan'], SERVER_OK);
     }
     $dataCustomer = [];
     for ($i=0; $i < count($customer); $i++) { 
