@@ -97,6 +97,27 @@ $app->get('/owner/driver/', function ($request, $response, $args) {
 });
 
 // OWNER
+// GET Customer
+$app->get('/owner/customer/', function ($request, $response) {
+    $getcustomer = new Umum();
+    $getcustomer->setDb($this->db);
+    $customer = $getcustomer->getAllCustomer();
+    if(empty($customer)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Customer Tidak Ditemukan'], SERVER_OK);
+    }
+    $dataCustomer = [];
+    for ($i=0; $i < count($customer); $i++) { 
+    $dataCustomer[$i]['id_user'] = $customer[$i]['id_user'];
+    $dataCustomer[$i]['nama'] = decrypt($customer[$i]['nama'],MOUGO_CRYPTO_KEY);
+    $dataCustomer[$i]['provinsi'] = $customer[$i]['provinsi'];
+    $dataCustomer[$i]['kota'] = $customer[$i]['kota']; 
+    $dataCustomer[$i]['kode_referal'] = $customer[$i]['kode_referal'];
+    $dataCustomer[$i]['kode_sponsor'] = $customer[$i]['kode_sponsor']; 
+    }
+    return $response->withJson(['status' => 'Success' , 'data' => $dataCustomer ], SERVER_OK);
+});
+
+// OWNER
 // GET Admin
 $app->get('/owner/admin/', function ($request, $response, $args) {
     $getadmin = new Owner(null,null);
