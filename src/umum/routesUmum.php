@@ -249,3 +249,27 @@ $app->delete('/common/foto/{id_user}', function ($request, $response, $args) {
     $comon->setDb($this->db);
     return $response->withJson($comon->resetFoto($args['id_user']), SERVER_OK);
 });
+
+// UMUM
+// GET CHILD Referal
+$app->get('/common/user-referal/{id_user}', function ($request, $response, $args) {
+    $id_user_anak = $request->getQueryParam("id_user_anak");
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    $user = $umum->cekUser($args['id_user']);
+    $user_anak = $umum->cekUser($id_user_anak);
+    if(empty($user) || empty($user_anak)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    $child = $umum->getReferalChild($id_user_anak);
+    $total = $umum->getTotalReferalChild($args['id_user']);
+    $data['total_struktur'] = (int) $total;
+    $data['parent'] = $user_anak['nama'];
+    $data['anak'] = [];
+    for($i=0;$i<count($child);$i++){
+        $data['anak'][$i]['id_user'] = $child[$i]['id_user'];
+        $data['anak'][$i]['nama'] = $child[$i]['nama'];
+        $data['anak'][$i]['no_telpon'] = $child[$i]['no_telpon'];
+    }
+    return $response->withJson(['status' => 'Success' , 'message' => 'Berhasil Mendapatkan Struktur Referal User' , 'data' => $data ], SERVER_OK);
+})->add($tokenCheck);

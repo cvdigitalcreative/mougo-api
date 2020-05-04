@@ -655,4 +655,40 @@ class Umum {
         return ['status' => 'Error', 'message' => 'Gagal Menghapus Ahli Waris'];
     }
 
+    public function cekUser($id) {
+        $sql = "SELECT * FROM user
+                WHERE id_user ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function getReferalChild($id) {
+        $sql = "SELECT * FROM kode_referal
+                INNER JOIN user ON user.id_user = kode_referal.id_user
+                WHERE kode_referal.id_user_atasan ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTotalReferalChild($id) {
+        $total = 0;
+        $level1 = $this->getReferalChild($id);
+        for ($i=0; $i < count($level1); $i++) { 
+            $total++;
+            $level2 = $this->getReferalChild($level1[$i]['id_user']);
+            for ($j=0; $j < count($level2); $j++) { 
+                $total++;
+                $level3 = $this->getReferalChild($level2[$j]['id_user']);
+                for ($c=0; $c < count($level3); $c++) { 
+                    $total++;
+                }    
+            }    
+        }
+        return $total;
+    }
+
 }
