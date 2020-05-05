@@ -691,4 +691,33 @@ class Umum {
         return $total;
     }
 
+    public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
+
+        $saldo_user = $this->getSaldoUser($id_user);
+        $saldo_penerima = $this->getSaldoUser($id_user_penerima);
+        $saldo_perusahaan = $this->getSaldoUser(ID_PERUSAHAAN);
+
+        $saldo_user = $saldo_user['jumlah_saldo'] - ($jumlah + TRANSFER_CHARGE);
+        $saldo_penerima = $saldo_penerima['jumlah_saldo'] + $jumlah;
+        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + TRANSFER_CHARGE;
+
+        if(!$this->updateSaldo($id_user,$saldo_user) || !$this->updateSaldo($id_user_penerima,$saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN,$saldo_perusahaan) ){
+            return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+        }
+
+        $sql = 'INSERT INTO transfer( sender_user_id , receipent_user_id , total_transfer )
+        VALUE( :sender_user_id, :receipent_user_id , :total_transfer)';
+        $est = $this->db->prepare($sql);
+        $data = [
+            ":sender_user_id" => $id_user,
+            ":receipent_user_id" => $id_user_penerima,
+            ":total_transfer" => $jumlah
+        ];
+
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => 'Transfer Berhasil Diproses'];
+        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Mengupdate Saldo'];
+
+    }
+
 }

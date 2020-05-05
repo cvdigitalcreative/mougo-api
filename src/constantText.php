@@ -18,6 +18,10 @@ define('KODE_SPONSOR_USER', "S");
 // SALDO INFO
 define('TAMBAH_SALDO', 1);
 
+// TRANSFER SALDO
+define('MINIMAL_TRANSFER', 10000);
+define('TRANSFER_CHARGE', 1000);
+
 // FUNGSI USER
 define('REGISTER', 'register');
 define('LOGIN', 'login');
