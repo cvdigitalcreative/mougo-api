@@ -273,3 +273,50 @@ $app->get('/common/user-referal/{id_user}', function ($request, $response, $args
     }
     return $response->withJson(['status' => 'Success' , 'message' => 'Berhasil Mendapatkan Struktur Referal User' , 'data' => $data ], SERVER_OK);
 })->add($tokenCheck);
+
+// CUSTOMER DRIVER
+// TRANSFER SALDO
+$app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
+    $emailTelpon = $request->getParsedBody();
+    $transfer = new Umum();
+    $transfer->setDb($this->db);
+    $pengirim = $transfer->cekUser($args['id_user']);
+    $penerima = $transfer->getUser($emailTelpon['emailTelpon']);
+    if(empty($pengirim) || empty($penerima)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    $data['pengirim'] = [
+        'id_user' => $pengirim['id_user'],
+        'nama' => $pengirim['nama']
+    ];
+    $data['penerima'] = [
+        'id_user' => $penerima['id_user'],
+        'nama' => $penerima['nama'],
+        'email' => $penerima['email']
+    ];
+    return $response->withJson(['status' => 'Success' , 'message' => 'Berhasil Silahkan Konfirmasi Biaya dan Password Untuk Melakukan Transfer', 'data' => $data ], SERVER_OK);
+})->add($tokenCheck);
+
+// CUSTOMER DRIVER
+// KONFIRMASI TRANSFER SALDO
+$app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $response, $args) {
+    $user = $request->getParsedBody();
+    $transfer = new Umum();
+    $transfer->setDb($this->db);
+    $pengirim = $transfer->cekUser($args['id_user']);
+    $penerima = $transfer->cekUser($user['id_user_penerima']);
+    if(empty($pengirim) || empty($penerima)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    if($user['jumlah_transfer']<MINIMAL_TRANSFER){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah' ], SERVER_OK);
+    }
+    $saldo = $transfer->getSaldoUser($args['id_user']);
+    if(($user['jumlah_transfer'] + TRANSFER_CHARGE ) > $saldo['jumlah_saldo']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Saldo User Tidak Mencukupi Untuk Melakukan Transfer' ], SERVER_OK);
+    }
+    if($pengirim['password']!=$user['password']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Password Anda Salah' ], SERVER_OK);
+    } 
+    return $response->withJson($transfer->insertTransfer($args['id_user'],$user['id_user_penerima'],$user['jumlah_transfer']), SERVER_OK);
+})->add($tokenCheck);
