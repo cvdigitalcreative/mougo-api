@@ -292,7 +292,8 @@ $app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
     if(($user['jumlah_transfer'] + TRANSFER_CHARGE ) > $saldo['jumlah_saldo']){
         return $response->withJson(['status' => 'Error' , 'message' => 'Saldo User Tidak Mencukupi Untuk Melakukan Transfer' ], SERVER_OK);
     }
-    $data['jumlah_transfer'] = $user['jumlah_transfer']+TRANSFER_CHARGE;
+    $data['jumlah_transfer'] = (int)$user['jumlah_transfer'];
+    $data['biaya_admin'] = TRANSFER_CHARGE;
     $data['pengirim'] = [
         'id_user' => $pengirim['id_user'],
         'nama' => $pengirim['nama']
