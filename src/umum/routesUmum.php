@@ -285,6 +285,9 @@ $app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
     if(empty($pengirim) || empty($penerima)){
         return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
     }
+    if($args['id_user']==$penerima['id_user']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri' ], SERVER_OK);
+    }
     if($user['jumlah_transfer']<MINIMAL_TRANSFER){
         return $response->withJson(['status' => 'Error' , 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah' ], SERVER_OK);
     }
@@ -317,6 +320,16 @@ $app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $respons
     $penerima = $transfer->cekUser($user['id_user_penerima']);
     if(empty($pengirim) || empty($penerima)){
         return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    if($args['id_user']==$penerima['id_user']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri' ], SERVER_OK);
+    }
+    if($user['jumlah_transfer']<MINIMAL_TRANSFER){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah' ], SERVER_OK);
+    }
+    $saldo = $transfer->getSaldoUser($args['id_user']);
+    if(($user['jumlah_transfer'] + TRANSFER_CHARGE ) > $saldo['jumlah_saldo']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Saldo User Tidak Mencukupi Untuk Melakukan Transfer' ], SERVER_OK);
     }
     if($pengirim['password']!=$user['password']){
         return $response->withJson(['status' => 'Error' , 'message' => 'Password Anda Salah' ], SERVER_OK);
