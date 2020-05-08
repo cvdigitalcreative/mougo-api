@@ -340,9 +340,10 @@ $app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $respons
 // UMUM
 // GET Jenis Withdraw
 $app->get('/common/withdraw/', function ($request, $response) {
+    $id_user = $request->getQueryParam("id_user");
     $umum = new Umum();
     $umum->setDb($this->db);
-    return $response->withJson($umum->getAllJenisWithdraw(), SERVER_OK);
+    return $response->withJson($umum->getAllJenisWithdraw($id_user), SERVER_OK);
 })->add($tokenCheck);
 
 // UMUM

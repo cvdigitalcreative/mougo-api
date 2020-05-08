@@ -34,12 +34,13 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Jenis Kendaraan Tidak Ditemukan'];
     }
 
-    public function getAllJenisWithdraw() {
+    public function getAllJenisWithdraw($id_user) {
         $sql = "SELECT * FROM jenis_withdraw";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetchAll();
+        $stmt['jenis_withdraw'] = $est->fetchAll();
         if (!empty($stmt)) {
+            $stmt['point'] = $this->getPointUser($id_user);
             return ['status' => 'Success', 'data' => $stmt];
         }return ['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'];
     }
@@ -737,6 +738,9 @@ class Umum {
         }
 
         $point_user = $this->getPointUser($id_user);
+        if($jumlah<JUMLAH_WITHDRAW_MINIMAL && $jenis == JENIS_WITHDRAW_REKENING){
+            return ['status' => 'Error', 'message' => 'Untuk Withdraw Melalui Rekening Minimal Withdraw 100.000 Rupiah'];
+        }
         if($point_user['jumlah_point']<$jumlah){
             return ['status' => 'Error', 'message' => 'Point Tidak Mencukupi Untuk Melakukan Withdraw'];
         }
