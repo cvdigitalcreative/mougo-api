@@ -748,11 +748,12 @@ class Umum {
         }
 
         $draw_status = STATUS_WITHDRAW_PENDING;
+        $rekening = ", Untuk Withdraw Rekening Akan Dikirim Ke Nomor Rekening Yang Tersimpan";
         if($jenis == JENIS_WITHDRAW_SALDO){
             $draw_status = STATUS_WITHDRAW_SUCCESS;
             $saldo_user = $this->getSaldoUser($id_user);
             $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
-            
+            $rekening = "";
             if(!$this->updateSaldo($id_user,$saldo_user) ){
                 return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
             }
@@ -769,8 +770,8 @@ class Umum {
         ];
 
         if ($est->execute($data)) {
-            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses'];
-        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Mengupdate Saldo'];
+            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses'.$rekening];
+        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Melakukan Withdraw'];
 
     }
 
