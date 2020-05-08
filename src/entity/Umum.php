@@ -738,6 +738,9 @@ class Umum {
         if(empty($this->cekUser($id_user))){
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
         }
+        if(empty($jumlah) || $jumlah<=JUMLAH_WITHDRAW_TERKECIL){
+            return ['status' => 'Error', 'message' => 'Input Nominal Tidak Boleh Kosong'];
+        }
 
         $point_user = $this->getPointUser($id_user);
         if($jumlah<JUMLAH_WITHDRAW_MINIMAL && $jenis == JENIS_WITHDRAW_REKENING){

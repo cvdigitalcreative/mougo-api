@@ -339,7 +339,7 @@ $app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $respons
 
 // UMUM
 // GET Jenis Withdraw
-$app->get('/common/withdraw/', function ($request, $response) {
+$app->get('/common/withdraw/informasi/', function ($request, $response) {
     $id_user = $request->getQueryParam("id_user");
     $umum = new Umum();
     $umum->setDb($this->db);
