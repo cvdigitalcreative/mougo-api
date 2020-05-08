@@ -40,7 +40,9 @@ class Umum {
         $est->execute();
         $stmt['jenis_withdraw'] = $est->fetchAll();
         if (!empty($stmt)) {
-            $stmt['point'] = $this->getPointUser($id_user);
+            $point = $this->getPointUser($id_user);
+            $stmt['point']['id_user'] = $point['id_user'];
+            $stmt['point']['jumlah_point'] =(double) $point['jumlah_point']; 
             return ['status' => 'Success', 'data' => $stmt];
         }return ['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'];
     }
