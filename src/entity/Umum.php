@@ -34,12 +34,15 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Jenis Kendaraan Tidak Ditemukan'];
     }
 
-    public function getAllJenisWithdraw() {
+    public function getAllJenisWithdraw($id_user) {
         $sql = "SELECT * FROM jenis_withdraw";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetchAll();
+        $stmt['jenis_withdraw'] = $est->fetchAll();
         if (!empty($stmt)) {
+            $point = $this->getPointUser($id_user);
+            $stmt['point']['id_user'] = $point['id_user'];
+            $stmt['point']['jumlah_point'] =(double) $point['jumlah_point']; 
             return ['status' => 'Success', 'data' => $stmt];
         }return ['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'];
     }
@@ -730,13 +733,19 @@ class Umum {
 
     }
 
-    public function withdrawSaldo($id_user, $jumlah) {
+    public function withdrawPoint($id_user, $jumlah, $jenis) {
 
         if(empty($this->cekUser($id_user))){
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
         }
+        if(empty($jumlah) || $jumlah<=JUMLAH_WITHDRAW_TERKECIL){
+            return ['status' => 'Error', 'message' => 'Input Nominal Tidak Boleh Kosong'];
+        }
 
         $point_user = $this->getPointUser($id_user);
+        if($jumlah<JUMLAH_WITHDRAW_MINIMAL && $jenis == JENIS_WITHDRAW_REKENING){
+            return ['status' => 'Error', 'message' => 'Untuk Withdraw Melalui Rekening Minimal Withdraw 100.000 Rupiah'];
+        }
         if($point_user['jumlah_point']<$jumlah){
             return ['status' => 'Error', 'message' => 'Point Tidak Mencukupi Untuk Melakukan Withdraw'];
         }
@@ -747,26 +756,31 @@ class Umum {
             return ['status' => 'Error', 'message' => 'Gagal Update Point'];
         }
 
-        $saldo_user = $this->getSaldoUser($id_user);
-        $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
-        
-        if(!$this->updateSaldo($id_user,$saldo_user) ){
-            return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+        $draw_status = STATUS_WITHDRAW_PENDING;
+        $rekening = ", Untuk Withdraw Rekening Akan Dikirim Ke Nomor Rekening Yang Tersimpan";
+        if($jenis == JENIS_WITHDRAW_SALDO){
+            $draw_status = STATUS_WITHDRAW_SUCCESS;
+            $saldo_user = $this->getSaldoUser($id_user);
+            $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
+            $rekening = "";
+            if(!$this->updateSaldo($id_user,$saldo_user) ){
+                return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+            }
         }
-
+        
         $sql = 'INSERT INTO withdraw( id_user , jumlah , jenis_withdraw, status_withdraw )
         VALUE( :id_user , :jumlah , :jenis_withdraw, :status_withdraw)';
         $est = $this->db->prepare($sql);
         $data = [
             ":id_user" => $id_user,
             ":jumlah" => $jumlah,
-            ":jenis_withdraw" => JENIS_WITHDRAW_SALDO,
-            ":status_withdraw" => STATUS_WITHDRAW_SUCCESS
+            ":jenis_withdraw" => $jenis,
+            ":status_withdraw" => $draw_status
         ];
 
         if ($est->execute($data)) {
-            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses'];
-        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Mengupdate Saldo'];
+            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses'.$rekening];
+        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Melakukan Withdraw'];
 
     }
 
