@@ -34,6 +34,16 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Jenis Kendaraan Tidak Ditemukan'];
     }
 
+    public function getAllJenisWithdraw() {
+        $sql = "SELECT * FROM jenis_withdraw";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        if (!empty($stmt)) {
+            return ['status' => 'Success', 'data' => $stmt];
+        }return ['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'];
+    }
+
     public function getDistance($lat, $long, $latTemp, $longTemp) {
         $radLat1 = pi() * $lat / 180;
         $radTemp = pi() * $latTemp / 180;
@@ -716,6 +726,46 @@ class Umum {
 
         if ($est->execute($data)) {
             return ['status' => 'Success', 'message' => 'Transfer Berhasil Diproses'];
+        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Mengupdate Saldo'];
+
+    }
+
+    public function withdrawSaldo($id_user, $jumlah) {
+
+        if(empty($this->cekUser($id_user))){
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+
+        $point_user = $this->getPointUser($id_user);
+        if($point_user['jumlah_point']<$jumlah){
+            return ['status' => 'Error', 'message' => 'Point Tidak Mencukupi Untuk Melakukan Withdraw'];
+        }
+
+        $point_user = $point_user['jumlah_point'] - $jumlah;
+
+        if(!$this->updatePoint($id_user,$point_user) ){
+            return ['status' => 'Error', 'message' => 'Gagal Update Point'];
+        }
+
+        $saldo_user = $this->getSaldoUser($id_user);
+        $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
+        
+        if(!$this->updateSaldo($id_user,$saldo_user) ){
+            return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+        }
+
+        $sql = 'INSERT INTO withdraw( id_user , jumlah , jenis_withdraw, status_withdraw )
+        VALUE( :id_user , :jumlah , :jenis_withdraw, :status_withdraw)';
+        $est = $this->db->prepare($sql);
+        $data = [
+            ":id_user" => $id_user,
+            ":jumlah" => $jumlah,
+            ":jenis_withdraw" => JENIS_WITHDRAW_SALDO,
+            ":status_withdraw" => STATUS_WITHDRAW_SUCCESS
+        ];
+
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses'];
         }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Mengupdate Saldo'];
 
     }

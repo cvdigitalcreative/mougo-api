@@ -336,3 +336,20 @@ $app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $respons
     } 
     return $response->withJson($transfer->insertTransfer($args['id_user'],$user['id_user_penerima'],$user['jumlah_transfer']), SERVER_OK);
 })->add($tokenCheck);
+
+// UMUM
+// GET Jenis Withdraw
+$app->get('/common/withdraw/', function ($request, $response) {
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    return $response->withJson($umum->getAllJenisWithdraw(), SERVER_OK);
+})->add($tokenCheck);
+
+// UMUM
+// POST Withdraw Saldo
+$app->post('/common/withdraw/saldo/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    return $response->withJson($umum->withdrawSaldo($args['id_user'],$data['jumlah_point']), SERVER_OK);
+})->add($tokenCheck);
