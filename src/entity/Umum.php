@@ -730,7 +730,7 @@ class Umum {
 
     }
 
-    public function withdrawSaldo($id_user, $jumlah) {
+    public function withdrawPoint($id_user, $jumlah, $jenis) {
 
         if(empty($this->cekUser($id_user))){
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
@@ -747,21 +747,25 @@ class Umum {
             return ['status' => 'Error', 'message' => 'Gagal Update Point'];
         }
 
-        $saldo_user = $this->getSaldoUser($id_user);
-        $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
-        
-        if(!$this->updateSaldo($id_user,$saldo_user) ){
-            return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+        $draw_status = STATUS_WITHDRAW_PENDING;
+        if($jenis == JENIS_WITHDRAW_SALDO){
+            $draw_status = STATUS_WITHDRAW_SUCCESS;
+            $saldo_user = $this->getSaldoUser($id_user);
+            $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
+            
+            if(!$this->updateSaldo($id_user,$saldo_user) ){
+                return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+            }
         }
-
+        
         $sql = 'INSERT INTO withdraw( id_user , jumlah , jenis_withdraw, status_withdraw )
         VALUE( :id_user , :jumlah , :jenis_withdraw, :status_withdraw)';
         $est = $this->db->prepare($sql);
         $data = [
             ":id_user" => $id_user,
             ":jumlah" => $jumlah,
-            ":jenis_withdraw" => JENIS_WITHDRAW_SALDO,
-            ":status_withdraw" => STATUS_WITHDRAW_SUCCESS
+            ":jenis_withdraw" => $jenis,
+            ":status_withdraw" => $draw_status
         ];
 
         if ($est->execute($data)) {

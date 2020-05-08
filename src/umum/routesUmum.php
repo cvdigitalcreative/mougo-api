@@ -346,10 +346,10 @@ $app->get('/common/withdraw/', function ($request, $response) {
 })->add($tokenCheck);
 
 // UMUM
-// POST Withdraw Saldo
-$app->post('/common/withdraw/saldo/{id_user}', function ($request, $response, $args) {
+// POST Withdraw
+$app->post('/common/withdraw/{id_user}', function ($request, $response, $args) {
     $data = $request->getParsedBody();
     $umum = new Umum();
     $umum->setDb($this->db);
-    return $response->withJson($umum->withdrawSaldo($args['id_user'],$data['jumlah_point']), SERVER_OK);
+    return $response->withJson($umum->withdrawPoint($args['id_user'],$data['jumlah_point'],$data['jenis_withdraw']), SERVER_OK);
 })->add($tokenCheck);
