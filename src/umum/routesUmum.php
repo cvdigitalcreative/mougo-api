@@ -354,3 +354,26 @@ $app->post('/common/withdraw/{id_user}', function ($request, $response, $args) {
     $umum->setDb($this->db);
     return $response->withJson($umum->withdrawPoint($args['id_user'],$data['jumlah_point'],$data['jenis_withdraw']), SERVER_OK);
 })->add($tokenCheck);
+
+// UMUM
+// GET History Withdraw
+$app->get('/common/withdraw/{id_user}', function ($request, $response, $args) {
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    $user = $umum->cekUser($args['id_user']);
+    if(empty($user)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    $data = $umum->getHistoryWithdraw($args['id_user']);
+    
+    $data_withdraw = [];
+    for ($i=0; $i < count($data); $i++) { 
+        $data_withdraw[$i]['id'] =(int) $data[$i]['id'];
+        $data_withdraw[$i]['id_user'] = $data[$i]['id_user'];
+        $data_withdraw[$i]['jumlah'] =(double) $data[$i]['jumlah'];
+        $data_withdraw[$i]['jenis_withdraw'] =(int) $data[$i]['jenis_withdraw'];
+        $data_withdraw[$i]['status_withdraw'] =(int) $data[$i]['status_withdraw'];
+        $data_withdraw[$i]['tanggal_withdraw'] = $data[$i]['tanggal_withdraw'];
+    }
+    return $response->withJson(['status' => 'Success' , 'data' => $data_withdraw ], SERVER_OK);
+})->add($tokenCheck);

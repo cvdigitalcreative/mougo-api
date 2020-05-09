@@ -784,4 +784,13 @@ class Umum {
 
     }
 
+    public function getHistoryWithdraw($id) {
+        $sql = "SELECT * FROM withdraw
+                WHERE id_user ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
 }
