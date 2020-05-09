@@ -364,18 +364,19 @@ $app->get('/common/withdraw/{id_user}', function ($request, $response, $args) {
     if(empty($user)){
         return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
     }
+    $data_withdraw = [];
     $data = $umum->getHistoryWithdraw($args['id_user']);
     if(empty($data)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'User Belum Pernah Melakukan Withdraw' ], SERVER_OK);
+        return $response->withJson(['status' => 'Error' , 'message' => 'User Belum Pernah Melakukan Withdraw', 'data' => $data_withdraw ], SERVER_OK);
     }
-    $data_wtihdraw = [];
+    $data_withdraw = [];
     for ($i=0; $i < count($data); $i++) { 
-        $data_wtihdraw[$i]['id'] =(int) $data[$i]['id'];
-        $data_wtihdraw[$i]['id_user'] = $data[$i]['id_user'];
-        $data_wtihdraw[$i]['jumlah'] =(double) $data[$i]['jumlah'];
-        $data_wtihdraw[$i]['jenis_withdraw'] =(int) $data[$i]['jenis_withdraw'];
-        $data_wtihdraw[$i]['status_withdraw'] =(int) $data[$i]['status_withdraw'];
-        $data_wtihdraw[$i]['tanggal_withdraw'] = $data[$i]['tanggal_withdraw'];
+        $data_withdraw[$i]['id'] =(int) $data[$i]['id'];
+        $data_withdraw[$i]['id_user'] = $data[$i]['id_user'];
+        $data_withdraw[$i]['jumlah'] =(double) $data[$i]['jumlah'];
+        $data_withdraw[$i]['jenis_withdraw'] =(int) $data[$i]['jenis_withdraw'];
+        $data_withdraw[$i]['status_withdraw'] =(int) $data[$i]['status_withdraw'];
+        $data_withdraw[$i]['tanggal_withdraw'] = $data[$i]['tanggal_withdraw'];
     }
-    return $response->withJson(['status' => 'Success' , 'data' => $data_wtihdraw ], SERVER_OK);
+    return $response->withJson(['status' => 'Success' , 'data' => $data_withdraw ], SERVER_OK);
 })->add($tokenCheck);
