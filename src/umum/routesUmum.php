@@ -364,11 +364,8 @@ $app->get('/common/withdraw/{id_user}', function ($request, $response, $args) {
     if(empty($user)){
         return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
     }
-    $data_withdraw = [];
     $data = $umum->getHistoryWithdraw($args['id_user']);
-    if(empty($data)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'User Belum Pernah Melakukan Withdraw', 'data' => $data_withdraw ], SERVER_OK);
-    }
+    
     $data_withdraw = [];
     for ($i=0; $i < count($data); $i++) { 
         $data_withdraw[$i]['id'] =(int) $data[$i]['id'];
