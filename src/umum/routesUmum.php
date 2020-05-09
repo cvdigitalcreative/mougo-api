@@ -371,8 +371,8 @@ $app->get('/common/withdraw/{id_user}', function ($request, $response, $args) {
         $data_withdraw[$i]['id'] =(int) $data[$i]['id'];
         $data_withdraw[$i]['id_user'] = $data[$i]['id_user'];
         $data_withdraw[$i]['jumlah'] =(double) $data[$i]['jumlah'];
-        $data_withdraw[$i]['jenis_withdraw'] =(int) $data[$i]['jenis_withdraw'];
-        $data_withdraw[$i]['status_withdraw'] =(int) $data[$i]['status_withdraw'];
+        $data_withdraw[$i]['jenis_withdraw'] = $data[$i]['jenis_withdraw'];
+        $data_withdraw[$i]['status_withdraw'] = $data[$i]['status_withdraw'];
         $data_withdraw[$i]['tanggal_withdraw'] = $data[$i]['tanggal_withdraw'];
     }
     return $response->withJson(['status' => 'Success' , 'data' => $data_withdraw ], SERVER_OK);
