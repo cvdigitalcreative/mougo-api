@@ -785,7 +785,9 @@ class Umum {
     }
 
     public function getHistoryWithdraw($id) {
-        $sql = "SELECT * FROM withdraw
+        $sql = "SELECT withdraw.*,status_withdraw.status_withdraw,jenis_withdraw.jenis_withdraw FROM withdraw
+                INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw
+                INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
                 WHERE id_user ='$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
