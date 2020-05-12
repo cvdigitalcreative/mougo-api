@@ -249,3 +249,131 @@ $app->delete('/common/foto/{id_user}', function ($request, $response, $args) {
     $comon->setDb($this->db);
     return $response->withJson($comon->resetFoto($args['id_user']), SERVER_OK);
 });
+
+// UMUM
+// GET CHILD Referal
+$app->get('/common/user-referal/{id_user}', function ($request, $response, $args) {
+    $id_user_anak = $request->getQueryParam("id_user_anak");
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    $user = $umum->cekUser($args['id_user']);
+    $user_anak = $umum->cekUser($id_user_anak);
+    if(empty($user) || empty($user_anak)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    $child = $umum->getReferalChild($id_user_anak);
+    $total = $umum->getTotalReferalChild($args['id_user']);
+    $data['total_struktur'] = (int) $total;
+    $data['parent'] = $user_anak['nama'];
+    $data['anak'] = [];
+    for($i=0;$i<count($child);$i++){
+        $data['anak'][$i]['id_user'] = $child[$i]['id_user'];
+        $data['anak'][$i]['nama'] = $child[$i]['nama'];
+        $data['anak'][$i]['no_telpon'] = $child[$i]['no_telpon'];
+    }
+    return $response->withJson(['status' => 'Success' , 'message' => 'Berhasil Mendapatkan Struktur Referal User' , 'data' => $data ], SERVER_OK);
+})->add($tokenCheck);
+
+// CUSTOMER DRIVER
+// TRANSFER SALDO
+$app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
+    $user = $request->getParsedBody();
+    $transfer = new Umum();
+    $transfer->setDb($this->db);
+    $pengirim = $transfer->cekUser($args['id_user']);
+    $penerima = $transfer->getUser($user['emailTelpon']);
+    if(empty($pengirim) || empty($penerima)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    if($args['id_user']==$penerima['id_user']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri' ], SERVER_OK);
+    }
+    if($user['jumlah_transfer']<MINIMAL_TRANSFER){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah' ], SERVER_OK);
+    }
+    $saldo = $transfer->getSaldoUser($args['id_user']);
+    if(($user['jumlah_transfer'] + TRANSFER_CHARGE ) > $saldo['jumlah_saldo']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Saldo User Tidak Mencukupi Untuk Melakukan Transfer' ], SERVER_OK);
+    }
+    $data['jumlah_transfer'] = (int)$user['jumlah_transfer'];
+    $data['biaya_admin'] = TRANSFER_CHARGE;
+    $data['pengirim'] = [
+        'id_user' => $pengirim['id_user'],
+        'nama' => $pengirim['nama']
+    ];
+    $data['penerima'] = [
+        'id_user' => $penerima['id_user'],
+        'nama' => $penerima['nama'],
+        'email' => $penerima['email'],
+        'no_telpon' => $penerima['no_telpon']
+    ];
+    return $response->withJson(['status' => 'Success' , 'message' => 'Berhasil Silahkan Konfirmasi Biaya dan Password Untuk Melakukan Transfer', 'data' => $data ], SERVER_OK);
+})->add($tokenCheck);
+
+// CUSTOMER DRIVER
+// KONFIRMASI TRANSFER SALDO
+$app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $response, $args) {
+    $user = $request->getParsedBody();
+    $transfer = new Umum();
+    $transfer->setDb($this->db);
+    $pengirim = $transfer->cekUser($args['id_user']);
+    $penerima = $transfer->cekUser($user['id_user_penerima']);
+    if(empty($pengirim) || empty($penerima)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    if($args['id_user']==$penerima['id_user']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri' ], SERVER_OK);
+    }
+    if($user['jumlah_transfer']<MINIMAL_TRANSFER){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah' ], SERVER_OK);
+    }
+    $saldo = $transfer->getSaldoUser($args['id_user']);
+    if(($user['jumlah_transfer'] + TRANSFER_CHARGE ) > $saldo['jumlah_saldo']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Saldo User Tidak Mencukupi Untuk Melakukan Transfer' ], SERVER_OK);
+    }
+    if($pengirim['password']!=$user['password']){
+        return $response->withJson(['status' => 'Error' , 'message' => 'Password Anda Salah' ], SERVER_OK);
+    } 
+    return $response->withJson($transfer->insertTransfer($args['id_user'],$user['id_user_penerima'],$user['jumlah_transfer']), SERVER_OK);
+})->add($tokenCheck);
+
+// UMUM
+// GET Jenis Withdraw
+$app->get('/common/withdraw/informasi/', function ($request, $response) {
+    $id_user = $request->getQueryParam("id_user");
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    return $response->withJson($umum->getAllJenisWithdraw($id_user), SERVER_OK);
+})->add($tokenCheck);
+
+// UMUM
+// POST Withdraw
+$app->post('/common/withdraw/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    return $response->withJson($umum->withdrawPoint($args['id_user'],$data['jumlah_point'],$data['jenis_withdraw']), SERVER_OK);
+})->add($tokenCheck);
+
+// UMUM
+// GET History Withdraw
+$app->get('/common/withdraw/{id_user}', function ($request, $response, $args) {
+    $umum = new Umum();
+    $umum->setDb($this->db);
+    $user = $umum->cekUser($args['id_user']);
+    if(empty($user)){
+        return $response->withJson(['status' => 'Error' , 'message' => 'User tidak ditemukan' ], SERVER_OK);
+    }
+    $data = $umum->getHistoryWithdraw($args['id_user']);
+    
+    $data_withdraw = [];
+    for ($i=0; $i < count($data); $i++) { 
+        $data_withdraw[$i]['id'] =(int) $data[$i]['id'];
+        $data_withdraw[$i]['id_user'] = $data[$i]['id_user'];
+        $data_withdraw[$i]['jumlah'] =(double) $data[$i]['jumlah'];
+        $data_withdraw[$i]['jenis_withdraw'] = $data[$i]['jenis_withdraw'];
+        $data_withdraw[$i]['status_withdraw'] = $data[$i]['status_withdraw'];
+        $data_withdraw[$i]['tanggal_withdraw'] = $data[$i]['tanggal_withdraw'];
+    }
+    return $response->withJson(['status' => 'Success' , 'data' => $data_withdraw ], SERVER_OK);
+})->add($tokenCheck);

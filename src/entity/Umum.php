@@ -34,6 +34,19 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Jenis Kendaraan Tidak Ditemukan'];
     }
 
+    public function getAllJenisWithdraw($id_user) {
+        $sql = "SELECT * FROM jenis_withdraw";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt['jenis_withdraw'] = $est->fetchAll();
+        if (!empty($stmt)) {
+            $point = $this->getPointUser($id_user);
+            $stmt['point']['id_user'] = $point['id_user'];
+            $stmt['point']['jumlah_point'] =(double) $point['jumlah_point']; 
+            return ['status' => 'Success', 'data' => $stmt];
+        }return ['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'];
+    }
+
     public function getDistance($lat, $long, $latTemp, $longTemp) {
         $radLat1 = pi() * $lat / 180;
         $radTemp = pi() * $latTemp / 180;
@@ -191,7 +204,8 @@ class Umum {
             return ['status' => 'Success', 'harga' => HARGA_JARAK_MINIMAL];
         } else {
             $harga = HARGA_JARAK_MINIMAL;
-            for ($i = 3; $i <= $jarak; $i++) {
+            $jarak_pertama = JARAK_MINIMAL + 1;
+            for ($i = $jarak_pertama; $i <= $jarak; $i++) {
                 $harga = $harga + HARGA_JARAK_PERKILO;
             }
             return ['status' => 'Success', 'harga' => $harga];
@@ -216,7 +230,14 @@ class Umum {
         ];
         $est = $this->getDb()->prepare($sql);
         if ($est->execute($data)) {
-            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id, 'jumlah_topup' => $jumlah_topup, 'no_rek' => NO_REK_PERUSAHAAN, 'nama_rek' => NAMA_REK_PERUSAHAAN, 'nama_bank' => NAMA_BANK_PERUSAHAAN];
+            $data = [
+                'id_topup' => $id, 
+                'jumlah_topup' => $jumlah_topup, 
+                'no_rek' => NO_REK_PERUSAHAAN, 
+                'nama_rek' => NAMA_REK_PERUSAHAAN, 
+                'nama_bank' => NAMA_BANK_PERUSAHAAN
+            ];
+            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data'=>$data];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
     }
 
@@ -646,6 +667,134 @@ class Umum {
             return ['status' => 'Success', 'message' => 'Berhasil Menghapus Ahli Waris'];
         }
         return ['status' => 'Error', 'message' => 'Gagal Menghapus Ahli Waris'];
+    }
+
+    public function cekUser($id) {
+        $sql = "SELECT * FROM user
+                WHERE id_user ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function getReferalChild($id) {
+        $sql = "SELECT * FROM kode_referal
+                INNER JOIN user ON user.id_user = kode_referal.id_user
+                WHERE kode_referal.id_user_atasan ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTotalReferalChild($id) {
+        $total = 0;
+        $level1 = $this->getReferalChild($id);
+        for ($i=0; $i < count($level1); $i++) { 
+            $total++;
+            $level2 = $this->getReferalChild($level1[$i]['id_user']);
+            for ($j=0; $j < count($level2); $j++) { 
+                $total++;
+                $level3 = $this->getReferalChild($level2[$j]['id_user']);
+                for ($c=0; $c < count($level3); $c++) { 
+                    $total++;
+                }    
+            }    
+        }
+        return $total;
+    }
+
+    public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
+
+        $saldo_user = $this->getSaldoUser($id_user);
+        $saldo_penerima = $this->getSaldoUser($id_user_penerima);
+        $saldo_perusahaan = $this->getSaldoUser(ID_PERUSAHAAN);
+
+        $saldo_user = $saldo_user['jumlah_saldo'] - ($jumlah + TRANSFER_CHARGE);
+        $saldo_penerima = $saldo_penerima['jumlah_saldo'] + $jumlah;
+        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + TRANSFER_CHARGE;
+
+        if(!$this->updateSaldo($id_user,$saldo_user) || !$this->updateSaldo($id_user_penerima,$saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN,$saldo_perusahaan) ){
+            return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+        }
+
+        $sql = 'INSERT INTO transfer( sender_user_id , receipent_user_id , total_transfer )
+        VALUE( :sender_user_id, :receipent_user_id , :total_transfer)';
+        $est = $this->db->prepare($sql);
+        $data = [
+            ":sender_user_id" => $id_user,
+            ":receipent_user_id" => $id_user_penerima,
+            ":total_transfer" => $jumlah
+        ];
+
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => 'Transfer Berhasil Diproses'];
+        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Mengupdate Saldo'];
+
+    }
+
+    public function withdrawPoint($id_user, $jumlah, $jenis) {
+
+        if(empty($this->cekUser($id_user))){
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        if(empty($jumlah) || $jumlah<=JUMLAH_WITHDRAW_TERKECIL){
+            return ['status' => 'Error', 'message' => 'Input Nominal Tidak Boleh Kosong'];
+        }
+
+        $point_user = $this->getPointUser($id_user);
+        if($jumlah<JUMLAH_WITHDRAW_MINIMAL && $jenis == JENIS_WITHDRAW_REKENING){
+            return ['status' => 'Error', 'message' => 'Untuk Withdraw Melalui Rekening Minimal Withdraw 100.000 Rupiah'];
+        }
+        if($point_user['jumlah_point']<$jumlah){
+            return ['status' => 'Error', 'message' => 'Point Tidak Mencukupi Untuk Melakukan Withdraw'];
+        }
+
+        $point_user = $point_user['jumlah_point'] - $jumlah;
+
+        if(!$this->updatePoint($id_user,$point_user) ){
+            return ['status' => 'Error', 'message' => 'Gagal Update Point'];
+        }
+
+        $draw_status = STATUS_WITHDRAW_PENDING;
+        $rekening = ", Untuk Withdraw Rekening Akan Dikirim Ke Nomor Rekening Yang Tersimpan";
+        if($jenis == JENIS_WITHDRAW_SALDO){
+            $draw_status = STATUS_WITHDRAW_SUCCESS;
+            $saldo_user = $this->getSaldoUser($id_user);
+            $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
+            $rekening = "";
+            if(!$this->updateSaldo($id_user,$saldo_user) ){
+                return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
+            }
+        }
+        
+        $sql = 'INSERT INTO withdraw( id_user , jumlah , jenis_withdraw, status_withdraw )
+        VALUE( :id_user , :jumlah , :jenis_withdraw, :status_withdraw)';
+        $est = $this->db->prepare($sql);
+        $data = [
+            ":id_user" => $id_user,
+            ":jumlah" => $jumlah,
+            ":jenis_withdraw" => $jenis,
+            ":status_withdraw" => $draw_status
+        ];
+
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses'.$rekening];
+        }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Melakukan Withdraw'];
+
+    }
+
+    public function getHistoryWithdraw($id) {
+        $sql = "SELECT withdraw.*,status_withdraw.status_withdraw,jenis_withdraw.jenis_withdraw FROM withdraw
+                INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw
+                INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
+                WHERE id_user ='$id'
+                ORDER BY withdraw.tanggal_withdraw DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
     }
 
 }
