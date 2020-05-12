@@ -204,7 +204,8 @@ class Umum {
             return ['status' => 'Success', 'harga' => HARGA_JARAK_MINIMAL];
         } else {
             $harga = HARGA_JARAK_MINIMAL;
-            for ($i = 3; $i <= $jarak; $i++) {
+            $jarak_pertama = JARAK_MINIMAL + 1;
+            for ($i = $jarak_pertama; $i <= $jarak; $i++) {
                 $harga = $harga + HARGA_JARAK_PERKILO;
             }
             return ['status' => 'Success', 'harga' => $harga];
