@@ -230,14 +230,7 @@ class Umum {
         ];
         $est = $this->getDb()->prepare($sql);
         if ($est->execute($data)) {
-            $data = [
-                'id_topup' => $id, 
-                'jumlah_topup' => $jumlah_topup, 
-                'no_rek' => NO_REK_PERUSAHAAN, 
-                'nama_rek' => NAMA_REK_PERUSAHAAN, 
-                'nama_bank' => NAMA_BANK_PERUSAHAAN
-            ];
-            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data'=>$data];
+            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id, 'jumlah_topup' => $jumlah_topup, 'no_rek' => NO_REK_PERUSAHAAN, 'nama_rek' => NAMA_REK_PERUSAHAAN, 'nama_bank' => NAMA_BANK_PERUSAHAAN];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
     }
 
