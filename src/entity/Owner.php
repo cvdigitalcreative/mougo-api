@@ -136,20 +136,16 @@ class Owner {
         if(empty($trip)){
             return ['status' => 'Error' , 'message' => 'Trip Tidak Ditemukan'];
         }
-        $dataCustomer = [];
         for ($i=0; $i < count($trip); $i++) { 
-            $dataCustomer[$i]['nama_driver'] = decrypt($trip[$i]['nama_driver'],MOUGO_CRYPTO_KEY);
-            $dataCustomer[$i]['nama_customer'] = decrypt($trip[$i]['nama_customer'],MOUGO_CRYPTO_KEY);
-            $dataCustomer[$i]['alamat_jemput'] = $trip[$i]['alamat_jemput'];
-            $dataCustomer[$i]['alamat_destinasi'] = $trip[$i]['alamat_destinasi'];
-            $dataCustomer[$i]['total_harga'] =(double) $trip[$i]['total_harga']; 
-            $dataCustomer[$i]['tanggal_trip'] = $trip[$i]['tanggal_transaksi'];
+            $trip[$i]['nama_driver'] = decrypt($trip[$i]['nama_driver'],MOUGO_CRYPTO_KEY);
+            $trip[$i]['nama_customer'] = decrypt($trip[$i]['nama_customer'],MOUGO_CRYPTO_KEY);
+            $trip[$i]['total_harga'] =(double) $trip[$i]['total_harga']; 
         }
-        return ['status' => 'Success' , 'data' => $dataCustomer ];
+        return ['status' => 'Success' , 'data' => $trip ];
     }
 
     public function getBonusLevel(){
-        $sql = "SELECT * FROM bonus_level
+        $sql = "SELECT user.nama, bonus_level.pendapatan, bonus_level.tanggal_pendapatan FROM bonus_level
                 INNER JOIN user ON user.id_user = bonus_level.id_user
                 ORDER BY tanggal_pendapatan DESC";
         $est = $this->getDb()->prepare($sql);
@@ -162,14 +158,12 @@ class Owner {
         $Bonus = $this->getBonusLevel();
         if(empty($Bonus)){
             return ['status' => 'Error' , 'message' => 'Bonus Level Tidak Ditemukan'];
-        }
-        $dataCustomer = [];
+        } 
         for ($i=0; $i < count($Bonus); $i++) { 
-            $dataCustomer[$i]['nama'] = decrypt($Bonus[$i]['nama'],MOUGO_CRYPTO_KEY);
-            $dataCustomer[$i]['pendapatan'] =(double) $Bonus[$i]['pendapatan']; 
-            $dataCustomer[$i]['tanggal_pendapatan'] = $Bonus[$i]['tanggal_pendapatan'];
+            $Bonus[$i]['nama'] = decrypt($Bonus[$i]['nama'],MOUGO_CRYPTO_KEY);
+            $Bonus[$i]['pendapatan'] =(double) $Bonus[$i]['pendapatan']; 
         }
-        return ['status' => 'Success' , 'data' => $dataCustomer ];
+        return ['status' => 'Success' , 'data' => $Bonus ];
     }
 
 }
