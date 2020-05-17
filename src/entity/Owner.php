@@ -120,4 +120,31 @@ class Owner {
         
     }
 
+    public function getTrip(){
+        $sql = "SELECT * FROM trip
+                INNER JOIN user ON user.id_user = trip.id_customer";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getTripDriver(){
+        $sql = "SELECT user.nama FROM trip
+                INNER JOIN user ON user.id_user = trip.id_driver";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getBonusLevel(){
+        $sql = "SELECT * FROM bonus_level
+                INNER JOIN user ON user.id_user = bonus_level.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
 }
