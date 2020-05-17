@@ -190,3 +190,19 @@ $app->post('/owner/event/{id}', function ($request, $response, $args) {
     }return $response->withJson($getevent->editEvent($args['id'],$data['judul'], $data['deskripsi'], $path_name, $data['tanggal_event']), SERVER_OK);
 
 });
+
+// OWNER
+// GET TRIP
+$app->get('/owner/trip/', function ($request, $response) {
+    $getTrip = new Owner(null,null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getTripAll(), SERVER_OK);
+});
+
+// OWNER
+// GET BONUS LEVEL
+$app->get('/owner/bonus/level/', function ($request, $response) {
+    $getBonus = new Owner(null,null);
+    $getBonus->setDb($this->db);
+    return $response->withJson($getBonus->getBonusLevelAll(), SERVER_OK);
+}); 

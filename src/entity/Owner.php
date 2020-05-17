@@ -120,4 +120,50 @@ class Owner {
         
     }
 
+    public function getTrip(){
+        $sql = "SELECT driver.nama AS nama_driver, customer.nama AS nama_customer, alamat_jemput, alamat_destinasi, total_harga, tanggal_transaksi FROM trip
+                INNER JOIN user AS customer ON customer.id_user = trip.id_customer
+                INNER JOIN user AS driver ON driver.id_user = trip.id_driver
+                ORDER BY tanggal_transaksi DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getTripAll(){
+        $trip = $this->getTrip();
+        if(empty($trip)){
+            return ['status' => 'Error' , 'message' => 'Trip Tidak Ditemukan'];
+        }
+        for ($i=0; $i < count($trip); $i++) { 
+            $trip[$i]['nama_driver'] = decrypt($trip[$i]['nama_driver'],MOUGO_CRYPTO_KEY);
+            $trip[$i]['nama_customer'] = decrypt($trip[$i]['nama_customer'],MOUGO_CRYPTO_KEY);
+            $trip[$i]['total_harga'] =(double) $trip[$i]['total_harga']; 
+        }
+        return ['status' => 'Success' , 'data' => $trip ];
+    }
+
+    public function getBonusLevel(){
+        $sql = "SELECT user.nama, bonus_level.pendapatan, bonus_level.tanggal_pendapatan FROM bonus_level
+                INNER JOIN user ON user.id_user = bonus_level.id_user
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getBonusLevelAll(){
+        $Bonus = $this->getBonusLevel();
+        if(empty($Bonus)){
+            return ['status' => 'Error' , 'message' => 'Bonus Level Tidak Ditemukan'];
+        } 
+        for ($i=0; $i < count($Bonus); $i++) { 
+            $Bonus[$i]['nama'] = decrypt($Bonus[$i]['nama'],MOUGO_CRYPTO_KEY);
+            $Bonus[$i]['pendapatan'] =(double) $Bonus[$i]['pendapatan']; 
+        }
+        return ['status' => 'Success' , 'data' => $Bonus ];
+    }
+
 }
