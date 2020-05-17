@@ -121,30 +121,55 @@ class Owner {
     }
 
     public function getTrip(){
-        $sql = "SELECT * FROM trip
-                INNER JOIN user ON user.id_user = trip.id_customer";
+        $sql = "SELECT driver.nama AS nama_driver, customer.nama AS nama_customer, alamat_jemput, alamat_destinasi, total_harga, tanggal_transaksi FROM trip
+                INNER JOIN user AS customer ON customer.id_user = trip.id_customer
+                INNER JOIN user AS driver ON driver.id_user = trip.id_driver
+                ORDER BY tanggal_transaksi DESC";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
         return $temp;
     }
 
-    public function getTripDriver(){
-        $sql = "SELECT user.nama FROM trip
-                INNER JOIN user ON user.id_user = trip.id_driver";
-        $est = $this->getDb()->prepare($sql);
-        $est->execute();
-        $temp = $est->fetchAll();
-        return $temp;
+    public function getTripAll(){
+        $trip = $this->getTrip();
+        if(empty($trip)){
+            return ['status' => 'Error' , 'message' => 'Trip Tidak Ditemukan'];
+        }
+        $dataCustomer = [];
+        for ($i=0; $i < count($trip); $i++) { 
+            $dataCustomer[$i]['nama_driver'] = decrypt($trip[$i]['nama_driver'],MOUGO_CRYPTO_KEY);
+            $dataCustomer[$i]['nama_customer'] = decrypt($trip[$i]['nama_customer'],MOUGO_CRYPTO_KEY);
+            $dataCustomer[$i]['alamat_jemput'] = $trip[$i]['alamat_jemput'];
+            $dataCustomer[$i]['alamat_destinasi'] = $trip[$i]['alamat_destinasi'];
+            $dataCustomer[$i]['total_harga'] =(double) $trip[$i]['total_harga']; 
+            $dataCustomer[$i]['tanggal_trip'] = $trip[$i]['tanggal_transaksi'];
+        }
+        return ['status' => 'Success' , 'data' => $dataCustomer ];
     }
 
     public function getBonusLevel(){
         $sql = "SELECT * FROM bonus_level
-                INNER JOIN user ON user.id_user = bonus_level.id_user";
+                INNER JOIN user ON user.id_user = bonus_level.id_user
+                ORDER BY tanggal_pendapatan DESC";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
         return $temp;
+    }
+
+    public function getBonusLevelAll(){
+        $Bonus = $this->getBonusLevel();
+        if(empty($Bonus)){
+            return ['status' => 'Error' , 'message' => 'Bonus Level Tidak Ditemukan'];
+        }
+        $dataCustomer = [];
+        for ($i=0; $i < count($Bonus); $i++) { 
+            $dataCustomer[$i]['nama'] = decrypt($Bonus[$i]['nama'],MOUGO_CRYPTO_KEY);
+            $dataCustomer[$i]['pendapatan'] =(double) $Bonus[$i]['pendapatan']; 
+            $dataCustomer[$i]['tanggal_pendapatan'] = $Bonus[$i]['tanggal_pendapatan'];
+        }
+        return ['status' => 'Success' , 'data' => $dataCustomer ];
     }
 
 }

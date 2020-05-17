@@ -196,22 +196,7 @@ $app->post('/owner/event/{id}', function ($request, $response, $args) {
 $app->get('/owner/trip/', function ($request, $response) {
     $getTrip = new Owner(null,null);
     $getTrip->setDb($this->db);
-    $trip = $getTrip->getTrip();
-    $tripDriver = $getTrip->getTripDriver();
-    if(empty($trip)||empty($tripDriver)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'Trip Tidak Ditemukan'], SERVER_OK);
-    }
-    $dataCustomer = [];
-    for ($i=0; $i < count($trip); $i++) { 
-        $dataCustomer[$i]['nama_driver'] = decrypt($tripDriver[$i]['nama'],MOUGO_CRYPTO_KEY);
-        $dataCustomer[$i]['nama_customer'] = decrypt($trip[$i]['nama'],MOUGO_CRYPTO_KEY);
-        $dataCustomer[$i]['alamat_jemput'] = $trip[$i]['alamat_jemput'];
-        $dataCustomer[$i]['alamat_destinasi'] = $trip[$i]['alamat_destinasi'];
-        $dataCustomer[$i]['total_harga'] =(double) $trip[$i]['total_harga']; 
-        $dataCustomer[$i]['tanggal_trip'] = $trip[$i]['tanggal_transaksi'];
-    }
-
-    return $response->withJson(['status' => 'Success' , 'data' => $dataCustomer ], SERVER_OK);
+    return $response->withJson($getTrip->getTripAll(), SERVER_OK);
 });
 
 // OWNER
@@ -219,16 +204,5 @@ $app->get('/owner/trip/', function ($request, $response) {
 $app->get('/owner/bonus/level/', function ($request, $response) {
     $getBonus = new Owner(null,null);
     $getBonus->setDb($this->db);
-    $Bonus = $getBonus->getBonusLevel();
-    if(empty($Bonus)){
-        return $response->withJson(['status' => 'Error' , 'message' => 'Bonus Level Tidak Ditemukan'], SERVER_OK);
-    }
-    $dataCustomer = [];
-    for ($i=0; $i < count($Bonus); $i++) { 
-        $dataCustomer[$i]['nama'] = decrypt($Bonus[$i]['nama'],MOUGO_CRYPTO_KEY);
-        $dataCustomer[$i]['pendapatan'] =(double) $Bonus[$i]['pendapatan']; 
-        $dataCustomer[$i]['tanggal_pendapatan'] = $Bonus[$i]['tanggal_pendapatan'];
-    }
-
-    return $response->withJson(['status' => 'Success' , 'data' => $dataCustomer ], SERVER_OK);
-});
+    return $response->withJson($getBonus->getBonusLevelAll(), SERVER_OK);
+}); 
