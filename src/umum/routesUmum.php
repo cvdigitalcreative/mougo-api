@@ -377,3 +377,19 @@ $app->get('/common/withdraw/{id_user}', function ($request, $response, $args) {
     }
     return $response->withJson(['status' => 'Success' , 'data' => $data_withdraw ], SERVER_OK);
 })->add($tokenCheck);
+
+// USER
+// GET HISTORY TRANSFER
+$app->get('/common/transfer/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getTransferHistoryUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET HISTORY TOPUP
+$app->get('/common/topup/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getTopupHistoryUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);

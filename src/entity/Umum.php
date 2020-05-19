@@ -797,4 +797,55 @@ class Umum {
         return $stmt;
     }
 
+    public function getTransferHistory($id) {
+        $sql = "SELECT user.nama,user.email,user.no_telpon,transfer.total_transfer,transfer.tanggal_transfer FROM transfer
+                INNER JOIN user ON user.id_user = transfer.receipent_user_id
+                WHERE transfer.sender_user_id = '$id'
+                ORDER BY transfer.tanggal_transfer DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTransferHistoryUser($id) {
+        if(empty($this->cekUser($id))){
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getTransferHistory($id);
+        if(empty($data)){
+            return ['status' => 'Success', 'data' => []];
+        }
+        for ($i=0; $i < count($data); $i++) { 
+            $data[$i]['total_transfer'] =(double) $data[$i]['total_transfer'];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getTopupHistory($id) {
+        $sql = "SELECT user.nama,user.email,user.no_telpon,top_up.jumlah_topup,status_topup.status,top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup
+                WHERE top_up.id_user = '$id'
+                ORDER BY top_up.tanggal_topup DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTopupHistoryUser($id) {
+        if(empty($this->cekUser($id))){
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getTopupHistory($id);
+        if(empty($data)){
+            return ['status' => 'Success', 'data' => []];
+        }
+        for ($i=0; $i < count($data); $i++) { 
+            $data[$i]['jumlah_topup'] =(double) $data[$i]['jumlah_topup'];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
 }
