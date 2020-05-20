@@ -60,11 +60,11 @@ class Owner {
         }return ['status' => 'Error', 'message' => 'Event Gagal Diupload'];
     }
 
-    public function editEvent($id,$judul, $deskripsi, $gambar, $tanggal) {
-        $sql = "UPDATE event 
+    public function editEvent($id, $judul, $deskripsi, $gambar, $tanggal) {
+        $sql = "UPDATE event
                 SET judul_event = '$judul', deskripsi_event = '$deskripsi', tanggal_event = '$tanggal'";
-        if(!empty($gambar)){
-            $sql = $sql.", gambar_event = '$gambar' ";
+        if (!empty($gambar)) {
+            $sql = $sql . ", gambar_event = '$gambar' ";
         }
         $sql = $sql . " WHERE id = '$id'";
         $est = $this->db->prepare($sql);
@@ -73,54 +73,54 @@ class Owner {
         }return ['status' => 'Error', 'message' => 'Event Gagal Diupload'];
     }
 
-    public function getEvent(){
+    public function getEvent() {
         $sql = "SELECT * FROM event ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
         return $temp;
-        
+
     }
 
-    public function getEventCommon(){
-        $sql = "SELECT * FROM event 
+    public function getEventCommon() {
+        $sql = "SELECT * FROM event
                 ORDER BY tanggal_event DESC
                 LIMIT 5";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
         return $temp;
-        
+
     }
 
-    public function cekEvent($id){
-        $sql = "SELECT * FROM event 
+    public function cekEvent($id) {
+        $sql = "SELECT * FROM event
                 WHERE id = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetch();
         return $temp;
-        
+
     }
 
-    public function deleteEvent($id){
-        $sql = "DELETE FROM event 
+    public function deleteEvent($id) {
+        $sql = "DELETE FROM event
                 WHERE id = '$id'";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
-        
+
     }
 
-    public function getAdmin(){
+    public function getAdmin() {
         $sql = "SELECT email_admin, nama_admin, no_telpon FROM admin ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
         return $temp;
-        
+
     }
 
-    public function getTrip(){
+    public function getTrip() {
         $sql = "SELECT driver.nama AS nama_driver, customer.nama AS nama_customer, alamat_jemput, alamat_destinasi, total_harga, tanggal_transaksi FROM trip
                 INNER JOIN user AS customer ON customer.id_user = trip.id_customer
                 INNER JOIN user AS driver ON driver.id_user = trip.id_driver
@@ -131,20 +131,20 @@ class Owner {
         return $temp;
     }
 
-    public function getTripAll(){
+    public function getTripAll() {
         $trip = $this->getTrip();
-        if(empty($trip)){
-            return ['status' => 'Error' , 'message' => 'Trip Tidak Ditemukan'];
+        if (empty($trip)) {
+            return ['status' => 'Error', 'message' => 'Trip Tidak Ditemukan'];
         }
-        for ($i=0; $i < count($trip); $i++) { 
-            $trip[$i]['nama_driver'] = decrypt($trip[$i]['nama_driver'],MOUGO_CRYPTO_KEY);
-            $trip[$i]['nama_customer'] = decrypt($trip[$i]['nama_customer'],MOUGO_CRYPTO_KEY);
-            $trip[$i]['total_harga'] =(double) $trip[$i]['total_harga']; 
+        for ($i = 0; $i < count($trip); $i++) {
+            $trip[$i]['nama_driver'] = decrypt($trip[$i]['nama_driver'], MOUGO_CRYPTO_KEY);
+            $trip[$i]['nama_customer'] = decrypt($trip[$i]['nama_customer'], MOUGO_CRYPTO_KEY);
+            $trip[$i]['total_harga'] = (double) $trip[$i]['total_harga'];
         }
-        return ['status' => 'Success' , 'data' => $trip ];
+        return ['status' => 'Success', 'data' => $trip];
     }
 
-    public function getBonusLevel(){
+    public function getBonusLevel() {
         $sql = "SELECT user.nama, bonus_level.pendapatan, bonus_level.tanggal_pendapatan FROM bonus_level
                 INNER JOIN user ON user.id_user = bonus_level.id_user
                 ORDER BY tanggal_pendapatan DESC";
@@ -154,16 +154,16 @@ class Owner {
         return $temp;
     }
 
-    public function getBonusLevelAll(){
+    public function getBonusLevelAll() {
         $Bonus = $this->getBonusLevel();
-        if(empty($Bonus)){
-            return ['status' => 'Error' , 'message' => 'Bonus Level Tidak Ditemukan'];
-        } 
-        for ($i=0; $i < count($Bonus); $i++) { 
-            $Bonus[$i]['nama'] = decrypt($Bonus[$i]['nama'],MOUGO_CRYPTO_KEY);
-            $Bonus[$i]['pendapatan'] =(double) $Bonus[$i]['pendapatan']; 
+        if (empty($Bonus)) {
+            return ['status' => 'Error', 'message' => 'Bonus Level Tidak Ditemukan'];
         }
-        return ['status' => 'Success' , 'data' => $Bonus ];
+        for ($i = 0; $i < count($Bonus); $i++) {
+            $Bonus[$i]['nama'] = decrypt($Bonus[$i]['nama'], MOUGO_CRYPTO_KEY);
+            $Bonus[$i]['pendapatan'] = (double) $Bonus[$i]['pendapatan'];
+        }
+        return ['status' => 'Success', 'data' => $Bonus];
     }
 
 }
