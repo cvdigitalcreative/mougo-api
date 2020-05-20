@@ -844,6 +844,9 @@ class Umum {
         }
         for ($i=0; $i < count($data); $i++) { 
             $data[$i]['jumlah_topup'] =(double) $data[$i]['jumlah_topup'];
+            $data[$i]['no_rek'] = NO_REK_PERUSAHAAN;
+            $data[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
+            $data[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
         }
         return ['status' => 'Success', 'data' => $data];
     }
