@@ -120,7 +120,7 @@ class User {
         $user = $this->getUserData();
         $result = $this->getToken();
 
-        if ($user['status_akun']==3) {
+        if ($user['status_akun'] == 3) {
             return ['status' => 'Error', 'message' => 'Belum Konfirmasi Akun'];
         }
 
@@ -153,12 +153,12 @@ class User {
             return [
                 'id_user' => $stmt['id_user'],
                 'password' => $stmt['password'],
-                'status_akun' => $stmt['status_aktif_trip']
+                'status_akun' => $stmt['status_aktif_trip'],
             ];
         }return;
     }
 
-    public function cekEditUserPassword($id,$password) {
+    public function cekEditUserPassword($id, $password) {
         $sql = "SELECT * FROM user
                 WHERE id_user = '$id' AND password = '$password'";
         $est = $this->getDb()->prepare($sql);
@@ -167,23 +167,23 @@ class User {
     }
 
     public function editUser() {
-       
-        if(!empty($this->email) || !empty($this->no_telpon)){
+
+        if (!empty($this->email) || !empty($this->no_telpon)) {
             if ($this->cekUserEmailTelpon($this->email, $this->no_telpon)) {
                 return ['status' => 'Error', 'message' => 'Email atau Nomor Telepon Telah digunakan'];
             }
         }
-        if(!empty($this->email)){
+        if (!empty($this->email)) {
             $this->editUserEmailSql();
         }
-        if(!empty($this->no_telpon)){
-            $this->editUserNoTelponSql() ;
+        if (!empty($this->no_telpon)) {
+            $this->editUserNoTelponSql();
         }
-        if(!empty($this->nama)){
-            $this->editUserNamaSql() ;
+        if (!empty($this->nama)) {
+            $this->editUserNamaSql();
         }
-        if(!empty($this->password)){
-            $this->editUserpasswordSql() ;
+        if (!empty($this->password)) {
+            $this->editUserpasswordSql();
         }
 
         return ['status' => 'Success', 'message' => 'Profile Telah Diupdate'];
@@ -193,7 +193,7 @@ class User {
         $nama = $this->nama;
         $id = $this->id_user;
         $sql = " UPDATE user
-                 SET nama = '$nama' 
+                 SET nama = '$nama'
                  WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
@@ -203,7 +203,7 @@ class User {
         $email = $this->email;
         $id = $this->id_user;
         $sql = " UPDATE user
-                 SET email = '$email' 
+                 SET email = '$email'
                  WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
@@ -213,7 +213,7 @@ class User {
         $no_telpon = $this->no_telpon;
         $id = $this->id_user;
         $sql = " UPDATE user
-                 SET no_telpon = '$no_telpon' 
+                 SET no_telpon = '$no_telpon'
                  WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
@@ -223,7 +223,7 @@ class User {
         $password = $this->password;
         $id = $this->id_user;
         $sql = " UPDATE user
-                 SET password = '$password' 
+                 SET password = '$password'
                  WHERE id_user = '$id'";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
@@ -259,16 +259,16 @@ class User {
     }
 
     public function konfirmasiSelesai($id_user) {
-        $data = $this->cekStatusUser($id_user,STATUS_AKUN_AKTIF);
-        if(empty($id_user) || empty($data)){
+        $data = $this->cekStatusUser($id_user, STATUS_AKUN_AKTIF);
+        if (empty($id_user) || empty($data)) {
             return ['status' => 'Error', 'message' => 'Konfirmasi Gagal'];
         }
         $this->setId_user($id_user);
-        if($data['status_aktif_trip']!=3){
+        if ($data['status_aktif_trip'] != 3) {
             return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun, Akun Telah Aktif'];
         }
         //Token saldo point input
-        if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition() && $this->insertDetailProfile() &&$this->gantiStatusAkun() ) {
+        if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition() && $this->insertDetailProfile() && $this->gantiStatusAkun()) {
             return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
         }
         return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];
@@ -290,7 +290,7 @@ class User {
         ];
         $estimate = $this->db->prepare($sql);
         return $estimate->execute($data);
-        
+
     }
 
     public function cekStatusUser($id) {
@@ -307,11 +307,11 @@ class User {
                 WHERE id_user = :id_user";
         $data = [
             ':status_aktif_trip' => STATUS_AKTIF_USER,
-            ':id_user' => $this->getId_user()
+            ':id_user' => $this->getId_user(),
         ];
         $est = $this->getDb()->prepare($sql);
         return $est->execute($data);
-        
+
     }
 
     public function emailKonfirmasi($email, $nama, $role) {
@@ -332,14 +332,14 @@ class User {
         $mail->addAddress($email, $nama);
         $mail->isHTML(true);
         $mail->Subject = "MOUGO DMS Register Akun";
-        if($role == USER_ROLE){
-            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Anda ".$this->getWeb_url()."/mougo/customerRegister/".$this->id_user;
+        if ($role == USER_ROLE) {
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Anda " . $this->getWeb_url() . "/mougo/customerRegister/" . $this->id_user;
         }
-        if($role == DRIVER_ROLE){
-            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Driver Anda ".$this->getWeb_url()."/mougo/driverRegister/".$this->id_user;
+        if ($role == DRIVER_ROLE) {
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Driver Anda " . $this->getWeb_url() . "/mougo/driverRegister/" . $this->id_user;
         }
         return $mail->send();
-        
+
     }
 
     public function cekUserEmailTelpon($email, $no_telpon) {
@@ -533,7 +533,7 @@ class User {
             return [
                 'id_user' => $stmt['id_user'],
                 'token' => $stmt['token'],
-                'password' => $stmt['password']
+                'password' => $stmt['password'],
             ];
         }
     }

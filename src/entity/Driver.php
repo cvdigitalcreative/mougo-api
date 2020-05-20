@@ -115,12 +115,12 @@ class Driver extends User {
             return ['status' => 'Error', 'message' => 'Driver Belum Diverifikasi Oleh Admin'];
         }
         if ($status == STATUS_ONLINE) {
-            if($this->setStatus($id_user,STATUS_ONLINE)){
+            if ($this->setStatus($id_user, STATUS_ONLINE)) {
                 return ['status' => 'Success', 'message' => 'Driver Telah Offline'];
             }
         }
         if ($status == STATUS_DRIVER_AKTIF) {
-            if($this->setStatus($id_user,STATUS_DRIVER_AKTIF)){
+            if ($this->setStatus($id_user, STATUS_DRIVER_AKTIF)) {
                 return ['status' => 'Success', 'message' => 'Driver Telah Online'];
             }
         }
@@ -128,7 +128,7 @@ class Driver extends User {
 
     }
 
-    public function setStatus($id,$status) {
+    public function setStatus($id, $status) {
         $sql = "UPDATE driver
         SET status_online = '$status'
         WHERE id_user = '$id'";

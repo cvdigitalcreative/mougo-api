@@ -22,14 +22,14 @@ $app->post('/admin/topup/', function ($request, $response) {
     }
 
     $data_user = [];
-    for($i = 0 ; $i < count($topup) ; $i++ ){
+    for ($i = 0; $i < count($topup); $i++) {
         $data_user[$i]['id_topup'] = $topup[$i]['id_topup'];
-        $data_user[$i]['nama'] = decrypt($topup[$i]['nama'],MOUGO_CRYPTO_KEY);
-        $data_user[$i]['email'] = decrypt($topup[$i]['email'],MOUGO_CRYPTO_KEY);
+        $data_user[$i]['nama'] = decrypt($topup[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $data_user[$i]['email'] = decrypt($topup[$i]['email'], MOUGO_CRYPTO_KEY);
         $data_user[$i]['jumlah_topup'] = $topup[$i]['jumlah_topup'];
-        $data_user[$i]['foto_transfer'] = $topup[$i]['foto_transfer'];    
+        $data_user[$i]['foto_transfer'] = $topup[$i]['foto_transfer'];
         $data_user[$i]['tanggal_transfer'] = $topup[$i]['tanggal_transfer'];
-        
+
     }
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->counts(), 'recordsFiltered' => count($topup), 'data' => $data_user], SERVER_OK);
@@ -62,13 +62,13 @@ $app->post('/admin/driver/', function ($request, $response) {
     }
 
     $dataDriver = [];
-    for($i = 0 ; $i < count($topup) ; $i++ ){
+    for ($i = 0; $i < count($topup); $i++) {
         $dataDriver[$i]['id_user'] = $topup[$i]['id_user'];
-        $dataDriver[$i]['nama'] = decrypt($topup[$i]['nama'],MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['email'] = decrypt($topup[$i]['email'],MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['no_telpon'] = decrypt($topup[$i]['no_telpon'],MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['no_polisi'] = decrypt($topup[$i]['no_polisi'],MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['alamat_domisili'] = decrypt($topup[$i]['alamat_domisili'],MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['nama'] = decrypt($topup[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['email'] = decrypt($topup[$i]['email'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_telpon'] = decrypt($topup[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_polisi'] = decrypt($topup[$i]['no_polisi'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['alamat_domisili'] = decrypt($topup[$i]['alamat_domisili'], MOUGO_CRYPTO_KEY);
         $dataDriver[$i]['cabang'] = $topup[$i]['cabang'];
         $dataDriver[$i]['jenis_kendaraan'] = $topup[$i]['jenis_kendaraan'];
         $dataDriver[$i]['merk_kendaraan'] = $topup[$i]['merk_kendaraan'];
@@ -83,7 +83,7 @@ $app->post('/admin/driver/confirm/', function ($request, $response) {
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
 
-    if(empty($admin->cekDriverConfirm($data['id']))){
+    if (empty($admin->cekDriverConfirm($data['id']))) {
         return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
     }
     $driver = $admin->getDriverConfirm($data['id']);
@@ -108,11 +108,9 @@ $app->post('/admin/driver/confirm/', function ($request, $response) {
     $dataDriver['foto_skck'] = $driver['foto_skck'];
     $dataDriver['foto_stnk'] = $driver['foto_stnk'];
     $dataDriver['foto_diri'] = $driver['foto_diri'];
-    
 
     return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
 });
-
 
 // ADMIN Accept Driver
 $app->put('/admin/driver/accept/{id_user}', function ($request, $response, $args) {

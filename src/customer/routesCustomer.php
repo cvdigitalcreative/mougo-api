@@ -47,8 +47,8 @@ $app->put('/customer/profile/{id_user}', function ($request, $response, $args) {
 $app->get('/customer/profile/{id_user}', function ($request, $response, $args) {
     $profile = new Profile(null, null, null, null, null, null, null, null, null);
     $profile->setDb($this->db);
-    $data = $profile->getAllProfile($args['id_user'],USER_ROLE);
-    if(empty($data)){
+    $data = $profile->getAllProfile($args['id_user'], USER_ROLE);
+    if (empty($data)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Profile Driver Tidak Ditemukan'], SERVER_OK);
     }
     return $response->withJson(['status' => 'Success', 'data' => $data], SERVER_OK);
@@ -58,21 +58,21 @@ $app->get('/customer/profile/{id_user}', function ($request, $response, $args) {
 // USER
 $app->put('/customer/user/{id_user}', function ($request, $response, $args) {
     $data = $request->getParsedBody();
-    $profile = new User($data['nama'], $data['email'], $data['no_telpon'], $data['password'],  null, null);
+    $profile = new User($data['nama'], $data['email'], $data['no_telpon'], $data['password'], null, null);
     $profile->setId_user($args['id_user']);
     $profile->setDb($this->db);
-    $data_user = $profile->cekEditUserPassword($args['id_user'],$data['konfirmasi_password']);
-    if(empty($data_user)){
+    $data_user = $profile->cekEditUserPassword($args['id_user'], $data['konfirmasi_password']);
+    if (empty($data_user)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Konfirmasi Password Anda Salah'], SERVER_OK);
     }
-    
-    if($data_user['email'] == $data['email']){
+
+    if ($data_user['email'] == $data['email']) {
         $data['email'] = null;
     }
-    if($data_user['no_telpon'] == $data['no_telpon']){
+    if ($data_user['no_telpon'] == $data['no_telpon']) {
         $data['no_telpon'] = null;
     }
-    $profiles = new User($data['nama'], $data['email'], $data['no_telpon'], $data['password'],  null, null);
+    $profiles = new User($data['nama'], $data['email'], $data['no_telpon'], $data['password'], null, null);
     $profiles->setId_user($args['id_user']);
     $profiles->setDb($this->db);
     return $response->withJson($profiles->editUser(), SERVER_OK);
@@ -84,7 +84,7 @@ $app->post('/customer/foto_ktp/{id_user}', function ($request, $response, $args)
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoCustomer($args['id_user']);
-    if($data['foto_ktp']!='-'){
+    if ($data['foto_ktp'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -94,7 +94,7 @@ $app->post('/customer/foto_ktp/{id_user}', function ($request, $response, $args)
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_ktp'];
     $path_name = "../assets/foto/ktp/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KTP, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KTP, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
@@ -104,7 +104,7 @@ $app->post('/customer/foto_kk/{id_user}', function ($request, $response, $args) 
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoCustomer($args['id_user']);
-    if($data['foto_kk']!='-'){
+    if ($data['foto_kk'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -114,7 +114,7 @@ $app->post('/customer/foto_kk/{id_user}', function ($request, $response, $args) 
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_kk'];
     $path_name = "../assets/foto/kk/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KK, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
