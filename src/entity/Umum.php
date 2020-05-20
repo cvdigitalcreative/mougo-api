@@ -330,6 +330,9 @@ class Umum {
                         return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                     }
                 }
+                if (!$this->updateTopup($id, STATUS_TOPUP_REJECT)) {
+                    return ['status' => 'Error', 'message' => 'Gagal Reject Topup'];
+                }
                 return ['status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
 
         }
@@ -401,7 +404,7 @@ class Umum {
 
     public function updateTopup($id, $status) {
         $sql = "UPDATE top_up
-                SET status_topup = '$status'
+                SET status_topup = '$status', tanggal_topup = tanggal_topup
                 WHERE id_topup = '$id'";
         $est = $this->getDb()->prepare($sql);
         if ($est->execute()) {

@@ -144,8 +144,12 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
     $uploadedFile = $uploadedFiles['gambar'];
     $topup = new Umum();
     $topup->setDb($this->db);
-    if (empty($topup->getDetailTopup($args['id_topup']))) {
+    $detailTopup = $topup->getDetailTopup($args['id_topup']);
+    if (empty($detailTopup)) {
         return $response->withJson(['status' => 'Error', 'message' => 'ID Topup Tidak Ditemukan'], SERVER_OK);
+    }
+    if ($detailTopup['status_topup']==STATUS_TOPUP_REJECT) {
+        return $response->withJson(['status' => 'Error', 'message' => 'ID Topup Anda Telah Ditolak Admin'], SERVER_OK);
     }
     if (!empty($topup->getBuktiPembayaran($args['id_topup']))) {
         return $response->withJson(['status' => 'Error', 'message' => 'Anda Telah Mengirim Bukti Pembayaran'], SERVER_OK);
