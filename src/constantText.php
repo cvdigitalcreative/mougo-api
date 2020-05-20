@@ -74,6 +74,7 @@ define('ADMIN_SILUMAN_MOUGO', "mougoadmin@gmail.com");
 // STATUS TOPUP
 define('STATUS_TOPUP_PENDING', 1);
 define('STATUS_TOPUP_ACCEPT', 2);
+define('STATUS_TOPUP_REJECT', 3);
 
 // STATUS TOPUP
 define('TOPUP_ACCEPT', 1);

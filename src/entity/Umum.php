@@ -330,6 +330,9 @@ class Umum {
                         return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                     }
                 }
+                if (!$this->updateTopup($id, STATUS_TOPUP_REJECT)) {
+                    return ['status' => 'Error', 'message' => 'Gagal Reject Topup'];
+                }
                 return ['status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
 
         }
