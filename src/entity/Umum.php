@@ -823,7 +823,7 @@ class Umum {
     }
 
     public function getTopupHistory($id) {
-        $sql = "SELECT user.nama,user.email,user.no_telpon,top_up.jumlah_topup,status_topup.status,top_up.tanggal_topup FROM top_up
+        $sql = "SELECT top_up.id_topup,top_up.jumlah_topup,status_topup.status,top_up.tanggal_topup FROM top_up
                 INNER JOIN user ON user.id_user = top_up.id_user
                 INNER JOIN status_topup ON status_topup.id = top_up.status_topup
                 WHERE top_up.id_user = '$id'
