@@ -853,7 +853,7 @@ class Umum {
             if($data[$i]['status']==TOPUP_ACCEPT_NAME){
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
             }
-            if($data[$i]['status']==TOPUP_PENDING_NAME){
+            if($data[$i]['status']==TOPUP_REJECT_NAME){
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_REJECT;
             }
             if($data[$i]['status']==TOPUP_PENDING_NAME){
