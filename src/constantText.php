@@ -76,6 +76,10 @@ define('STATUS_TOPUP_PENDING', 1);
 define('STATUS_TOPUP_ACCEPT', 2);
 define('STATUS_TOPUP_REJECT', 3);
 
+define('PESAN_TOPUP_PENDING', 'Top Up saldo belum diselesaikan!');
+define('PESAN_TOPUP_ACCEPT', 'Top Up saldo berhasil');
+define('PESAN_TOPUP_REJECT', 'Top Up saldo gagal!');
+
 // STATUS TOPUP
 define('TOPUP_ACCEPT', 1);
 define('TOPUP_REJECT', 2);

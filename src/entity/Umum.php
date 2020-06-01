@@ -850,6 +850,15 @@ class Umum {
             $data[$i]['no_rek'] = NO_REK_PERUSAHAAN;
             $data[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
             $data[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
+            if($data[$i]['status']=='accepted'){
+                $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
+            }
+            if($data[$i]['status']=='rejected'){
+                $data[$i]['pesan_topup'] = PESAN_TOPUP_REJECT;
+            }
+            if($data[$i]['status']=='pending'){
+                $data[$i]['pesan_topup'] = PESAN_TOPUP_PENDING;
+            }
         }
         return ['status' => 'Success', 'data' => $data];
     }
