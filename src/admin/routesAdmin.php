@@ -125,3 +125,4 @@ $app->put('/admin/driver/reject/{id_user}', function ($request, $response, $args
     $admin->setDb($this->db);
     return $response->withJson($admin->rejectDriver($args['id_user']), SERVER_OK);
 });
+
