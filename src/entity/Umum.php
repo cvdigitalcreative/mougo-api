@@ -865,7 +865,8 @@ class Umum {
 
     public function getBantuanUser($id) {
         $sql = "SELECT * FROM bantuan
-                WHERE id_user = '$id'";
+                WHERE id_user = '$id'
+                ORDER BY tanggal_bantuan DESC";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $stmt = $est->fetchAll();
