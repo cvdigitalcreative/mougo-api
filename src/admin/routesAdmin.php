@@ -126,3 +126,10 @@ $app->put('/admin/driver/reject/{id_user}', function ($request, $response, $args
     return $response->withJson($admin->rejectDriver($args['id_user']), SERVER_OK);
 });
 
+// ADMIN Tambah Keterangan Bantuan
+$app->post('/admin/bantuan/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Umum();
+    $admin->setDb($this->db);
+    return $response->withJson($admin->insertBantuanUser(ID_DRIVER_SILUMAN, $data['pesan_bantuan'], $data['jawaban']), SERVER_OK);
+});
