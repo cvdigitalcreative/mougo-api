@@ -850,17 +850,61 @@ class Umum {
             $data[$i]['no_rek'] = NO_REK_PERUSAHAAN;
             $data[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
             $data[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
-            if($data[$i]['status']==TOPUP_ACCEPT_NAME){
+            if ($data[$i]['status'] == TOPUP_ACCEPT_NAME) {
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
             }
-            if($data[$i]['status']==TOPUP_REJECT_NAME){
+            if ($data[$i]['status'] == TOPUP_REJECT_NAME) {
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_REJECT;
             }
-            if($data[$i]['status']==TOPUP_PENDING_NAME){
+            if ($data[$i]['status'] == TOPUP_PENDING_NAME) {
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_PENDING;
             }
         }
         return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getBantuanUser($id) {
+        $sql = "SELECT * FROM bantuan
+                WHERE id_user = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBantuanDefault() {
+        $data = $this->getBantuanUser(ID_DRIVER_SILUMAN);
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getBantuanFromUser($id) {
+        if (empty($this->cekUser($id))) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getBantuanUser($id);
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function insertBantuanUser($id, $pesan) {
+        if (empty($this->cekUser($id))) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $sql = "INSERT INTO bantuan(id_user, pertanyaan, jawaban, tanggal_bantuan )
+                VALUE ('$id', '$pesan', :jawaban, CURRENT_TIMESTAMP )";
+        $est = $this->getDb()->prepare($sql);
+        $data = [
+            ':jawaban' => STRING_KOSONG,
+        ];
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => "Pertanyaan Anda Berhasil Dikirim"];
+        }
+        return ['status' => 'Error', 'message' => "Gagal Mengirim Pertanyaan"];
     }
 
 }
