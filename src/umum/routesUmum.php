@@ -148,7 +148,7 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
     if (empty($detailTopup)) {
         return $response->withJson(['status' => 'Error', 'message' => 'ID Topup Tidak Ditemukan'], SERVER_OK);
     }
-    if ($detailTopup['status_topup']==STATUS_TOPUP_REJECT) {
+    if ($detailTopup['status_topup'] == STATUS_TOPUP_REJECT) {
         return $response->withJson(['status' => 'Error', 'message' => 'ID Topup Anda Telah Ditolak Admin'], SERVER_OK);
     }
     if (!empty($topup->getBuktiPembayaran($args['id_topup']))) {
@@ -396,4 +396,29 @@ $app->get('/common/topup/{id_user}', function ($request, $response, $args) {
     $user = new Umum();
     $user->setDb($this->db);
     return $response->withJson($user->getTopupHistoryUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET BANTUAN DEFAULT
+$app->get('/common/bantuan/', function ($request, $response) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBantuanDefault(), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET BANTUAN USER
+$app->get('/common/bantuan/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBantuanFromUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// INSERT BANTUAN USER
+$app->post('/common/bantuan/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->insertBantuanUser($args['id_user'], $data['pesan_bantuan']), SERVER_OK);
 })->add($tokenCheck);
