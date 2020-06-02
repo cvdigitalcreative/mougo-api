@@ -892,17 +892,20 @@ class Umum {
         return ['status' => 'Success', 'data' => $data];
     }
 
-    public function insertBantuanUser($id, $pesan) {
+    public function insertBantuanUser($id, $pesan, $jawaban) {
         if (empty($this->cekUser($id))) {
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
         }
+        if (empty($pesan)) {
+            return ['status' => 'Error', 'message' => 'Keterangan Bantuan Tidak Boleh Kosong'];
+        }
+        if (empty($jawaban)) {
+            return ['status' => 'Error', 'message' => 'Keterangan Jawaban Bantuan Tidak Boleh Kosong'];
+        }
         $sql = "INSERT INTO bantuan(id_user, pertanyaan, jawaban, tanggal_bantuan )
-                VALUE ('$id', '$pesan', :jawaban, CURRENT_TIMESTAMP )";
+                VALUE ('$id', '$pesan', '$jawaban', CURRENT_TIMESTAMP )";
         $est = $this->getDb()->prepare($sql);
-        $data = [
-            ':jawaban' => STRING_KOSONG,
-        ];
-        if ($est->execute($data)) {
+        if ($est->execute()) {
             return ['status' => 'Success', 'message' => "Pertanyaan Anda Berhasil Dikirim"];
         }
         return ['status' => 'Error', 'message' => "Gagal Mengirim Pertanyaan"];

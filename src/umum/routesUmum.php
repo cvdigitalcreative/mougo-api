@@ -420,5 +420,5 @@ $app->post('/common/bantuan/{id_user}', function ($request, $response, $args) {
     $data = $request->getParsedBody();
     $user = new Umum();
     $user->setDb($this->db);
-    return $response->withJson($user->insertBantuanUser($args['id_user'], $data['pesan_bantuan']), SERVER_OK);
+    return $response->withJson($user->insertBantuanUser($args['id_user'], $data['pesan_bantuan'], STRING_KOSONG), SERVER_OK);
 })->add($tokenCheck);
