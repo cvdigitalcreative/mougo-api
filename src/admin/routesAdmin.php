@@ -32,7 +32,7 @@ $app->post('/admin/topup/', function ($request, $response) {
 
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->counts(), 'recordsFiltered' => count($topup), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $data_user], SERVER_OK);
 });
 
 // ADMIN Accept Konfirmasi Pembayaran
@@ -74,7 +74,7 @@ $app->post('/admin/driver/', function ($request, $response) {
         $dataDriver[$i]['merk_kendaraan'] = $topup[$i]['merk_kendaraan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->counts(), 'recordsFiltered' => count($topup), 'data' => $dataDriver], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $dataDriver], SERVER_OK);
 });
 
 // ADMIN Data Driver (Belum Konfirmasi)
@@ -132,4 +132,37 @@ $app->post('/admin/bantuan/', function ($request, $response) {
     $admin = new Umum();
     $admin->setDb($this->db);
     return $response->withJson($admin->insertBantuanUser(ID_DRIVER_SILUMAN, $data['pesan_bantuan'], $data['jawaban']), SERVER_OK);
+});
+
+// ADMIN Jawab Keterangan Bantuan
+$app->put('/admin/bantuan/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $admin = new Umum();
+    $admin->setDb($this->db);
+    return $response->withJson($admin->jawabBantuanAdmin($args['id'], $data['jawaban']), SERVER_OK);
+});
+
+// ADMIN GET ALL TOPUP DAN BUKTI PEMBAYARAN
+$app->post('/admin/bantuan/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+
+    $bantuan = $admin->getBantuanWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bantuan)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $data_user = [];
+    for ($i = 0; $i < count($bantuan); $i++) {
+        $data_user[$i]['id_bantuan'] = $bantuan[$i]['id_bantuan'];
+        $data_user[$i]['nama'] = decrypt($bantuan[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $data_user[$i]['pertanyaan'] = $bantuan[$i]['pertanyaan'];
+        $data_user[$i]['jawaban'] = $bantuan[$i]['jawaban'];
+        $data_user[$i]['tanggal_bantuan'] = $bantuan[$i]['tanggal_bantuan'];
+
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
 });
