@@ -142,7 +142,7 @@ $app->put('/admin/bantuan/{id}', function ($request, $response, $args) {
     return $response->withJson($admin->jawabBantuanAdmin($args['id'], $data['jawaban']), SERVER_OK);
 });
 
-// ADMIN GET ALL TOPUP DAN BUKTI PEMBAYARAN
+// ADMIN GET ALL BANTUAN
 $app->post('/admin/bantuan/web/', function ($request, $response) {
     $data = $request->getParsedBody();
     $admin = new Admin(null, null, null, null);
