@@ -159,7 +159,6 @@ $app->post('/admin/bantuan/web/', function ($request, $response) {
         $data_user[$i]['id_bantuan'] = $bantuan[$i]['id_bantuan'];
         $data_user[$i]['nama'] = decrypt($bantuan[$i]['nama'], MOUGO_CRYPTO_KEY);
         $data_user[$i]['pertanyaan'] = $bantuan[$i]['pertanyaan'];
-        $data_user[$i]['jawaban'] = $bantuan[$i]['jawaban'];
         $data_user[$i]['tanggal_bantuan'] = $bantuan[$i]['tanggal_bantuan'];
 
     }
