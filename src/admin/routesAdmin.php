@@ -135,7 +135,7 @@ $app->post('/admin/bantuan/', function ($request, $response) {
 });
 
 // ADMIN Jawab Keterangan Bantuan
-$app->put('/admin/bantuan/{id}', function ($request, $response, $args) {
+$app->post('/admin/bantuan/{id}', function ($request, $response, $args) {
     $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
