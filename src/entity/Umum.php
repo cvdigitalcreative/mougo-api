@@ -911,4 +911,30 @@ class Umum {
         return ['status' => 'Error', 'message' => "Gagal Mengirim Pertanyaan"];
     }
 
+    public function cekUserBantuan($id) {
+        $sql = "SELECT * FROM bantuan
+                WHERE id_bantuan ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function jawabBantuanAdmin($id, $jawaban) {
+        if(empty($this->cekUserBantuan($id))){
+            return ['status' => 'Error', 'message' => 'Bantuan tidak ditemukan'];
+        }
+        if (empty($jawaban)) {
+            return ['status' => 'Error', 'message' => 'Keterangan Jawaban Bantuan Tidak Boleh Kosong'];
+        }
+        $sql = "UPDATE bantuan
+            SET jawaban = '$jawaban', tanggal_bantuan = tanggal_bantuan
+            WHERE id_bantuan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Berhasil Menjawab Pertanyaan User'];
+        }return ['status' => 'Error', 'message' => 'Gagal Mengupdate Jawaban Bantuan'];
+
+    }
+
 }

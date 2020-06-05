@@ -147,7 +147,7 @@ class Admin {
         return $sql;
     }
 
-    public function counts() {
+    public function countsTopup() {
         $sql = "SELECT * FROM top_up
         INNER JOIN user ON user.id_user = top_up.id_user
         INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup";
@@ -236,6 +236,68 @@ class Admin {
 
         }
         return $sql;
+    }
+
+    private $column_search_bantuan = array('nama', 'pertanyaan', 'jawaban');
+    private $bantuan_id = array('nama' => 'asc');
+
+    public function getBantuanWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBantuanQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBantuanQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                WHERE bantuan.jawaban = '-' ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 2) {
+                $temp = "bantuan";
+            }
+            $order_in = $this->column_search_bantuan[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bantuan_id)) {
+            $order_by = $this->bantuan_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBantuan() {
+        $sql = "SELECT * FROM bantuan
+        INNER JOIN user ON user.id_user = bantuan.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
     }
 
 }
