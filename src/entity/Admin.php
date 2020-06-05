@@ -60,7 +60,7 @@ class Admin {
             return ['status' => 'Error', 'message' => 'Email atau Password salah'];
         }
         if ($data_admin['password'] == $this->password) {
-            return ['status' => 'Success', 'data' => $data_admin['email_admin']];
+            return ['status' => 'Success', 'data' => $data_admin['email_admin'], 'role' => 'Admin'];
         }
         return ['status' => 'Error', 'message' => 'Email atau Password Salah'];
 
@@ -295,6 +295,70 @@ class Admin {
     public function countsBantuan() {
         $sql = "SELECT * FROM bantuan
         INNER JOIN user ON user.id_user = bantuan.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_withdraw = array('nama', 'jumlah', 'status_withdraw');
+    private $withdraw_id = array('nama' => 'asc');
+
+    public function getWithdrawWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getWithdrawQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getWithdrawQuery($order_by, $order, $search) {
+        $sql = "SELECT withdraw.id, user.nama, withdraw.jumlah, jenis_withdraw.jenis_withdraw, status_withdraw.status_withdraw, withdraw.tanggal_withdraw FROM withdraw
+                INNER JOIN user ON user.id_user = withdraw.id_user
+                INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
+                INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw
+                WHERE withdraw.status_withdraw = '0' ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 2) {
+                $temp = "withdraw";
+            }
+            $order_in = $this->column_search_withdraw[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->withdraw_id)) {
+            $order_by = $this->withdraw_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsWithdraw() {
+        $sql = "SELECT * FROM withdraw
+        INNER JOIN user ON user.id_user = withdraw.id_user";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
