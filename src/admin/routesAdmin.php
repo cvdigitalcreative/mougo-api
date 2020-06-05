@@ -165,3 +165,37 @@ $app->post('/admin/bantuan/web/', function ($request, $response) {
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
 });
+
+// ADMIN GET ALL BANTUAN
+$app->post('/admin/withdraw/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+
+    $withdraw = $admin->getWithdrawWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($withdraw)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($withdraw); $i++) {
+        $withdraw[$i]['nama'] = decrypt($withdraw[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsWithdraw(), 'recordsFiltered' => count($withdraw), 'data' => $withdraw], SERVER_OK);
+});
+
+// ADMIN Accept withdraw Transfer
+$app->put('/admin/withdraw/accept/{id}', function ($request, $response, $args) {
+    $admin = new Umum();
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS), SERVER_OK);
+});
+
+// ADMIN Reject withdraw Transfer
+$app->put('/admin/withdraw/reject/{id}', function ($request, $response, $args) {
+    $admin = new Umum();
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT), SERVER_OK);
+});

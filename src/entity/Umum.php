@@ -937,4 +937,51 @@ class Umum {
 
     }
 
+    public function cekWithdraw($id) {
+        $sql = "SELECT * FROM withdraw
+                WHERE id ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function editWithdraw($id, $status) {
+        $sql = "UPDATE withdraw
+                SET status_withdraw = '$status'
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return ;
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Berhasil Mengaktifkan Driver'];
+        }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
+    }
+
+    public function adminKonfirmasiWithdraw($id, $status) {
+        $data = $this->cekWithdraw($id);
+        if(empty($data)){
+            return ['status' => 'Error', 'message' => 'Withdraw tidak ditemukan'];
+        }
+        if ($data['status_withdraw'] == STATUS_WITHDRAW_SUCCESS) {
+            return ['status' => 'Error', 'message' => 'Withdraw Tersebut Telah Diterima Sebelumnya'];
+        }
+        if ($data['status_withdraw'] == STATUS_WITHDRAW_REJECT) {
+            return ['status' => 'Error', 'message' => 'Withdraw Tersebut Telah Ditolak Oleh Admin'];
+        }
+        if ($this->editWithdraw($id,$status)) {
+            return ['status' => 'Error', 'message' => 'Gagal Update Withdraw'];
+        }
+        if($status == STATUS_WITHDRAW_REJECT){
+            $point_user = $this->getPointUser($data['id_user']);
+            $point = $point_user['jumlah_point'] + $data['jumlah'];
+            if(!$this->updatePoint($data['id_user'],$point)){
+                return ['status' => 'Error', 'message' => 'Gagal Update Point User'];
+            }
+            return ['status' => 'Success', 'message' => 'Berhasil Menolak Withdraw User'];
+        }
+        return ['status' => 'Success', 'message' => 'Berhasil Menerima Withdraw User'];
+
+    }
+
 }

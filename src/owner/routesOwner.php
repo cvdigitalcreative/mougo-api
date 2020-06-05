@@ -94,6 +94,9 @@ $app->get('/owner/driver/', function ($request, $response, $args) {
         $dataDriver[$i]['foto_skck'] = $driver[$i]['foto_skck'];
         $dataDriver[$i]['foto_stnk'] = $driver[$i]['foto_stnk'];
         $dataDriver[$i]['foto_diri'] = $driver[$i]['foto_diri'];
+        $dataDriver[$i]['no_rekening'] = $driver[$i]['no_rekening'];
+        $dataDriver[$i]['nama_bank'] = $driver[$i]['name'];
+        
     }
     return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
 });
@@ -117,6 +120,8 @@ $app->get('/owner/customer/', function ($request, $response) {
         $dataCustomer[$i]['kota'] = $customer[$i]['kota'];
         $dataCustomer[$i]['kode_referal'] = $customer[$i]['kode_referal'];
         $dataCustomer[$i]['kode_sponsor'] = $customer[$i]['kode_sponsor'];
+        $dataCustomer[$i]['no_rekening'] = $customer[$i]['no_rekening'];
+        $dataCustomer[$i]['nama_bank'] = $customer[$i]['name'];
     }
     return $response->withJson(['status' => 'Success', 'data' => $dataCustomer], SERVER_OK);
 });
@@ -205,4 +210,42 @@ $app->get('/owner/bonus/level/', function ($request, $response) {
     $getBonus = new Owner(null, null);
     $getBonus->setDb($this->db);
     return $response->withJson($getBonus->getBonusLevelAll(), SERVER_OK);
+});
+
+// OWNER
+// GET WITHDRAW
+$app->get('/owner/withdraw/', function ($request, $response) {
+    $getTrip = new Owner(null, null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getWithdrawAll(), SERVER_OK);
+});
+
+// OWNER Accept withdraw Transfer
+$app->put('/owner/withdraw/accept/{id}', function ($request, $response, $args) {
+    $admin = new Umum();
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS), SERVER_OK);
+});
+
+// OWNER Reject withdraw Transfer
+$app->put('/owner/withdraw/reject/{id}', function ($request, $response, $args) {
+    $admin = new Umum();
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT), SERVER_OK);
+});
+
+// OWNER
+// GET TOPUP
+$app->get('/owner/topup/', function ($request, $response) {
+    $getTrip = new Owner(null, null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getTopupAll(), SERVER_OK);
+});
+
+// OWNER
+// GET TOPUP
+$app->get('/owner/bantuan/', function ($request, $response) {
+    $getTrip = new Owner(null, null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getBantuanAll(), SERVER_OK);
 });

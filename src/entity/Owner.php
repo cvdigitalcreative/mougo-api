@@ -27,7 +27,7 @@ class Owner {
             return ['status' => 'Error', 'message' => 'Email atau Password salah'];
         }
         if ($data_owner['password'] == $this->password) {
-            return ['status' => 'Success', 'data' => $data_owner['email_owner']];
+            return ['status' => 'Success', 'data' => $data_owner['email_owner'], 'role' => 'Owner'];
         }
         return ['status' => 'Error', 'message' => 'Email atau Password Salah'];
 
@@ -164,6 +164,75 @@ class Owner {
             $Bonus[$i]['pendapatan'] = (double) $Bonus[$i]['pendapatan'];
         }
         return ['status' => 'Success', 'data' => $Bonus];
+    }
+
+    public function getWithdraw() {
+        $sql = "SELECT withdraw.id, user.nama, withdraw.jumlah, jenis_withdraw.jenis_withdraw, status_withdraw.status_withdraw, withdraw.tanggal_withdraw FROM withdraw
+                INNER JOIN user ON user.id_user = withdraw.id_user
+                INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
+                INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw
+                ORDER BY status_withdraw SAC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getWithdrawAll() {
+        $withdraw = $this->getWithdraw();
+        if (empty($withdraw)) {
+            return ['status' => 'Error', 'message' => 'History Withdraw Tidak Ditemukan'];
+        }
+        for ($i = 0; $i < count($withdraw); $i++) {
+            $withdraw[$i]['nama'] = decrypt($withdraw[$i]['nama'], MOUGO_CRYPTO_KEY);
+            $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
+        }
+        return ['status' => 'Success', 'data' => $withdraw];
+    }
+
+    public function getTopup() {
+        $sql = "SELECT user.nama, top_up.jumlah_topup, status_topup.status, admin.nama_admin, top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN admin ON admin.email_admin = top_up.admin
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup
+                ORDER BY tanggal_topup DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getTopupAll() {
+        $topup = $this->getTopup();
+        if (empty($topup)) {
+            return ['status' => 'Error', 'message' => 'History Topup Tidak Ditemukan'];
+        }
+        for ($i = 0; $i < count($topup); $i++) {
+            $topup[$i]['nama'] = decrypt($topup[$i]['nama'], MOUGO_CRYPTO_KEY);
+            $topup[$i]['jumlah_topup'] = (double) $topup[$i]['jumlah_topup'];
+        }
+        return ['status' => 'Success', 'data' => $topup];
+    }
+
+    public function getBantuan() {
+        $sql = "SELECT user.nama, bantuan.pertanyaan, bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                ORDER BY tanggal_bantuan DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getBantuanAll() {
+        $topup = $this->getBantuan();
+        if (empty($topup)) {
+            return ['status' => 'Error', 'message' => 'History Bantuan Tidak Ditemukan'];
+        }
+        for ($i = 0; $i < count($topup); $i++) {
+            $topup[$i]['nama'] = decrypt($topup[$i]['nama'], MOUGO_CRYPTO_KEY);
+        }
+        return ['status' => 'Success', 'data' => $topup];
     }
 
 }
