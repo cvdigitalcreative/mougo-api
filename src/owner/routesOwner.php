@@ -241,3 +241,11 @@ $app->get('/owner/topup/', function ($request, $response) {
     $getTrip->setDb($this->db);
     return $response->withJson($getTrip->getTopupAll(), SERVER_OK);
 });
+
+// OWNER
+// GET TOPUP
+$app->get('/owner/bantuan/', function ($request, $response) {
+    $getTrip = new Owner(null, null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getBantuanAll(), SERVER_OK);
+});

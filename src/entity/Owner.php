@@ -214,4 +214,25 @@ class Owner {
         return ['status' => 'Success', 'data' => $topup];
     }
 
+    public function getBantuan() {
+        $sql = "SELECT user.nama, bantuan.pertanyaan, bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                ORDER BY tanggal_bantuan DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getBantuanAll() {
+        $topup = $this->getBantuan();
+        if (empty($topup)) {
+            return ['status' => 'Error', 'message' => 'History Bantuan Tidak Ditemukan'];
+        }
+        for ($i = 0; $i < count($topup); $i++) {
+            $topup[$i]['nama'] = decrypt($topup[$i]['nama'], MOUGO_CRYPTO_KEY);
+        }
+        return ['status' => 'Success', 'data' => $topup];
+    }
+
 }
