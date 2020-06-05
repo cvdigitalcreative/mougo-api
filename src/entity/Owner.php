@@ -171,7 +171,7 @@ class Owner {
                 INNER JOIN user ON user.id_user = withdraw.id_user
                 INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
                 INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw
-                ORDER BY status_withdraw SAC";
+                ORDER BY status_withdraw ASC";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetchAll();
