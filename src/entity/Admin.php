@@ -90,7 +90,7 @@ class Admin {
         return $temp;
     }
 
-    private $column_search = array('id_topup', 'jumlah_topup', 'nama', 'email', 'id_topup', 'foto_transfer');
+    private $column_search = array('nama', 'id_topup', 'jumlah_topup', 'foto_transfer');
     private $orderan = array('nama' => 'asc');
 
     public function getTopupWeb($order_by, $order, $start, $length, $search) {
@@ -127,11 +127,13 @@ class Admin {
 
         if (isset($order_by)) {
             $temp = "";
-            if ($order_by == 0 || $order_by == 1 || $order_by == 4 || $order_by == 5) {
-                $temp = "top_up";
-            } else if ($order_by == 3 || $order_by == 2) {
+            if ($order_by == 0) {
                 $temp = "user";
-            } 
+            } else if ($order_by == 1 || $order_by == 2) {
+                $temp = "top_up";
+            } else {
+                $temp = "bukti_transfer";
+            }
             $order_in = $this->column_search[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
 
