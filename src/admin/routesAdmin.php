@@ -37,16 +37,18 @@ $app->post('/admin/topup/', function ($request, $response) {
 
 // ADMIN Accept Konfirmasi Pembayaran
 $app->put('/admin/topup/accept/{id_topup}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->topupUpdate($args['id_topup'], TOPUP_ACCEPT), SERVER_OK);
+    return $response->withJson($admin->topupUpdate($args['id_topup'], TOPUP_ACCEPT, $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN Reject Konfirmasi Pembayaran
 $app->put('/admin/topup/reject/{id_topup}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->topupUpdate($args['id_topup'], TOPUP_REJECT), SERVER_OK);
+    return $response->withJson($admin->topupUpdate($args['id_topup'], TOPUP_REJECT, $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN Semua Data Driver (Belum Konfirmasi)
@@ -175,7 +177,7 @@ $app->post('/admin/withdraw/', function ($request, $response) {
     $withdraw = $admin->getWithdrawWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
 
     if (empty($withdraw)) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+        return $response->withJson(['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'], SERVER_OK);
     }
 
     for ($i = 0; $i < count($withdraw); $i++) {
