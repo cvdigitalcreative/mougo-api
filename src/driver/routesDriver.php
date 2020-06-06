@@ -65,11 +65,11 @@ $app->put('/driver/profile/{id_user}', function ($request, $response, $args) {
 
 // Driver
 // PROFILE
-$app->get('/driver/profile/{id_user}', function ($request, $response, $args) {    
+$app->get('/driver/profile/{id_user}', function ($request, $response, $args) {
     $profile = new Profile(null, null, null, null, null, null, null, null, null);
     $profile->setDb($this->db);
-    $dataDriver = $profile->getAllProfile($args['id_user'],DRIVER_ROLE);
-    if(empty($dataDriver)){
+    $dataDriver = $profile->getAllProfile($args['id_user'], DRIVER_ROLE);
+    if (empty($dataDriver)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Profile Driver Tidak Ditemukan'], SERVER_OK);
     }
     return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
@@ -94,7 +94,7 @@ $app->post('/driver/foto_ktp/{id_user}', function ($request, $response, $args) {
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoCustomer($args['id_user']);
-    if($data['foto_ktp']!='-'){
+    if ($data['foto_ktp'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -104,7 +104,7 @@ $app->post('/driver/foto_ktp/{id_user}', function ($request, $response, $args) {
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_ktp'];
     $path_name = "../assets/foto/ktp/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KTP, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KTP, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
@@ -114,7 +114,7 @@ $app->post('/driver/foto_kk/{id_user}', function ($request, $response, $args) {
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoCustomer($args['id_user']);
-    if($data['foto_kk']!='-'){
+    if ($data['foto_kk'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -124,7 +124,7 @@ $app->post('/driver/foto_kk/{id_user}', function ($request, $response, $args) {
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_kk'];
     $path_name = "../assets/foto/kk/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_KK, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
@@ -134,7 +134,7 @@ $app->post('/driver/foto_diri/{id_user}', function ($request, $response, $args) 
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoDriver($args['id_user']);
-    if($data['foto_diri']!='-'){
+    if ($data['foto_diri'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -144,7 +144,7 @@ $app->post('/driver/foto_diri/{id_user}', function ($request, $response, $args) 
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_diri'];
     $path_name = "../assets/foto/diri/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_DIRI, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_DIRI, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
@@ -154,7 +154,7 @@ $app->post('/driver/foto_sim/{id_user}', function ($request, $response, $args) {
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoDriver($args['id_user']);
-    if($data['foto_sim']!='-'){
+    if ($data['foto_sim'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -164,7 +164,7 @@ $app->post('/driver/foto_sim/{id_user}', function ($request, $response, $args) {
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_sim'];
     $path_name = "../assets/foto/sim/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_SIM, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_SIM, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
@@ -174,7 +174,7 @@ $app->post('/driver/foto_skck/{id_user}', function ($request, $response, $args) 
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoDriver($args['id_user']);
-    if($data['foto_skck']!='-'){
+    if ($data['foto_skck'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -184,7 +184,7 @@ $app->post('/driver/foto_skck/{id_user}', function ($request, $response, $args) 
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_skck'];
     $path_name = "../assets/foto/skck/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_SKCK, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_SKCK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
@@ -194,7 +194,7 @@ $app->post('/driver/foto_stnk/{id_user}', function ($request, $response, $args) 
     $foto = new Umum();
     $foto->setDb($this->db);
     $data = $foto->cekFotoDriver($args['id_user']);
-    if($data['foto_stnk']!='-'){
+    if ($data['foto_stnk'] != '-') {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Upload, Anda Telah Memasang Foto'], SERVER_OK);
     }
     $uploadedFiles = $request->getUploadedFiles();
@@ -204,7 +204,7 @@ $app->post('/driver/foto_stnk/{id_user}', function ($request, $response, $args) 
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_stnk'];
     $path_name = "../assets/foto/stnk/";
-   return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile,FOTO_STNK, $directory, $path_name), SERVER_OK);
+    return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_STNK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
 
@@ -248,9 +248,9 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $cek = new Umum();
     $cek->setDb($this->db);
     $saldo = $cek->getSaldoUser($id_driver['id_driver']);
-    $data['saldo'] =(double) $saldo['jumlah_saldo'];
-    if($data_trip['total_harga']>$data['saldo']){
-        return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);  
+    $data['saldo'] = (double) $saldo['jumlah_saldo'];
+    if ($data_trip['total_harga'] > $data['saldo']) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);
     }
     if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
@@ -309,7 +309,7 @@ $app->get('/driver/trip/position/', function ($request, $response) {
 $app->put('/driver/status/{status}/{id_user}', function ($request, $response, $args) {
     $driver = new Driver(null, null, null, null, null);
     $driver->setDb($this->db);
-    return $response->withJson($driver->updateStatus($args['id_user'],$args['status']), SERVER_OK);
+    return $response->withJson($driver->updateStatus($args['id_user'], $args['status']), SERVER_OK);
 })->add($tokenCheck);
 
 // DRIVER
@@ -318,6 +318,6 @@ $app->get('/driver/status/{id_user}', function ($request, $response, $args) {
     $status = new Umum();
     $status->setDb($this->db);
     $data = $status->getDriverAdmin($args['id_user']);
-    $data_driver =(int) $data['status_akun_aktif'];
-    return $response->withJson(['status'=>'Success','status_driver'=>$data_driver], SERVER_OK);
+    $data_driver = (int) $data['status_akun_aktif'];
+    return $response->withJson(['status' => 'Success', 'status_driver' => $data_driver], SERVER_OK);
 })->add($tokenCheck);

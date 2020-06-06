@@ -42,7 +42,7 @@ class Umum {
         if (!empty($stmt)) {
             $point = $this->getPointUser($id_user);
             $stmt['point']['id_user'] = $point['id_user'];
-            $stmt['point']['jumlah_point'] =(double) $point['jumlah_point']; 
+            $stmt['point']['jumlah_point'] = (double) $point['jumlah_point'];
             return ['status' => 'Success', 'data' => $stmt];
         }return ['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'];
     }
@@ -189,7 +189,7 @@ class Umum {
             }
             if ($status == STATUS_SAMPAI_TUJUAN) {
                 // return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
-                if($trip_cek->bonusFinish($id,$data_trip['id_customer'],$data_trip['id_driver'],$data_trip['total_harga'],$data_trip['jenis_pembayaran'])){
+                if ($trip_cek->bonusFinish($id, $data_trip['id_customer'], $data_trip['id_driver'], $data_trip['total_harga'], $data_trip['jenis_pembayaran'])) {
                     return ['status' => 'Success', 'message' => 'Sampai Tujuan'];
                 }
             }
@@ -230,7 +230,14 @@ class Umum {
         ];
         $est = $this->getDb()->prepare($sql);
         if ($est->execute($data)) {
-            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'id_topup' => $id, 'jumlah_topup' => $jumlah_topup, 'no_rek' => NO_REK_PERUSAHAAN, 'nama_rek' => NAMA_REK_PERUSAHAAN, 'nama_bank' => NAMA_BANK_PERUSAHAAN];
+            $data = [
+                'id_topup' => $id,
+                'jumlah_topup' => $jumlah_topup,
+                'no_rek' => NO_REK_PERUSAHAAN,
+                'nama_rek' => NAMA_REK_PERUSAHAAN,
+                'nama_bank' => NAMA_BANK_PERUSAHAAN,
+            ];
+            return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data' => $data];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
     }
 
@@ -323,6 +330,9 @@ class Umum {
                         return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                     }
                 }
+                if (!$this->updateTopup($id, STATUS_TOPUP_REJECT)) {
+                    return ['status' => 'Error', 'message' => 'Gagal Reject Topup'];
+                }
                 return ['status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
 
         }
@@ -374,7 +384,7 @@ class Umum {
         $stmt = $est->fetch();
         return $stmt;
     }
-    
+
     public function getPointUser($id_user) {
         $sql = "SELECT * FROM point
                 WHERE id_user = '$id_user'";
@@ -394,7 +404,7 @@ class Umum {
 
     public function updateTopup($id, $status) {
         $sql = "UPDATE top_up
-                SET status_topup = '$status'
+                SET status_topup = '$status', tanggal_topup = tanggal_topup
                 WHERE id_topup = '$id'";
         $est = $this->getDb()->prepare($sql);
         if ($est->execute()) {
@@ -458,11 +468,11 @@ class Umum {
             return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Direject Oleh Admin'];
         }
         if (unlink($data['foto_skck']) && unlink($data['foto_stnk']) && unlink($data['foto_sim']) && unlink($data['foto_diri']) && unlink($user['foto_ktp']) && unlink($user['foto_kk'])) {
-            if($this->deleteUserFoto($id_user)){
-            if (!$this->deleteDriverFoto($id_user)) {
-                return ['status' => 'Error', 'message' => 'Gagal Reject Driver'];
+            if ($this->deleteUserFoto($id_user)) {
+                if (!$this->deleteDriverFoto($id_user)) {
+                    return ['status' => 'Error', 'message' => 'Gagal Reject Driver'];
+                }
             }
-        }
         }
         return ['status' => 'Success', 'message' => 'Berhasil Reject Driver'];
     }
@@ -652,11 +662,11 @@ class Umum {
         return $stmt;
     }
 
-    public function deleteWaris($id_user,$id) {
+    public function deleteWaris($id_user, $id) {
         $sql = "DELETE FROM ahli_waris
                 WHERE id_user = '$id_user' AND id = '$id'";
         $est = $this->getDb()->prepare($sql);
-        if ($est->execute()){
+        if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Berhasil Menghapus Ahli Waris'];
         }
         return ['status' => 'Error', 'message' => 'Gagal Menghapus Ahli Waris'];
@@ -684,16 +694,16 @@ class Umum {
     public function getTotalReferalChild($id) {
         $total = 0;
         $level1 = $this->getReferalChild($id);
-        for ($i=0; $i < count($level1); $i++) { 
+        for ($i = 0; $i < count($level1); $i++) {
             $total++;
             $level2 = $this->getReferalChild($level1[$i]['id_user']);
-            for ($j=0; $j < count($level2); $j++) { 
+            for ($j = 0; $j < count($level2); $j++) {
                 $total++;
                 $level3 = $this->getReferalChild($level2[$j]['id_user']);
-                for ($c=0; $c < count($level3); $c++) { 
+                for ($c = 0; $c < count($level3); $c++) {
                     $total++;
-                }    
-            }    
+                }
+            }
         }
         return $total;
     }
@@ -708,7 +718,7 @@ class Umum {
         $saldo_penerima = $saldo_penerima['jumlah_saldo'] + $jumlah;
         $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + TRANSFER_CHARGE;
 
-        if(!$this->updateSaldo($id_user,$saldo_user) || !$this->updateSaldo($id_user_penerima,$saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN,$saldo_perusahaan) ){
+        if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
         }
 
@@ -718,7 +728,7 @@ class Umum {
         $data = [
             ":sender_user_id" => $id_user,
             ":receipent_user_id" => $id_user_penerima,
-            ":total_transfer" => $jumlah
+            ":total_transfer" => $jumlah,
         ];
 
         if ($est->execute($data)) {
@@ -729,39 +739,39 @@ class Umum {
 
     public function withdrawPoint($id_user, $jumlah, $jenis) {
 
-        if(empty($this->cekUser($id_user))){
+        if (empty($this->cekUser($id_user))) {
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
         }
-        if(empty($jumlah) || $jumlah<=JUMLAH_WITHDRAW_TERKECIL){
+        if (empty($jumlah) || $jumlah <= JUMLAH_WITHDRAW_TERKECIL) {
             return ['status' => 'Error', 'message' => 'Input Nominal Tidak Boleh Kosong'];
         }
 
         $point_user = $this->getPointUser($id_user);
-        if($jumlah<JUMLAH_WITHDRAW_MINIMAL && $jenis == JENIS_WITHDRAW_REKENING){
+        if ($jumlah < JUMLAH_WITHDRAW_MINIMAL && $jenis == JENIS_WITHDRAW_REKENING) {
             return ['status' => 'Error', 'message' => 'Untuk Withdraw Melalui Rekening Minimal Withdraw 100.000 Rupiah'];
         }
-        if($point_user['jumlah_point']<$jumlah){
+        if ($point_user['jumlah_point'] < $jumlah) {
             return ['status' => 'Error', 'message' => 'Point Tidak Mencukupi Untuk Melakukan Withdraw'];
         }
 
         $point_user = $point_user['jumlah_point'] - $jumlah;
 
-        if(!$this->updatePoint($id_user,$point_user) ){
+        if (!$this->updatePoint($id_user, $point_user)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Point'];
         }
 
         $draw_status = STATUS_WITHDRAW_PENDING;
         $rekening = ", Untuk Withdraw Rekening Akan Dikirim Ke Nomor Rekening Yang Tersimpan";
-        if($jenis == JENIS_WITHDRAW_SALDO){
+        if ($jenis == JENIS_WITHDRAW_SALDO) {
             $draw_status = STATUS_WITHDRAW_SUCCESS;
             $saldo_user = $this->getSaldoUser($id_user);
-            $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah ;
+            $saldo_user = $saldo_user['jumlah_saldo'] + $jumlah;
             $rekening = "";
-            if(!$this->updateSaldo($id_user,$saldo_user) ){
+            if (!$this->updateSaldo($id_user, $saldo_user)) {
                 return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
             }
         }
-        
+
         $sql = 'INSERT INTO withdraw( id_user , jumlah , jenis_withdraw, status_withdraw )
         VALUE( :id_user , :jumlah , :jenis_withdraw, :status_withdraw)';
         $est = $this->db->prepare($sql);
@@ -769,11 +779,11 @@ class Umum {
             ":id_user" => $id_user,
             ":jumlah" => $jumlah,
             ":jenis_withdraw" => $jenis,
-            ":status_withdraw" => $draw_status
+            ":status_withdraw" => $draw_status,
         ];
 
         if ($est->execute($data)) {
-            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses'.$rekening];
+            return ['status' => 'Success', 'message' => 'Withdraw Berhasil Diproses' . $rekening];
         }return ['status' => 'Error', 'message' => 'Terjadi Masalah Ketika Melakukan Withdraw'];
 
     }
@@ -788,6 +798,190 @@ class Umum {
         $est->execute();
         $stmt = $est->fetchAll();
         return $stmt;
+    }
+
+    public function getTransferHistory($id) {
+        $sql = "SELECT user.nama,user.email,user.no_telpon,transfer.total_transfer,transfer.tanggal_transfer FROM transfer
+                INNER JOIN user ON user.id_user = transfer.receipent_user_id
+                WHERE transfer.sender_user_id = '$id'
+                ORDER BY transfer.tanggal_transfer DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTransferHistoryUser($id) {
+        if (empty($this->cekUser($id))) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getTransferHistory($id);
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        for ($i = 0; $i < count($data); $i++) {
+            $data[$i]['total_transfer'] = (double) $data[$i]['total_transfer'];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getTopupHistory($id) {
+        $sql = "SELECT top_up.id_topup,top_up.jumlah_topup,status_topup.status,top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup
+                WHERE top_up.id_user = '$id'
+                ORDER BY top_up.tanggal_topup DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTopupHistoryUser($id) {
+        if (empty($this->cekUser($id))) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getTopupHistory($id);
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        for ($i = 0; $i < count($data); $i++) {
+            $data[$i]['jumlah_topup'] = (double) $data[$i]['jumlah_topup'];
+            $data[$i]['no_rek'] = NO_REK_PERUSAHAAN;
+            $data[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
+            $data[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
+            if ($data[$i]['status'] == TOPUP_ACCEPT_NAME) {
+                $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
+            }
+            if ($data[$i]['status'] == TOPUP_REJECT_NAME) {
+                $data[$i]['pesan_topup'] = PESAN_TOPUP_REJECT;
+            }
+            if ($data[$i]['status'] == TOPUP_PENDING_NAME) {
+                $data[$i]['pesan_topup'] = PESAN_TOPUP_PENDING;
+            }
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getBantuanUser($id) {
+        $sql = "SELECT * FROM bantuan
+                WHERE id_user = '$id'
+                ORDER BY tanggal_bantuan DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBantuanDefault() {
+        $data = $this->getBantuanUser(ID_DRIVER_SILUMAN);
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getBantuanFromUser($id) {
+        if (empty($this->cekUser($id))) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getBantuanUser($id);
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function insertBantuanUser($id, $pesan, $jawaban) {
+        if (empty($this->cekUser($id))) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        if (empty($pesan)) {
+            return ['status' => 'Error', 'message' => 'Keterangan Bantuan Tidak Boleh Kosong'];
+        }
+        if (empty($jawaban)) {
+            return ['status' => 'Error', 'message' => 'Keterangan Jawaban Bantuan Tidak Boleh Kosong'];
+        }
+        $sql = "INSERT INTO bantuan(id_user, pertanyaan, jawaban, tanggal_bantuan )
+                VALUE ('$id', '$pesan', '$jawaban', CURRENT_TIMESTAMP )";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => "Pertanyaan Anda Berhasil Dikirim"];
+        }
+        return ['status' => 'Error', 'message' => "Gagal Mengirim Pertanyaan"];
+    }
+
+    public function cekUserBantuan($id) {
+        $sql = "SELECT * FROM bantuan
+                WHERE id_bantuan ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function jawabBantuanAdmin($id, $jawaban) {
+        if(empty($this->cekUserBantuan($id))){
+            return ['status' => 'Error', 'message' => 'Bantuan tidak ditemukan'];
+        }
+        if (empty($jawaban)) {
+            return ['status' => 'Error', 'message' => 'Keterangan Jawaban Bantuan Tidak Boleh Kosong'];
+        }
+        $sql = "UPDATE bantuan
+            SET jawaban = '$jawaban', tanggal_bantuan = tanggal_bantuan
+            WHERE id_bantuan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Berhasil Menjawab Pertanyaan User'];
+        }return ['status' => 'Error', 'message' => 'Gagal Mengupdate Jawaban Bantuan'];
+
+    }
+
+    public function cekWithdraw($id) {
+        $sql = "SELECT * FROM withdraw
+                WHERE id ='$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function editWithdraw($id, $status) {
+        $sql = "UPDATE withdraw
+                SET status_withdraw = '$status'
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return ;
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Berhasil Mengaktifkan Driver'];
+        }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
+    }
+
+    public function adminKonfirmasiWithdraw($id, $status) {
+        $data = $this->cekWithdraw($id);
+        if(empty($data)){
+            return ['status' => 'Error', 'message' => 'Withdraw tidak ditemukan'];
+        }
+        if ($data['status_withdraw'] == STATUS_WITHDRAW_SUCCESS) {
+            return ['status' => 'Error', 'message' => 'Withdraw Tersebut Telah Diterima Sebelumnya'];
+        }
+        if ($data['status_withdraw'] == STATUS_WITHDRAW_REJECT) {
+            return ['status' => 'Error', 'message' => 'Withdraw Tersebut Telah Ditolak Oleh Admin'];
+        }
+        if ($this->editWithdraw($id,$status)) {
+            return ['status' => 'Error', 'message' => 'Gagal Update Withdraw'];
+        }
+        if($status == STATUS_WITHDRAW_REJECT){
+            $point_user = $this->getPointUser($data['id_user']);
+            $point = $point_user['jumlah_point'] + $data['jumlah'];
+            if(!$this->updatePoint($data['id_user'],$point)){
+                return ['status' => 'Error', 'message' => 'Gagal Update Point User'];
+            }
+            return ['status' => 'Success', 'message' => 'Berhasil Menolak Withdraw User'];
+        }
+        return ['status' => 'Success', 'message' => 'Berhasil Menerima Withdraw User'];
+
     }
 
 }

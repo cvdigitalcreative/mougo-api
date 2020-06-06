@@ -164,7 +164,7 @@ class Trip {
     }
 
     // BONUS
-    public function bonusFinish($id_trip,$id_customer, $id_driver, $harga, $type) {
+    public function bonusFinish($id_trip, $id_customer, $id_driver, $harga, $type) {
         $bayar = new Umum();
         $bayar->setDb($this->getDb());
         $harga = (double) $harga;
@@ -172,76 +172,76 @@ class Trip {
         $point_driver = $bayar->getPointUser($id_driver);
         $point_customer = $bayar->getPointUser($id_customer);
         $point_perusahaan = $bayar->getPointUser(ID_PERUSAHAAN);
-        
-        $driver_uang =(double) $uang_driver['jumlah_saldo'];
-        $driver_point =(double) $point_driver['jumlah_point'];
-        $customer_point =(double) $point_customer['jumlah_point'];
-        $perusahaan_point =(double) $point_perusahaan['jumlah_point'];
 
-        if($type==PEMBAYARAN_CASH){
-            $bersih = ($harga*0.2);
+        $driver_uang = (double) $uang_driver['jumlah_saldo'];
+        $driver_point = (double) $point_driver['jumlah_point'];
+        $customer_point = (double) $point_customer['jumlah_point'];
+        $perusahaan_point = (double) $point_perusahaan['jumlah_point'];
+
+        if ($type == PEMBAYARAN_CASH) {
+            $bersih = ($harga * 0.2);
             $bonus = $bersih * 0.3;
-            
-            $asli =  $driver_uang - $bersih;
-            $bayar->updateSaldo($id_driver,$asli);
+
+            $asli = $driver_uang - $bersih;
+            $bayar->updateSaldo($id_driver, $asli);
 
             // 6% UANG BERSIH PERUSAHAAN
             $bersih_perusahaan = $perusahaan_point + $bonus;
-            $bayar->updatePoint(ID_PERUSAHAAN,$bersih_perusahaan);
+            $bayar->updatePoint(ID_PERUSAHAAN, $bersih_perusahaan);
 
             $bersih_trip = $bonus * 0.5;
 
             // 3%x2 BONUS TRIP DRIVER DAN CUSTOMER
             $total_point_driver = $driver_point + $bersih_trip;
-            $bayar->updatePoint($id_driver,$total_point_driver);
-            $this->insertBonusTrip($id_driver,$id_trip,$bersih_trip);
+            $bayar->updatePoint($id_driver, $total_point_driver);
+            $this->insertBonusTrip($id_driver, $id_trip, $bersih_trip);
 
             $total_point_pengguna = $customer_point + $bersih_trip;
-            $bayar->updatePoint($id_customer,$total_point_pengguna);
-            $this->insertBonusTrip($id_customer,$id_trip,$bersih_trip);
+            $bayar->updatePoint($id_customer, $total_point_pengguna);
+            $this->insertBonusTrip($id_customer, $id_trip, $bersih_trip);
 
             // 3%x2 BONUS LEVEL DRIVER DAN CUSTOMER
             $atasan_driver = $this->getAllReferalAtasan($id_driver);
             $bersih_level = $bonus * 0.5;
             $temp_hasil = $bersih_level;
-            for ($i=0; $i < count($atasan_driver) ; $i++) {
-                $temp_hasil = $temp_hasil * 0.5; 
-                if($i+1 == count($atasan_driver)){
+            for ($i = 0; $i < count($atasan_driver); $i++) {
+                $temp_hasil = $temp_hasil * 0.5;
+                if ($i + 1 == count($atasan_driver)) {
                     $temp_hasil = $temp_hasil * 2;
                 }
                 $point_atasan = $bayar->getPointUser($atasan_driver[$i]['id_user_atasan']);
-                $atasan_point = (double) $point_atasan['jumlah_point'] ;
+                $atasan_point = (double) $point_atasan['jumlah_point'];
                 $total_point = $atasan_point + $temp_hasil;
-                $bayar->updatePoint($atasan_driver[$i]['id_user_atasan'],$total_point);
-                $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'],$id_trip,$temp_hasil);
+                $bayar->updatePoint($atasan_driver[$i]['id_user_atasan'], $total_point);
+                $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'], $id_trip, $temp_hasil);
             }
-            
+
             $atasan_customer = $this->getAllReferalAtasan($id_customer);
             $temp_hasil = $bersih_level;
-            for ($i=0; $i < count($atasan_customer) ; $i++) {
-                $temp_hasil = $temp_hasil * 0.5; 
-                if($i+1 == count($atasan_customer)){
+            for ($i = 0; $i < count($atasan_customer); $i++) {
+                $temp_hasil = $temp_hasil * 0.5;
+                if ($i + 1 == count($atasan_customer)) {
                     $temp_hasil = $temp_hasil * 2;
                 }
                 $point_atasan = $bayar->getPointUser($atasan_customer[$i]['id_user_atasan']);
                 $atasan_point = (double) $point_atasan['jumlah_point'];
                 $total_point = $atasan_point + $temp_hasil;
-                $bayar->updatePoint($atasan_customer[$i]['id_user_atasan'],$total_point);
-                $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'],$id_trip,$temp_hasil);
+                $bayar->updatePoint($atasan_customer[$i]['id_user_atasan'], $total_point);
+                $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $id_trip, $temp_hasil);
             }
 
         }
         return true;
     }
 
-    public function insertBonusTrip($id_user,$id_trip,$pendapatan) {
+    public function insertBonusTrip($id_user, $id_trip, $pendapatan) {
         $sql = "INSERT INTO bonus_trip(id_user, id_trip, pendapatan)
                 VALUES('$id_user','$id_trip','$pendapatan')";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
     }
 
-    public function insertBonusLevel($id_user,$id_trip,$pendapatan) {
+    public function insertBonusLevel($id_user, $id_trip, $pendapatan) {
         $sql = "INSERT INTO bonus_level(id_user, id_trip, pendapatan)
                 VALUES('$id_user','$id_trip','$pendapatan')";
         $est = $this->getDb()->prepare($sql);

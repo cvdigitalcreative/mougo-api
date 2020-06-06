@@ -74,14 +74,23 @@ define('ADMIN_SILUMAN_MOUGO', "mougoadmin@gmail.com");
 // STATUS TOPUP
 define('STATUS_TOPUP_PENDING', 1);
 define('STATUS_TOPUP_ACCEPT', 2);
+define('STATUS_TOPUP_REJECT', 3);
+
+define('PESAN_TOPUP_PENDING', 'Top Up saldo belum diselesaikan!');
+define('PESAN_TOPUP_ACCEPT', 'Top Up saldo berhasil');
+define('PESAN_TOPUP_REJECT', 'Top Up saldo gagal!');
+
+define('TOPUP_PENDING_NAME', 'Pending');
+define('TOPUP_ACCEPT_NAME', 'Accepted');
+define('TOPUP_REJECT_NAME', 'Rejected');
 
 // STATUS TOPUP
 define('TOPUP_ACCEPT', 1);
 define('TOPUP_REJECT', 2);
 
-// REK MOUGO
-define('ID_PERUSAHAAN','2de2df615a5209a97f75218ebe2f335049f47fb0');
-define('NO_REK_PERUSAHAAN', "7136478456 (Bank Mandiri Syariah)");
+define('ID_PERUSAHAAN', '2de2df615a5209a97f75218ebe2f335049f47fb0');
+define('NO_REK_PERUSAHAAN', "7996662227");
+
 define('NAMA_BANK_PERUSAHAAN', "Bank Mandiri Syariah");
 define('NAMA_REK_PERUSAHAAN', "PT. Dawam Multi Sarana");
 
@@ -118,5 +127,9 @@ define('JENIS_WITHDRAW_REKENING', 1);
 define('JENIS_WITHDRAW_SALDO', 2);
 define('STATUS_WITHDRAW_PENDING', 0);
 define('STATUS_WITHDRAW_SUCCESS', 1);
+define('STATUS_WITHDRAW_REJECT', 2);
 define('JUMLAH_WITHDRAW_MINIMAL', 100000);
 define('JUMLAH_WITHDRAW_TERKECIL', 0);
+
+// STRING KOSONG
+define('STRING_KOSONG', "-");
