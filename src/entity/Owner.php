@@ -214,6 +214,31 @@ class Owner {
         return ['status' => 'Success', 'data' => $topup];
     }
 
+    public function getTopupDriver() {
+        $sql = "SELECT user.nama, top_up.jumlah_topup, status_topup.status, admin.nama_admin, top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN admin ON admin.email_admin = top_up.admin
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup
+                WHERE user.role = '2'
+                ORDER BY tanggal_topup DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getTopupDriverAll() {
+        $topup = $this->getTopupDriver();
+        if (empty($topup)) {
+            return ['status' => 'Error', 'message' => 'History Topup Tidak Ditemukan'];
+        }
+        for ($i = 0; $i < count($topup); $i++) {
+            $topup[$i]['nama'] = decrypt($topup[$i]['nama'], MOUGO_CRYPTO_KEY);
+            $topup[$i]['jumlah_topup'] = (double) $topup[$i]['jumlah_topup'];
+        }
+        return ['status' => 'Success', 'data' => $topup];
+    }
+
     public function getBantuan() {
         $sql = "SELECT user.nama, bantuan.pertanyaan, bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
                 INNER JOIN user ON user.id_user = bantuan.id_user
