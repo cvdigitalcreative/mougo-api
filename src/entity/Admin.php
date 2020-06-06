@@ -298,7 +298,7 @@ class Admin {
         return $est->rowCount();
     }
 
-    private $column_search_withdraw = array('nama', 'jumlah', 'status_withdraw');
+    private $column_search_withdraw = array('nama', 'jumlah', 'jenis_withdraw' , 'status_withdraw' , 'tanggal_withdraw');
     private $withdraw_id = array('nama' => 'asc');
 
     public function getWithdrawWeb($order_by, $order, $start, $length, $search) {
@@ -338,8 +338,12 @@ class Admin {
             $temp = "";
             if ($order_by == 0) {
                 $temp = "user";
-            } else if ($order_by == 1 || $order_by == 2) {
+            } else if ($order_by == 1 || $order_by == 4) {
                 $temp = "withdraw";
+            } else if ($order_by == 2) {
+                $temp = "jenis_withdraw";
+            } else if ($order_by == 3) {
+                $temp = "status_withdraw";
             }
             $order_in = $this->column_search_withdraw[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";

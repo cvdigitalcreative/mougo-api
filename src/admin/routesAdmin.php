@@ -177,7 +177,7 @@ $app->post('/admin/withdraw/', function ($request, $response) {
     $withdraw = $admin->getWithdrawWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
 
     if (empty($withdraw)) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+        return $response->withJson(['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'], SERVER_OK);
     }
 
     for ($i = 0; $i < count($withdraw); $i++) {
