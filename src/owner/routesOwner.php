@@ -243,6 +243,14 @@ $app->get('/owner/topup/', function ($request, $response) {
 });
 
 // OWNER
+// GET TOPUP DRIVER
+$app->get('/owner/topup/driver/', function ($request, $response) {
+    $getTrip = new Owner(null, null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getTopupDriverAll(), SERVER_OK);
+});
+
+// OWNER
 // GET TOPUP
 $app->get('/owner/bantuan/', function ($request, $response) {
     $getTrip = new Owner(null, null);
