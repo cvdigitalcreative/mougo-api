@@ -90,7 +90,7 @@ class Admin {
         return $temp;
     }
 
-    private $column_search = array('id_topup', 'jumlah_topup', 'nama', 'email', 'id_topup', 'foto_transfer');
+    private $column_search = array('id_topup', 'jumlah_topup', 'nama', 'email', 'id_topup', 'tanggal_topup');
     private $orderan = array('nama' => 'asc');
 
     public function getTopupWeb($order_by, $order, $start, $length, $search) {
