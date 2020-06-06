@@ -294,7 +294,7 @@ class Umum {
         return $stmt;
     }
 
-    public function topupUpdate($id, $status) {
+    public function topupUpdate($id, $status, $email) {
         $data_topup = $this->getDetailTopup($id);
         if (empty($data_topup)) {
             return ['status' => 'Error', 'message' => 'ID Topup Tidak Ditemukan'];
@@ -302,6 +302,9 @@ class Umum {
         $bukti_pembayaran = $this->getBuktiPembayaran($id);
         if (empty($this->getBuktiPembayaran($id))) {
             return ['status' => 'Error', 'message' => 'User Belum Memberikan Bukti Pembayaran'];
+        }
+        if (empty($email)) {
+            return ['status' => 'Error', 'message' => 'Email Admin Harus Dimasukkan'];
         }
         switch ($status) {
             case TOPUP_ACCEPT:
@@ -317,7 +320,7 @@ class Umum {
                 if (!$this->updateSaldo($detail_topup['id_user'], $detail_saldo['jumlah_saldo'])) {
                     return ['status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
                 }
-                if (!$this->updateTopup($id, STATUS_TOPUP_ACCEPT)) {
+                if (!$this->updateTopup($id, STATUS_TOPUP_ACCEPT, $email)) {
                     return ['status' => 'Error', 'message' => 'Gagal Tambah Saldo'];
                 }
                 return ['status' => 'Success', 'message' => 'Saldo User Berhasil Diterima'];
@@ -330,7 +333,7 @@ class Umum {
                         return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                     }
                 }
-                if (!$this->updateTopup($id, STATUS_TOPUP_REJECT)) {
+                if (!$this->updateTopup($id, STATUS_TOPUP_REJECT, $email)) {
                     return ['status' => 'Error', 'message' => 'Gagal Reject Topup'];
                 }
                 return ['status' => 'Success', 'message' => 'Berhasil Menolak Topup'];
@@ -402,9 +405,9 @@ class Umum {
         return $est->execute();
     }
 
-    public function updateTopup($id, $status) {
+    public function updateTopup($id, $status, $email) {
         $sql = "UPDATE top_up
-                SET status_topup = '$status', tanggal_topup = tanggal_topup
+                SET status_topup = '$status', admin = '$email' , tanggal_topup = tanggal_topup
                 WHERE id_topup = '$id'";
         $est = $this->getDb()->prepare($sql);
         if ($est->execute()) {
