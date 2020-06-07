@@ -16,7 +16,7 @@ session_start();
 // Instantiate the app
 $settings = require __DIR__ . '/../src/settings.php';
 $app = new \Slim\App($settings);
-$app->log->setEnabled(true);
+
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
     return $response
