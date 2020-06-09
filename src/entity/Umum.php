@@ -987,4 +987,47 @@ class Umum {
 
     }
 
+    public function getTripHistoryCustomer($id) {
+        $sql = "SELECT jenis_trip.jenis_trip,jenis_pembayaran.jenis_pembayaran,trip.alamat_destinasi,trip.total_harga,trip.tanggal_transaksi FROM trip
+                INNER JOIN jenis_pembayaran ON jenis_pembayaran.id = trip.jenis_pembayaran
+                INNER JOIN jenis_trip ON jenis_trip.id = trip.jenis_trip
+                WHERE trip.id_customer = '$id'
+                ORDER BY trip.tanggal_transaksi DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTripHistoryDriver($id) {
+        $sql = "SELECT jenis_trip.jenis_trip,jenis_pembayaran.jenis_pembayaran,trip.alamat_destinasi,trip.total_harga,trip.tanggal_transaksi FROM trip
+                INNER JOIN jenis_pembayaran ON jenis_pembayaran.id = trip.jenis_pembayaran
+                INNER JOIN jenis_trip ON jenis_trip.id = trip.jenis_trip
+                WHERE trip.id_driver = '$id'
+                ORDER BY trip.tanggal_transaksi DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTripHistoryUser($id) {
+        $user = $this->cekUser($id);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        if ($user['role'] == USER_ROLE){
+            $data = $this->getTripHistoryCustomer($id);
+        } else{
+            $data = $this->getTripHistoryDriver($id);
+        }
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        for ($i = 0; $i < count($data); $i++) {
+            $data[$i]['total_harga'] = (double) $data[$i]['total_harga'];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
 }
