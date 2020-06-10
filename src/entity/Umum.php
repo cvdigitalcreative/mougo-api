@@ -924,7 +924,7 @@ class Umum {
     }
 
     public function jawabBantuanAdmin($id, $jawaban) {
-        if(empty($this->cekUserBantuan($id))){
+        if (empty($this->cekUserBantuan($id))) {
             return ['status' => 'Error', 'message' => 'Bantuan tidak ditemukan'];
         }
         if (empty($jawaban)) {
@@ -955,7 +955,7 @@ class Umum {
                 WHERE id = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        return ;
+        return;
         if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Berhasil Mengaktifkan Driver'];
         }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
@@ -963,7 +963,7 @@ class Umum {
 
     public function adminKonfirmasiWithdraw($id, $status) {
         $data = $this->cekWithdraw($id);
-        if(empty($data)){
+        if (empty($data)) {
             return ['status' => 'Error', 'message' => 'Withdraw tidak ditemukan'];
         }
         if ($data['status_withdraw'] == STATUS_WITHDRAW_SUCCESS) {
@@ -972,13 +972,13 @@ class Umum {
         if ($data['status_withdraw'] == STATUS_WITHDRAW_REJECT) {
             return ['status' => 'Error', 'message' => 'Withdraw Tersebut Telah Ditolak Oleh Admin'];
         }
-        if ($this->editWithdraw($id,$status)) {
+        if ($this->editWithdraw($id, $status)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Withdraw'];
         }
-        if($status == STATUS_WITHDRAW_REJECT){
+        if ($status == STATUS_WITHDRAW_REJECT) {
             $point_user = $this->getPointUser($data['id_user']);
             $point = $point_user['jumlah_point'] + $data['jumlah'];
-            if(!$this->updatePoint($data['id_user'],$point)){
+            if (!$this->updatePoint($data['id_user'], $point)) {
                 return ['status' => 'Error', 'message' => 'Gagal Update Point User'];
             }
             return ['status' => 'Success', 'message' => 'Berhasil Menolak Withdraw User'];
@@ -1016,9 +1016,9 @@ class Umum {
         if (empty($user)) {
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
         }
-        if ($user['role'] == USER_ROLE){
+        if ($user['role'] == USER_ROLE) {
             $data = $this->getTripHistoryCustomer($id);
-        } else{
+        } else {
             $data = $this->getTripHistoryDriver($id);
         }
         if (empty($data)) {
@@ -1027,6 +1027,98 @@ class Umum {
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['total_harga'] = (double) $data[$i]['total_harga'];
         }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getAllHistoryUser($id) {
+        $user = $this->cekUser($id);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+
+        $data2 = $this->getTopupHistory($id);
+        $data3 = $this->getHistoryWithdraw($id);
+        $data4 = $this->getTransferHistory($id);
+
+        if (!empty($data2)) {
+            for ($i = 0; $i < count($data2); $i++) {
+                $data2[$i]['jumlah_topup'] = (double) $data2[$i]['jumlah_topup'];
+                $data2[$i]['no_rek'] = NO_REK_PERUSAHAAN;
+                $data2[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
+                $data2[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
+                if ($data2[$i]['status'] == TOPUP_ACCEPT_NAME) {
+                    $data2[$i]['message'] = PESAN_TOPUP_ACCEPT;
+                }
+                if ($data2[$i]['status'] == TOPUP_REJECT_NAME) {
+                    $data2[$i]['message'] = PESAN_TOPUP_REJECT;
+                }
+                if ($data2[$i]['status'] == TOPUP_PENDING_NAME) {
+                    $data2[$i]['message'] = PESAN_TOPUP_PENDING;
+                }
+                $data2[$i]['tanggal'] = $data2[$i]['tanggal_topup'];
+                $data2[$i]['type'] = TYPE_TOPUP;
+            }
+        }
+
+        $data = [];
+
+        if (!empty($data3)) {
+            for ($i = 0; $i < count($data3); $i++) {
+                $data[$i]['id'] = (int) $data3[$i]['id'];
+                $data[$i]['id_user'] = $data3[$i]['id_user'];
+                $data[$i]['jumlah'] = (double) $data3[$i]['jumlah'];
+                $data[$i]['jenis_withdraw'] = $data3[$i]['jenis_withdraw'];
+                $data[$i]['status_withdraw'] = $data3[$i]['status_withdraw'];
+                if ($data3[$i]['jenis_withdraw'] == JENIS_WITHDRAW_SALDO) {
+                    $data[$i]['message'] = PESAN_WITHDRAW_SALDO;
+                } else {
+                    $data[$i]['message'] = PESAN_WITHDRAW_REKENING;
+                }
+                $data[$i]['tanggal'] = $data3[$i]['tanggal_withdraw'];
+                $data[$i]['type'] = TYPE_WITHDRAW;
+            }
+        }
+
+        if (!empty($data4)) {
+            for ($i = 0; $i < count($data4); $i++) {
+                $data4[$i]['total_transfer'] = (double) $data4[$i]['total_transfer'];
+                $data4[$i]['message'] = PESAN_TRANSFER;
+                $data4[$i]['tanggal'] = $data4[$i]['tanggal_transfer'];
+                $data4[$i]['type'] = TYPE_TRANSFER;
+            }
+        }
+
+        for ($i = 0; $i < count($data2); $i++) {
+            $data[count($data)] = $data2[$i];
+        }
+
+        for ($i = 0; $i < count($data4); $i++) {
+            $data[count($data)] = $data4[$i];
+        }
+
+        for ($i = 0; $i < count($data); $i++) {
+            $swapped = false;
+
+            for ($j = 0; $j < count($data) - $i - 1; $j++) {
+
+                if ($data[$j]['tanggal'] < $data[$j+1]['tanggal'] ) {
+                    $t = $data[$j];
+                    $data[$j] = $data[$j+1];
+                    $data[$j+1] = $t;
+                    $swapped = true;
+                }
+            }
+
+            if ($swapped == false) {
+                break;
+            }
+
+        }
+
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+
         return ['status' => 'Success', 'data' => $data];
     }
 
