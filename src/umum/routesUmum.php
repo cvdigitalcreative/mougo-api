@@ -422,3 +422,11 @@ $app->post('/common/bantuan/{id_user}', function ($request, $response, $args) {
     $user->setDb($this->db);
     return $response->withJson($user->insertBantuanUser($args['id_user'], $data['pesan_bantuan'], STRING_KOSONG), SERVER_OK);
 })->add($tokenCheck);
+
+// USER
+// GET HISTORY TRIP
+$app->get('/common/trip/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getTripHistoryUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
