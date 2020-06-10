@@ -130,6 +130,17 @@ define('STATUS_WITHDRAW_SUCCESS', 1);
 define('STATUS_WITHDRAW_REJECT', 2);
 define('JUMLAH_WITHDRAW_MINIMAL', 100000);
 define('JUMLAH_WITHDRAW_TERKECIL', 0);
+define('PESAN_WITHDRAW_SALDO', 'Tarik point ke saldo');
+define('PESAN_WITHDRAW_REKENING', 'Tarik point ke rekening');
+
 
 // STRING KOSONG
 define('STRING_KOSONG', "-");
+
+// HISTORY TYPE
+define('TYPE_TRIP', 'Trip');
+define('TYPE_WITHDRAW', 'Withdraw');
+define('TYPE_TOPUP', 'Topup');
+define('TYPE_TRANSFER', 'Transfer');
+
+define('PESAN_TRANSFER', 'Transfer saldo berhasil');

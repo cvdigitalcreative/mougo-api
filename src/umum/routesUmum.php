@@ -430,3 +430,11 @@ $app->get('/common/trip/{id_user}', function ($request, $response, $args) {
     $user->setDb($this->db);
     return $response->withJson($user->getTripHistoryUser($args['id_user']), SERVER_OK);
 })->add($tokenCheck);
+
+// USER
+// GET HISTORY ALL
+$app->get('/common/history/all/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getAllHistoryUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
