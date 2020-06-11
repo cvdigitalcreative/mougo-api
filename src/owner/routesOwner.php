@@ -96,7 +96,6 @@ $app->get('/owner/driver/', function ($request, $response, $args) {
         $dataDriver[$i]['foto_diri'] = $driver[$i]['foto_diri'];
         $dataDriver[$i]['no_rekening'] = $driver[$i]['no_rekening'];
         $dataDriver[$i]['nama_bank'] = $driver[$i]['name'];
-        
     }
     return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
 });
@@ -137,6 +136,23 @@ $app->get('/owner/admin/', function ($request, $response, $args) {
     }
 
     return $response->withJson(['status' => 'Success', 'data' => $admin], SERVER_OK);
+});
+
+// OWNER
+// DELETE Admin
+$app->delete('/owner/admin/{admin}', function ($request, $response, $args) {
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->deleteAdminOwner($args['admin']), SERVER_OK);
+});
+
+// OWNER
+// Edit Admin
+$app->put('/owner/admin/{admin}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->updateAdminOwner($args['admin'], $data['nama'], $data['password'], $data['no_telpon']), SERVER_OK);
 });
 
 // OWNER

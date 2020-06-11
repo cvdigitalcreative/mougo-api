@@ -260,4 +260,68 @@ class Owner {
         return ['status' => 'Success', 'data' => $topup];
     }
 
+    public function getTopupAdmin($admin) {
+        $sql = "SELECT * FROM top_up
+                WHERE admin = '$admin'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function updateTopupAdmin($admin) {
+        $sql = "UPDATE top_up
+                SET admin = :admin
+                WHERE admin = '$admin'";
+        $est = $this->getDb()->prepare($sql);
+        $data = [
+            ':admin' => ADMIN_SILUMAN_MOUGO,
+        ];
+        return $est->execute($data);
+    }
+
+    public function deleteAdminOwner($id) {
+        $admin = new Admin(null, null, null, null);
+        $admin->setDb($this->db);
+        if (empty($admin->cekDataAdmin($id, null))) {
+            return ['status' => 'Error', 'message' => "Admin tidak ditemukan"];
+        }
+        if (!empty($this->getTopupAdmin($id))) {
+            $this->updateTopupAdmin($id);
+        }
+        if (!$admin->deleteAdmin($id)) {
+            return ['status' => 'Error', 'message' => "Gagal Menghapus Admin"];
+        }
+        return ['status' => 'Success', 'message' => "Berhasil Menghapus Admin"];
+    }
+
+    public function updateAdminOwner($id, $nama, $password, $no_telpon) {
+        $admin = new Admin(null, null, null, null);
+        $admin->setDb($this->db);
+        if (empty($admin->cekDataAdmin($id, null))) {
+            return ['status' => 'Error', 'message' => "Admin tidak ditemukan"];
+        }
+        $sql = "UPDATE admin
+                SET ";
+        if (!empty($nama)) {
+            $sql = $sql . "nama_admin = '$nama' ";
+        }
+        if (!empty($nama) && !empty($password)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($password)) {
+            $sql = $sql . "password = '$password' ";
+        }
+        if ((!empty($nama) || !empty($password)) && !empty($no_telpon)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($no_telpon)) {
+            $sql = $sql . "no_telpon = '$no_telpon' ";
+        }
+        $sql = $sql . " WHERE email_admin = '$id' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return ['status' => 'Success', 'message' => "Berhasil Mengupdate Admin"];
+    }
+
 }
