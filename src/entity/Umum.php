@@ -1055,8 +1055,11 @@ class Umum {
                 if ($data2[$i]['status'] == TOPUP_PENDING_NAME) {
                     $data2[$i]['message'] = PESAN_TOPUP_PENDING;
                 }
+                $data2[$i]['status_topup'] = $data2[$i]['status'];
                 $data2[$i]['tanggal'] = $data2[$i]['tanggal_topup'];
                 $data2[$i]['type'] = TYPE_TOPUP;
+                unset($data2[$i]['status']);
+                unset($data2[$i]['tanggal_topup']);
             }
         }
 
@@ -1085,6 +1088,7 @@ class Umum {
                 $data4[$i]['message'] = PESAN_TRANSFER;
                 $data4[$i]['tanggal'] = $data4[$i]['tanggal_transfer'];
                 $data4[$i]['type'] = TYPE_TRANSFER;
+                unset($data4[$i]['tanggal_transfer']);
             }
         }
 
@@ -1119,7 +1123,7 @@ class Umum {
             return ['status' => 'Success', 'data' => []];
         }
 
-        return ['status' => 'Success', 'data' => $data];
+        return ['status' => 'Success', 'data' => array_slice($data,0,15)];
     }
 
 }
