@@ -1123,7 +1123,7 @@ class Umum {
             return ['status' => 'Success', 'data' => []];
         }
 
-        return ['status' => 'Success', 'data' => $data];
+        return ['status' => 'Success', 'data' => array_slice($data,0,15)];
     }
 
 }
