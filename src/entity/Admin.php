@@ -305,7 +305,7 @@ class Admin {
         return $est->rowCount();
     }
 
-    private $column_list_bantuan = array('pertanyaan', 'jawaban');
+    private $column_list_bantuan = array('pertanyaan', 'jawaban', 'tanggal_bantuan');
     private $bantuan_list = array('pertanyaan' => 'asc');
 
     public function getBantuanList($order_by, $order, $start, $length, $search) {
@@ -342,9 +342,7 @@ class Admin {
 
         if (isset($order_by)) {
             $temp = "";
-            if ($order_by == 0) {
-                $temp = "user";
-            } else if ($order_by == 1 || $order_by == 2) {
+            if ($order_by == 0 || $order_by == 1 || $order_by == 2) {
                 $temp = "bantuan";
             }
             $order_in = $this->column_list_bantuan[$order_by];
