@@ -168,7 +168,7 @@ $app->post('/admin/bantuan/web/', function ($request, $response) {
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
 });
 
-// ADMIN GET ALL BANTUAN
+// ADMIN GET ALL BANTUAN LIST
 $app->post('/admin/bantuan/list/', function ($request, $response) {
     $data = $request->getParsedBody();
     $admin = new Admin(null, null, null, null);
@@ -189,6 +189,21 @@ $app->post('/admin/bantuan/list/', function ($request, $response) {
     }
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
+});
+
+// DELETE ALL BANTUAN LIST
+$app->delete('/admin/bantuan/list/{id}', function ($request, $response, $args) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->deleteBantuanList($args['id']), SERVER_OK);
+});
+
+// EDIT ALL BANTUAN LIST
+$app->put('/admin/bantuan/list/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->updateBantuanList($args['id'], $data['pertanyaan'], $data['jawaban']), SERVER_OK);
 });
 
 // ADMIN GET ALL WITHDRAW
