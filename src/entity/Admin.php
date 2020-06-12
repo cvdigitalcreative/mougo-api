@@ -90,6 +90,13 @@ class Admin {
         return $temp;
     }
 
+    public function deleteAdmin($id) {
+        $sql = "DELETE FROM admin
+                WHERE email_admin = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
     private $column_search = array('id_topup', 'jumlah_topup', 'nama', 'email', 'id_topup', 'tanggal_topup');
     private $orderan = array('nama' => 'asc');
 
@@ -296,6 +303,61 @@ class Admin {
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
+    }
+
+    private $column_list_bantuan = array('pertanyaan', 'jawaban');
+    private $bantuan_list = array('pertanyaan' => 'asc');
+
+    public function getBantuanList($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBantuanListQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBantuanListQuery($order_by, $order, $search) {
+        $driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT * FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                WHERE bantuan.id_user = '$driver_siluman' ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 2) {
+                $temp = "bantuan";
+            }
+            $order_in = $this->column_list_bantuan[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bantuan_list)) {
+            $order_by = $this->bantuan_list;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
     }
 
     private $column_search_withdraw = array('nama', 'jumlah', 'jenis_withdraw' , 'status_withdraw' , 'tanggal_withdraw');

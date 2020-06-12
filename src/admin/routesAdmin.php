@@ -169,6 +169,29 @@ $app->post('/admin/bantuan/web/', function ($request, $response) {
 });
 
 // ADMIN GET ALL BANTUAN
+$app->post('/admin/bantuan/list/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+
+    $bantuan = $admin->getBantuanList($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bantuan)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $data_user = [];
+    for ($i = 0; $i < count($bantuan); $i++) {
+        $data_user[$i]['id_bantuan'] = $bantuan[$i]['id_bantuan'];
+        $data_user[$i]['pertanyaan'] = $bantuan[$i]['pertanyaan'];
+        $data_user[$i]['jawaban'] = $bantuan[$i]['jawaban'];
+        $data_user[$i]['tanggal_bantuan'] = $bantuan[$i]['tanggal_bantuan'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
+});
+
+// ADMIN GET ALL WITHDRAW
 $app->post('/admin/withdraw/', function ($request, $response) {
     $data = $request->getParsedBody();
     $admin = new Admin(null, null, null, null);
