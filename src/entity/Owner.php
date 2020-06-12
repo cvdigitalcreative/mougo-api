@@ -338,7 +338,7 @@ class Owner {
     public function getTransferAll() {
         $transfer = $this->getTransfer();
         if (empty($transfer)) {
-            return ['status' => 'Error', 'message' => 'History Bantuan Tidak Ditemukan'];
+            return ['status' => 'Error', 'message' => 'History Transfer Tidak Ditemukan'];
         }
         for ($i = 0; $i < count($transfer); $i++) {
             $transfer[$i]['nama_pengirim'] = decrypt($transfer[$i]['nama_pengirim'], MOUGO_CRYPTO_KEY);
