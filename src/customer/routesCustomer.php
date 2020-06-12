@@ -155,3 +155,24 @@ $app->get('/customer/trip/position/{id_driver}', function ($request, $response, 
     $position->setDb($this->db);
     return $response->withJson($position->getPosition($id, $id_trip), SERVER_OK);
 })->add($tokenCheck);
+
+// Customer
+// Cek Trip Harga Saldo Customer
+$app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $response, $args) {
+    $lat = $request->getQueryParam("lat");
+    $long = $request->getQueryParam("long");
+    $lat_dest = $request->getQueryParam("lat_destinasi");
+    $long_dest = $request->getQueryParam("long_destinasi");
+    $jarak = new Umum();
+    $jarak->setDb($this->db);
+
+    $jaraks = ($jarak->getDistance($lat, $long, $lat_dest, $long_dest));
+    $harga = $jarak->getHargaTotal($jaraks);
+
+    $saldo = $jarak->getSaldoUser($args['id_user']);
+    
+    if ($saldo['jumlah_saldo'] > $harga['harga']) {
+        return $response->withJson(['status' => 'Success', 'harga' => $harga['harga'], 'saldo' =>(double) $saldo['jumlah_saldo'], 'message' => 'Saldo Anda Cukup'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Cukup'], SERVER_OK);
+})->add($tokenCheck);
