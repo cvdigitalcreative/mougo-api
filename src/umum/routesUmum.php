@@ -107,6 +107,14 @@ $app->get('/customer/trip/harga/{jarak}', function ($request, $response, $args) 
     return $response->withJson($harga->getHargaTotal($args['jarak']), SERVER_OK);
 })->add($tokenCheck);
 
+// Customer
+// Harga Trip
+$app->get('/customer/trip/harga/{jenis_trip}/{jarak}', function ($request, $response, $args) {
+    $harga = new Umum();
+    $harga->setDb($this->db);
+    return $response->withJson($harga->getHargaCekTotal($args['jarak'], $args['jenis_trip']), SERVER_OK);
+})->add($tokenCheck);
+
 // CUSTOMER DRIVER
 // ISI SALDO
 $app->post('/common/topup/{id_user}', function ($request, $response, $args) {

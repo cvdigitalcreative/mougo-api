@@ -212,6 +212,13 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
     }
 
+    public function getHargaCekTotal($jarak, $jenis) {
+        if ($jenis == TRIP_MOU_BIKE || $jenis == TRIP_MOU_NOW_BIKE) {
+            return $this->getHargaTotal($jarak);
+        }
+        return ['status' => 'Error', 'message' => 'Belum Tersedia'];
+    }
+
     public function inputSaldo($jumlah_topup, $id_user) {
         if ($jumlah_topup < 50000) {
             return ['status' => 'Error', 'message' => 'Pengisian Saldo Tidak Boleh Kurang Dari Rp50.000'];
@@ -1105,10 +1112,10 @@ class Umum {
 
             for ($j = 0; $j < count($data) - $i - 1; $j++) {
 
-                if ($data[$j]['tanggal'] < $data[$j+1]['tanggal'] ) {
+                if ($data[$j]['tanggal'] < $data[$j + 1]['tanggal']) {
                     $t = $data[$j];
-                    $data[$j] = $data[$j+1];
-                    $data[$j+1] = $t;
+                    $data[$j] = $data[$j + 1];
+                    $data[$j + 1] = $t;
                     $swapped = true;
                 }
             }
@@ -1123,7 +1130,7 @@ class Umum {
             return ['status' => 'Success', 'data' => []];
         }
 
-        return ['status' => 'Success', 'data' => array_slice($data,0,15)];
+        return ['status' => 'Success', 'data' => array_slice($data, 0, 15)];
     }
 
 }

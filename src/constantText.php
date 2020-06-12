@@ -56,6 +56,12 @@ define('STATUS_MENGANTAR_KETUJUAN', 3);
 define('STATUS_SAMPAI_TUJUAN', 4);
 define('STATUS_CANCEL', 5);
 
+// JENIS TRIP
+define('TRIP_MOU_BIKE', '1');
+define('TRIP_MOU_CAR', '2');
+define('TRIP_MOU_NOW_BIKE', '3');
+define('TRIP_MOU_NOW_CAR', '4');
+
 // POSITION STATUS TRIP
 define('STATUS_TRIP_MENJEMPUT', "Driver Dalam Perjalanan Menjemput");
 define('STATUS_TRIP_MENGANTAR', "Driver Sedang Mengantar Anda");
