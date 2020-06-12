@@ -267,9 +267,17 @@ $app->get('/owner/topup/driver/', function ($request, $response) {
 });
 
 // OWNER
-// GET TOPUP
+// GET BANTUAN
 $app->get('/owner/bantuan/', function ($request, $response) {
     $getTrip = new Owner(null, null);
     $getTrip->setDb($this->db);
     return $response->withJson($getTrip->getBantuanAll(), SERVER_OK);
+});
+
+// OWNER
+// GET TRANSFER
+$app->get('/owner/transfer/', function ($request, $response) {
+    $getTrip = new Owner(null, null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getTransferAll(), SERVER_OK);
 });

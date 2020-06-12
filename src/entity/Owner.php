@@ -324,4 +324,27 @@ class Owner {
         return ['status' => 'Success', 'message' => "Berhasil Mengupdate Admin"];
     }
 
+    public function getTransfer() {
+        $sql = "SELECT sender.nama AS nama_pengirim, receipent.nama AS nama_penerima, transfer.total_transfer, transfer.tanggal_transfer FROM transfer
+                INNER JOIN user AS sender ON sender.id_user = transfer.sender_user_id
+                INNER JOIN user AS receipent ON receipent.id_user = transfer.receipent_user_id
+                ORDER BY tanggal_transfer DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getTransferAll() {
+        $transfer = $this->getTransfer();
+        if (empty($transfer)) {
+            return ['status' => 'Error', 'message' => 'History Transfer Tidak Ditemukan'];
+        }
+        for ($i = 0; $i < count($transfer); $i++) {
+            $transfer[$i]['nama_pengirim'] = decrypt($transfer[$i]['nama_pengirim'], MOUGO_CRYPTO_KEY);
+            $transfer[$i]['nama_penerima'] = decrypt($transfer[$i]['nama_penerima'], MOUGO_CRYPTO_KEY);
+        }
+        return ['status' => 'Success', 'data' => $transfer];
+    }
+
 }
