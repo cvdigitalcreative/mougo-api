@@ -172,7 +172,7 @@ $app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $resp
     $saldo = $jarak->getSaldoUser($args['id_user']);
     
     if ($saldo['jumlah_saldo'] > $harga['harga']) {
-        return $response->withJson(['status' => 'Success', 'harga' => $harga['harga'], 'saldo' => $saldo['jumlah_saldo'], 'message' => 'Saldo Anda Cukup'], SERVER_OK);
+        return $response->withJson(['status' => 'Success', 'harga' => $harga['harga'], 'saldo' =>(double) $saldo['jumlah_saldo'], 'message' => 'Saldo Anda Cukup'], SERVER_OK);
     }
     return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Cukup'], SERVER_OK);
 })->add($tokenCheck);
