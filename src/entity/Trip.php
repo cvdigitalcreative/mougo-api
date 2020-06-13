@@ -48,6 +48,14 @@ class Trip {
         if (!$this->isDataValid()) {
             return ['status' => 'Error', 'message' => 'Order Trip Data Input Tidak Boleh Kosong'];
         }
+        if ($this->jenis_pembayaran == PEMBAYARAN_SALDO) {
+            $trip_cek = new Umum();
+            $trip_cek->setDb($this->db);
+            $saldo_user = $trip_cek->getSaldoUser($this->id_customer);
+            if ($saldo_user['jumlah_saldo'] < $this->total_harga) {
+                return ['status' => 'Error', 'message' => 'Saldo User Kurang Untuk Melakukan Trip'];
+            }
+        }
         // $this->hitungHarga();
         $data['id_trip'] = $this->inputTemporaryOrder();
         if (!$data['id_trip']) {
@@ -180,6 +188,7 @@ class Trip {
 
         if ($type == PEMBAYARAN_CASH) {
             $bersih = ($harga * 0.2);
+            // $bersih_driver = ($harga * 0.8);
             $bonus = $bersih * 0.3;
 
             $asli = $driver_uang - $bersih;
@@ -269,19 +278,50 @@ class Trip {
     public function getAllReferalBawahan($id) {
         $id_bawah = [];
         $i = 0;
-        $j = 0;
         $state = true;
-        $temp_id = $id;
+        $state2 = true;
+        $data = $this->getReferalDown($id);
+        $id_bawah[0] = $data;
+
+        $i = count($data);
+        $data_lengkap = [
+            'jumlah_mitra_referal' => $i,
+            'mitra_referal' => [],
+        ];
+        if (empty($data)) {
+            return ['status' => 'Error', 'message' => 'Tidak ditemukan user yang menggunakan referal dengan id user tersebut', 'data' => $data_lengkap];
+        }
+        $k = 0;
         while ($state) {
-            $data = $this->getReferalDown($temp_id);
-            if ($data['id_user_atasan'] == $id_bawah[$i]) {
+            $c = 0;
+
+            while ($state2) {
+
+                $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
+
+                if (empty($id_bawah[$k + 1]) && !empty($temp)) {
+                    $id_bawah[$k + 1] = $temp;
+                    $i = $i + count($temp);
+                } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
+                    array_push($id_bawah[$k + 1], $temp);
+                }
+                if (count($id_bawah[$k]) - 1 <= $c) {
+                    $state2 = false;
+                }
+                $c++;
+            }
+            if (count($id_bawah) - 1 <= $k) {
                 $state = false;
             }
-            $id_bawah[$i] = $data;
-            $temp_id = $id_bawah[$i];
-            $i++;
+            $k++;
         }
-        return $id_bawah;
+        $data_lengkap = [
+            'jumlah_mitra_referal' => $i,
+            'mitra_referal' => $id_bawah,
+        ];
+
+        return ['status' => 'Success', 'message' => 'User Referal Ditemukan', 'data' => $data_lengkap];
+
     }
 
     public function getReferalUp($id) {
