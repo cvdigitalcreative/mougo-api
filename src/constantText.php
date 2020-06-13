@@ -150,3 +150,7 @@ define('TYPE_TOPUP', 'Topup');
 define('TYPE_TRANSFER', 'Transfer');
 
 define('PESAN_TRANSFER', 'Transfer saldo berhasil');
+
+// TIPE TRIP 
+define('TIPE_TRIP_ACCEPT', 1);
+define('TIPE_TRIP_CANCEL', 2);

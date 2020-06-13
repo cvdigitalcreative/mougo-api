@@ -252,6 +252,9 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     if ($data_trip['total_harga'] > $data['saldo']) {
         return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);
     }
+
+    $trip_acc->saldoTripUser($id_driver['id_driver'], TIPE_TRIP_ACCEPT, $data_trip['jenis_pembayaran'], DRIVER_ROLE, $data_trip['total_harga'], $data['saldo']);
+
     if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
     }
