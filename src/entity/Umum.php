@@ -726,9 +726,12 @@ class Umum {
 
         $saldo_user = $saldo_user['jumlah_saldo'] - ($jumlah + TRANSFER_CHARGE);
         $saldo_penerima = $saldo_penerima['jumlah_saldo'] + $jumlah;
-        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + TRANSFER_CHARGE;
+        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + (0.85 * TRANSFER_CHARGE);
 
-        if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan)) {
+        $point_user = $this->getPointUser($id_user);
+        $point_user = $point_user['jumlah_point'] + (0.15 * TRANSFER_CHARGE);
+
+        if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan) || !$this->updatePoint($id_user, $point_user)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
         }
 
