@@ -281,3 +281,11 @@ $app->get('/owner/transfer/', function ($request, $response) {
     $getTrip->setDb($this->db);
     return $response->withJson($getTrip->getTransferAll(), SERVER_OK);
 });
+
+// OWNER
+// GET STRUKTUR LEVEL
+$app->get('/owner/struktur/level/{id_user}', function ($request, $response, $args) {
+    $getTrip = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    $getTrip->setDb($this->db);
+    return $response->withJson($getTrip->getAllReferalBawahan($args['id_user']), SERVER_OK);
+});
