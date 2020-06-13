@@ -276,15 +276,20 @@ class Trip {
     }
 
     public function getAllReferalBawahan($id) {
+        $getUser = new Umum();
+        $getUser->setDb($this->db);
         $id_bawah = [];
         $i = 0;
         $state = true;
         $state2 = true;
+        $data_user = $getUser->cekUser($id);
         $data = $this->getReferalDown($id);
         $id_bawah[0] = $data;
 
         $i = count($data);
         $data_lengkap = [
+            'id_user' => $id,
+            'nama' => decrypt($data_user['nama'], MOUGO_CRYPTO_KEY),
             'jumlah_mitra_referal' => $i,
             'mitra_referal' => [],
         ];
@@ -296,7 +301,7 @@ class Trip {
             $c = 0;
 
             while ($state2) {
-
+                $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
                 $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
 
                 if (empty($id_bawah[$k + 1]) && !empty($temp)) {
@@ -316,6 +321,8 @@ class Trip {
             $k++;
         }
         $data_lengkap = [
+            'id_user' => $id,
+            'nama' => decrypt($data_user['nama'], MOUGO_CRYPTO_KEY),
             'jumlah_mitra_referal' => $i,
             'mitra_referal' => $id_bawah,
         ];
@@ -333,8 +340,9 @@ class Trip {
     }
 
     public function getReferalDown($id) {
-        $sql = "SELECT kode_referal.*, kode_sponsor.kode_sponsor FROM kode_referal
+        $sql = "SELECT kode_referal.*, kode_sponsor.kode_sponsor, user.nama FROM kode_referal
                 INNER JOIN kode_sponsor ON kode_sponsor.id_user = kode_referal.id_user
+                INNER JOIN user ON user.id_user = kode_referal.id_user
                 WHERE kode_referal.id_user_atasan = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
