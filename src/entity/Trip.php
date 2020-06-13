@@ -333,8 +333,9 @@ class Trip {
     }
 
     public function getReferalDown($id) {
-        $sql = "SELECT * FROM kode_referal
-                WHERE id_user_atasan = '$id'";
+        $sql = "SELECT kode_referal.*, kode_sponsor.kode_sponsor FROM kode_referal
+                INNER JOIN kode_sponsor ON kode_sponsor.id_user = kode_referal.id_user
+                WHERE kode_referal.id_user_atasan = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->fetchAll();
