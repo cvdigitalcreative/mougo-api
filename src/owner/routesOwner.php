@@ -289,3 +289,28 @@ $app->get('/owner/struktur/level/{id_user}', function ($request, $response, $arg
     $getTrip->setDb($this->db);
     return $response->withJson($getTrip->getAllReferalBawahan($args['id_user']), SERVER_OK);
 });
+
+// OWNER
+// GET USER
+$app->get('/owner/user/', function ($request, $response) {
+    $getUser = new Umum();
+    $getUser->setDb($this->db);
+    $user = $getUser->getAllUser();
+    if (empty($user)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Customer Tidak Ditemukan'], SERVER_OK);
+    }
+    $dataUser = [];
+    for ($i = 0; $i < count($user); $i++) {
+        $dataUser[$i]['id_user'] = $user[$i]['id_user'];
+        $dataUser[$i]['nama'] = decrypt($user[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $dataUser[$i]['email'] = decrypt($user[$i]['email'], MOUGO_CRYPTO_KEY);
+        $dataUser[$i]['no_telpon'] = decrypt($user[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataUser[$i]['provinsi'] = $user[$i]['provinsi'];
+        $dataUser[$i]['kota'] = $user[$i]['kota'];
+        $dataUser[$i]['kode_referal'] = $user[$i]['kode_referal'];
+        $dataUser[$i]['kode_sponsor'] = $user[$i]['kode_sponsor'];
+        $dataUser[$i]['no_rekening'] = $user[$i]['no_rekening'];
+        $dataUser[$i]['nama_bank'] = $user[$i]['name'];
+    }
+    return $response->withJson(['status' => 'Success', 'data' => $dataUser], SERVER_OK);
+});
