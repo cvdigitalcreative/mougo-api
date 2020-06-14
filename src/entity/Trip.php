@@ -55,6 +55,10 @@ class Trip {
             if ($saldo_user['jumlah_saldo'] < $this->total_harga) {
                 return ['status' => 'Error', 'message' => 'Saldo User Kurang Untuk Melakukan Trip'];
             }
+            $saldo_user = $saldo_user['jumlah_saldo'];
+            if (!$this->saldoTripUser($this->id_customer, TIPE_TRIP_ACCEPT, $this->jenis_pembayaran, USER_ROLE, $this->total_harga, $saldo_user)) {
+                return ['status' => 'Error', 'message' => 'Gagal Update Saldo User'];
+            }
         }
         // $this->hitungHarga();
         $data['id_trip'] = $this->inputTemporaryOrder();
@@ -72,6 +76,44 @@ class Trip {
             $isValid = false;
         }
         return $isValid;
+
+    }
+
+    public function saldoTripUser($id_user, $trip_fungsi, $jenis_pembayaran, $role, $harga, $saldo_user) {
+        $umum = new Umum();
+        $umum->setDb($this->db);
+        if ($role == DRIVER_ROLE && $trip_fungsi == TIPE_TRIP_ACCEPT) {
+            if ($jenis_pembayaran == PEMBAYARAN_SALDO) {
+                $saldo = $saldo_user - $harga;
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            } else {
+                $saldo = $saldo_user - ($harga * 0.2);
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            }
+        }
+        if ($role == DRIVER_ROLE && $trip_fungsi == TIPE_TRIP_CANCEL) {
+            if ($jenis_pembayaran == PEMBAYARAN_SALDO) {
+                $saldo = $saldo_user + $harga;
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            } else {
+                $saldo = $saldo_user + ($harga * 0.2);
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            }
+        }
+        if ($role == USER_ROLE && $trip_fungsi == TIPE_TRIP_ACCEPT && $jenis_pembayaran == PEMBAYARAN_SALDO) {
+            $saldo = $saldo_user - $harga;
+            $umum->updateSaldo($id_user, $saldo);
+            return true;
+        }
+        if ($role == USER_ROLE && $trip_fungsi == TIPE_TRIP_CANCEL && $jenis_pembayaran == PEMBAYARAN_SALDO) {
+            $saldo = $saldo_user + $harga;
+            $umum->updateSaldo($id_user, $saldo);
+            return true;
+        }
 
     }
 
@@ -126,11 +168,20 @@ class Trip {
 
     public function cancelOrder($id_trip) {
         $data_order = $this->getTemporaryOrderDetail($id_trip);
+        $data_trip = $this->getTripDetail($id_trip);
+
+        $cancelOrder = new Umum();
+        $cancelOrder->setDb($this->db);
+
         if (empty($data_order)) {
-            $cancelOrder = new Umum();
-            $cancelOrder->setDb($this->db);
+            $saldo_customer = $cancelOrder->getSaldoUser($data_trip['id_customer']);
+            $saldo_driver = $cancelOrder->getSaldoUser($data_trip['id_driver']);
+            $this->saldoTripUser($data_trip['id_customer'], TIPE_TRIP_CANCEL, $data_trip['jenis_pembayaran'], USER_ROLE, $data_trip['total_harga'], $saldo_customer['jumlah_saldo']);
+            $this->saldoTripUser($data_trip['id_driver'], TIPE_TRIP_CANCEL, $data_trip['jenis_pembayaran'], DRIVER_ROLE, $data_trip['total_harga'], $saldo_driver['jumlah_saldo']);
             return $cancelOrder->updateStatusTrip($id_trip, STATUS_CANCEL);
         }
+        $saldo_customer = $cancelOrder->getSaldoUser($data_order['id_customer']);
+        $this->saldoTripUser($data_order['id_customer'], TIPE_TRIP_CANCEL, $data_order['jenis_pembayaran'], USER_ROLE, $data_order['total_harga'], $saldo_customer['jumlah_saldo']);
         $this->deleteTemporaryOrderDetail($id_trip);
         $cek = $this->driverInputOrder(ID_DRIVER_SILUMAN, $data_order, STATUS_CANCEL);
         if (empty($cek)) {
@@ -186,60 +237,67 @@ class Trip {
         $customer_point = (double) $point_customer['jumlah_point'];
         $perusahaan_point = (double) $point_perusahaan['jumlah_point'];
 
-        if ($type == PEMBAYARAN_CASH) {
-            $bersih = ($harga * 0.2);
-            // $bersih_driver = ($harga * 0.8);
-            $bonus = $bersih * 0.3;
+        $bersih = ($harga * 0.2);
 
-            $asli = $driver_uang - $bersih;
-            $bayar->updateSaldo($id_driver, $asli);
-
-            // 6% UANG BERSIH PERUSAHAAN
-            $bersih_perusahaan = $perusahaan_point + $bonus;
-            $bayar->updatePoint(ID_PERUSAHAAN, $bersih_perusahaan);
-
-            $bersih_trip = $bonus * 0.5;
-
-            // 3%x2 BONUS TRIP DRIVER DAN CUSTOMER
-            $total_point_driver = $driver_point + $bersih_trip;
+        if ($type == PEMBAYARAN_SALDO) {
+            $bersih_driver = ($harga * 0.8);
+            $total_point_driver = $driver_point + $bersih_driver;
             $bayar->updatePoint($id_driver, $total_point_driver);
-            $this->insertBonusTrip($id_driver, $id_trip, $bersih_trip);
-
-            $total_point_pengguna = $customer_point + $bersih_trip;
-            $bayar->updatePoint($id_customer, $total_point_pengguna);
-            $this->insertBonusTrip($id_customer, $id_trip, $bersih_trip);
-
-            // 3%x2 BONUS LEVEL DRIVER DAN CUSTOMER
-            $atasan_driver = $this->getAllReferalAtasan($id_driver);
-            $bersih_level = $bonus * 0.5;
-            $temp_hasil = $bersih_level;
-            for ($i = 0; $i < count($atasan_driver); $i++) {
-                $temp_hasil = $temp_hasil * 0.5;
-                if ($i + 1 == count($atasan_driver)) {
-                    $temp_hasil = $temp_hasil * 2;
-                }
-                $point_atasan = $bayar->getPointUser($atasan_driver[$i]['id_user_atasan']);
-                $atasan_point = (double) $point_atasan['jumlah_point'];
-                $total_point = $atasan_point + $temp_hasil;
-                $bayar->updatePoint($atasan_driver[$i]['id_user_atasan'], $total_point);
-                $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'], $id_trip, $temp_hasil);
-            }
-
-            $atasan_customer = $this->getAllReferalAtasan($id_customer);
-            $temp_hasil = $bersih_level;
-            for ($i = 0; $i < count($atasan_customer); $i++) {
-                $temp_hasil = $temp_hasil * 0.5;
-                if ($i + 1 == count($atasan_customer)) {
-                    $temp_hasil = $temp_hasil * 2;
-                }
-                $point_atasan = $bayar->getPointUser($atasan_customer[$i]['id_user_atasan']);
-                $atasan_point = (double) $point_atasan['jumlah_point'];
-                $total_point = $atasan_point + $temp_hasil;
-                $bayar->updatePoint($atasan_customer[$i]['id_user_atasan'], $total_point);
-                $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $id_trip, $temp_hasil);
-            }
-
         }
+
+        $point_driver = $bayar->getPointUser($id_driver);
+        $driver_point = (double) $point_driver['jumlah_point'];
+
+        $bonus = $bersih * 0.3;
+
+        // $asli = $driver_uang - $bersih;
+        // $bayar->updateSaldo($id_driver, $asli);
+
+        // 6% UANG BERSIH PERUSAHAAN
+        $bersih_perusahaan = $perusahaan_point + $bonus;
+        $bayar->updatePoint(ID_PERUSAHAAN, $bersih_perusahaan);
+
+        $bersih_trip = $bonus * 0.5;
+
+        // 3%x2 BONUS TRIP DRIVER DAN CUSTOMER
+        $total_point_driver = $driver_point + $bersih_trip;
+        $bayar->updatePoint($id_driver, $total_point_driver);
+        $this->insertBonusTrip($id_driver, $id_trip, $bersih_trip);
+
+        $total_point_pengguna = $customer_point + $bersih_trip;
+        $bayar->updatePoint($id_customer, $total_point_pengguna);
+        $this->insertBonusTrip($id_customer, $id_trip, $bersih_trip);
+
+        // 3%x2 BONUS LEVEL DRIVER DAN CUSTOMER
+        $atasan_driver = $this->getAllReferalAtasan($id_driver);
+        $bersih_level = $bonus * 0.5;
+        $temp_hasil = $bersih_level;
+        for ($i = 0; $i < count($atasan_driver); $i++) {
+            $temp_hasil = $temp_hasil * 0.5;
+            if ($i + 1 == count($atasan_driver)) {
+                $temp_hasil = $temp_hasil * 2;
+            }
+            $point_atasan = $bayar->getPointUser($atasan_driver[$i]['id_user_atasan']);
+            $atasan_point = (double) $point_atasan['jumlah_point'];
+            $total_point = $atasan_point + $temp_hasil;
+            $bayar->updatePoint($atasan_driver[$i]['id_user_atasan'], $total_point);
+            $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'], $id_trip, $temp_hasil);
+        }
+
+        $atasan_customer = $this->getAllReferalAtasan($id_customer);
+        $temp_hasil = $bersih_level;
+        for ($i = 0; $i < count($atasan_customer); $i++) {
+            $temp_hasil = $temp_hasil * 0.5;
+            if ($i + 1 == count($atasan_customer)) {
+                $temp_hasil = $temp_hasil * 2;
+            }
+            $point_atasan = $bayar->getPointUser($atasan_customer[$i]['id_user_atasan']);
+            $atasan_point = (double) $point_atasan['jumlah_point'];
+            $total_point = $atasan_point + $temp_hasil;
+            $bayar->updatePoint($atasan_customer[$i]['id_user_atasan'], $total_point);
+            $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $id_trip, $temp_hasil);
+        }
+
         return true;
     }
 
