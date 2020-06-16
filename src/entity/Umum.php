@@ -212,9 +212,25 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
     }
 
+    public function getHargaTotalCar($jarak) {
+        if ($jarak <= JARAK_MINIMAL) {
+            return ['status' => 'Success', 'harga' => HARGA_JARAK_MINIMAL_CAR];
+        } else {
+            $harga = HARGA_JARAK_MINIMAL_CAR;
+            $jarak_pertama = JARAK_MINIMAL + 1;
+            for ($i = $jarak_pertama; $i <= $jarak; $i++) {
+                $harga = $harga + HARGA_JARAK_PERKILO_CAR;
+            }
+            return ['status' => 'Success', 'harga' => $harga];
+        }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
+    }
+
     public function getHargaCekTotal($jarak, $jenis) {
         if ($jenis == TRIP_MOU_BIKE || $jenis == TRIP_MOU_NOW_BIKE) {
             return $this->getHargaTotal($jarak);
+        }
+        if ($jenis == TRIP_MOU_CAR || $jenis == TRIP_MOU_NOW_CAR) {
+            return $this->getHargaTotalCar($jarak);
         }
         return ['status' => 'Error', 'message' => 'Belum Tersedia'];
     }
@@ -730,6 +746,13 @@ class Umum {
         return $total;
     }
 
+    public function inputBonusTransfer($id_user, $pendapatan) {
+        $sql = "INSERT INTO bonus_transfer(id_user, pendapatan)
+                VALUES('$id_user', '$pendapatan')";
+        $est = $this->db->prepare($sql);
+        return $est->execute();
+    }
+
     public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
 
         $saldo_user = $this->getSaldoUser($id_user);
@@ -742,6 +765,8 @@ class Umum {
 
         $point_user = $this->getPointUser($id_user);
         $point_user = $point_user['jumlah_point'] + (0.15 * TRANSFER_CHARGE);
+
+        $this->inputBonusTransfer($id_user, (0.15*TRANSFER_CHARGE));
 
         if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan) || !$this->updatePoint($id_user, $point_user)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
