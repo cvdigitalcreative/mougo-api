@@ -156,3 +156,7 @@ define('PESAN_TRANSFER', 'Transfer saldo berhasil');
 // TIPE TRIP 
 define('TIPE_TRIP_ACCEPT', 1);
 define('TIPE_TRIP_CANCEL', 2);
+
+// EMERGENCY 
+define('NOMOR_EMERGENCY', "085369797900");
+define('JENIS_EMERGENCY_TELPON', 1);
