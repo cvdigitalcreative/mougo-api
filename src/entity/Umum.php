@@ -1174,7 +1174,10 @@ class Umum {
     }
 
     public function getEmergency(){
-        return ['status' => 'Success', 'nomor_emergency' => NOMOR_EMERGENCY, 'message' => 'Nomor Emergency Mougo'];    
+        $data = [
+            'nomor_emergency' => NOMOR_EMERGENCY
+        ];
+        return ['status' => 'Success', 'data' => $data, 'message' => 'Nomor Emergency Mougo'];    
     }
 
     public function insertEmergencyUser($id_user) {
