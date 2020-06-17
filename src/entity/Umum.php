@@ -1173,4 +1173,23 @@ class Umum {
         return ['status' => 'Success', 'data' => array_slice($data, 0, 15)];
     }
 
+    public function getEmergency(){
+        return ['status' => 'Success', 'nomor_emergency' => NOMOR_EMERGENCY, 'message' => 'Nomor Emergency Mougo'];    
+    }
+
+    public function insertEmergencyUser($id_user) {
+        $sql = 'INSERT INTO emergency( id_user , jenis_bantuan )
+        VALUE( :id_user, :jenis_bantuan)';
+        $est = $this->db->prepare($sql);
+        $data = [
+            ":id_user" => $id_user,
+            ":jenis_bantuan" => JENIS_EMERGENCY_TELPON,
+        ];
+
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => 'Berhasil Melaporkan Emergency'];
+        }return ['status' => 'Error', 'message' => 'Gagal Melaporkan Emergency'];
+
+    }
+
 }

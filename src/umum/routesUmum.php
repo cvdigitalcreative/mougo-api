@@ -446,3 +446,18 @@ $app->get('/common/history/all/{id_user}', function ($request, $response, $args)
     $user->setDb($this->db);
     return $response->withJson($user->getAllHistoryUser($args['id_user']), SERVER_OK);
 })->add($tokenCheck);
+
+// USER
+// GET EMERGENCY
+$app->get('/common/emergency/', function ($request, $response) {
+    $user = new Umum();
+    return $response->withJson($user->getEmergency(), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// POST EMERGENCY
+$app->post('/common/emergency/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->insertEmergencyUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
