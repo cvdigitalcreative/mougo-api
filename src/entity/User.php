@@ -133,6 +133,13 @@ class User {
             'token' => $result['token'],
         ];
 
+        if ($role == DRIVER_ROLE) {
+            $driver = new Driver(null, null, null, null, null);
+            $driver->setDb($this->db);
+            $data_driver = $driver->getProfileDriver($result['id_user']);
+            $res['jenis_kendaraan'] = $data_driver['jenis_kendaraan'];
+        }
+
         if ($result['password'] == $this->password) {
             return ['status' => 'Success', 'data' => $res];
         }
