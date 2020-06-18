@@ -322,3 +322,33 @@ $app->get('/owner/user/', function ($request, $response) {
     }
     return $response->withJson(['status' => 'Success', 'data' => $dataUser], SERVER_OK);
 });
+
+// INSERT CABANG
+$app->post('/owner/cabang/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $dataOwner = new Owner(null, null);
+    $dataOwner->setDb($this->db);
+    return $response->withJson($dataOwner->ownerInsertCabang($data['cabang']), SERVER_OK);
+});
+
+// GET CABANG
+$app->get('/owner/cabang/', function ($request, $response) {
+    $dataOwner = new Owner(null, null);
+    $dataOwner->setDb($this->db);
+    return $response->withJson($dataOwner->getCabangAllOwner(), SERVER_OK);
+});
+
+// UPDATE CABANG
+$app->put('/owner/cabang/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $dataOwner = new Owner(null, null);
+    $dataOwner->setDb($this->db);
+    return $response->withJson($dataOwner->ownerUpdateCabang($data['cabang'], $args['id']), SERVER_OK);
+});
+
+// DELETE CABANG
+$app->delete('/owner/cabang/{id}', function ($request, $response, $args) {
+    $dataOwner = new Owner(null, null);
+    $dataOwner->setDb($this->db);
+    return $response->withJson($dataOwner->ownerDeleteCabang($args['id']), SERVER_OK);
+});
