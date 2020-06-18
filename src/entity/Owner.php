@@ -372,4 +372,103 @@ class Owner {
         return ['status' => 'Success', 'data' => $transfer];
     }
 
+    public function getCabang($nama) {
+        $sql = "SELECT * FROM cabang
+                WHERE cabang = '$nama'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getCabangId($id) {
+        $sql = "SELECT * FROM cabang
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function insertCabang($id, $nama) {
+        $sql = "INSERT INTO cabang (id, cabang)
+                VALUE('$id', '$nama')";
+        $est = $this->db->prepare($sql);
+        return $est->execute();
+    }
+
+    public function updateCabang($id, $nama) {
+        $sql = "UPDATE cabang
+                SET cabang = '$nama'
+                WHERE id = '$id'";
+        $est = $this->db->prepare($sql);
+        return $est->execute();
+    }
+
+    public function deleteCabang($id) {
+        $sql = "DELETE FROM cabang
+                WHERE id = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+
+    }
+
+    public function getCabangAll() {
+        $sql = "SELECT * FROM cabang";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getLastIdCabang() {
+        $sql = "SELECT MAX(id) AS id FROM cabang";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getCabangAllOwner() {
+        $dataCabang = $this->getCabangAll();
+        if (empty($dataCabang)) {
+            return ['status' => 'Success', 'message' => 'Cabang Kosong', 'data' => []];
+        }return ['status' => 'Success', 'message' => 'Cabang Didapatkan', 'data' => $dataCabang];
+    }
+
+    public function ownerInsertCabang($nama) {
+        if (!empty($this->getCabang($nama))) {
+            return ['status' => 'Error', 'message' => 'Cabang Telah Terdaftar'];
+        }
+        $dataCabang = $this->getLastIdCabang();
+        $id = $dataCabang[0]['id'] + 1;
+        if ($this->insertCabang($id, $nama)) {
+            return ['status' => 'Success', 'message' => 'Cabang Berhasil Ditambahkan'];
+        }return ['status' => 'Error', 'message' => 'Cabang Gagal Ditambahkan'];
+    }
+
+    public function ownerUpdateCabang($nama, $id) {
+        if (empty($nama)) {
+            return ['status' => 'Error', 'message' => 'Nama Cabang Tidak Boleh Kosong'];
+        }
+        if (!empty($this->getCabang($nama))) {
+            return ['status' => 'Error', 'message' => 'Cabang Telah Terdaftar'];
+        }
+        if (empty($this->getCabangId($id))) {
+            return ['status' => 'Error', 'message' => 'Id Tidak Ditemukan'];
+        }
+        if ($this->updateCabang($id, $nama)) {
+            return ['status' => 'Success', 'message' => 'Cabang Berhasil Diupdate'];
+        }return ['status' => 'Error', 'message' => 'Cabang Gagal Diupdate'];
+    }
+
+    public function ownerDeleteCabang($id) {
+        if (empty($this->getCabangId($id))) {
+            return ['status' => 'Error', 'message' => 'Id Tidak Ditemukan'];
+        }
+        if ($this->deleteCabang($id)) {
+            return ['status' => 'Success', 'message' => 'Cabang Berhasil Dihapus'];
+        }return ['status' => 'Error', 'message' => 'Cabang Gagal Dihapus'];
+    }
+
 }
