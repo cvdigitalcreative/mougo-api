@@ -229,6 +229,14 @@ $app->get('/owner/bonus/level/', function ($request, $response) {
 });
 
 // OWNER
+// GET BONUS TRIP
+$app->get('/owner/bonus/trip/', function ($request, $response) {
+    $getBonus = new Owner(null, null);
+    $getBonus->setDb($this->db);
+    return $response->withJson($getBonus->getBonusTripAll(), SERVER_OK);
+});
+
+// OWNER
 // GET BONUS LEVEL
 $app->get('/owner/bonus/transfer/', function ($request, $response) {
     $getBonus = new Owner(null, null);

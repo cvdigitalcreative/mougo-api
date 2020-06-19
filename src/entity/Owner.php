@@ -166,6 +166,28 @@ class Owner {
         return ['status' => 'Success', 'data' => $Bonus];
     }
 
+    public function getBonusTrip() {
+        $sql = "SELECT user.nama, bonus_trip.pendapatan, bonus_trip.tanggal_pendapatan FROM bonus_trip
+                INNER JOIN user ON user.id_user = bonus_trip.id_user
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetchAll();
+        return $temp;
+    }
+
+    public function getBonusTripAll() {
+        $Bonus = $this->getBonusTrip();
+        if (empty($Bonus)) {
+            return ['status' => 'Error', 'message' => 'Bonus Trip Tidak Ditemukan'];
+        }
+        for ($i = 0; $i < count($Bonus); $i++) {
+            $Bonus[$i]['nama'] = decrypt($Bonus[$i]['nama'], MOUGO_CRYPTO_KEY);
+            $Bonus[$i]['pendapatan'] = (double) $Bonus[$i]['pendapatan'];
+        }
+        return ['status' => 'Success', 'data' => $Bonus];
+    }
+
     public function getBonusTransfer() {
         $sql = "SELECT user.nama, bonus_transfer.pendapatan, bonus_transfer.tanggal_transfer FROM bonus_transfer
                 INNER JOIN user ON user.id_user = bonus_transfer.id_user
