@@ -239,3 +239,25 @@ $app->put('/admin/withdraw/reject/{id}', function ($request, $response, $args) {
     $admin->setDb($this->db);
     return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT), SERVER_OK);
 });
+
+// ADMIN GET ALL EMERGENCY
+$app->post('/admin/emergency/list/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+
+    $emergency = $admin->getEmergencyWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($emergency)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $data_user = [];
+    for ($i = 0; $i < count($emergency); $i++) {
+        $data_user[$i]['nama'] = decrypt($emergency[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $data_user[$i]['no_telpon'] = decrypt($emergency[$i]['no_telpon'], MOUGO_CRYPTO_KEY);;
+        $data_user[$i]['tanggal_emergency'] = $emergency[$i]['tanggal_emergency'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsEmergency(), 'recordsFiltered' => count($emergency), 'data' => $data_user], SERVER_OK);
+});
