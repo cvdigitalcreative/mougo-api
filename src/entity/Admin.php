@@ -426,4 +426,68 @@ class Admin {
         return $est->rowCount();
     }
 
+    private $column_search_emergency = array('nama', 'no_telpon', 'tanggal_emergency');
+    private $emergency_id = array('nama' => 'asc');
+
+    public function getEmergencyWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getEmergencyQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getEmergencyQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, user.no_telpon, emergency.tanggal_emergency FROM emergency
+                INNER JOIN user ON user.id_user = emergency.id_user";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 ) {
+                $temp = "user";
+            } else if ($order_by == 2) {
+                $temp = "emergency";
+            } 
+            $order_in = $this->column_search_emergency[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->emergency_id)) {
+            $order_by = $this->emergency_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsEmergency() {
+        $sql = "SELECT * FROM emergency
+        INNER JOIN user ON user.id_user = emergency.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    
 }
