@@ -538,4 +538,18 @@ class Owner {
         
     }
 
+    public function ownerRekapStruktur() {
+        $struktur = new Trip(null, null, null, null, null, null, null, null, null, null, null, null,null, null);
+        $struktur->setDb($this->db);
+        $id_perusahaan = ID_PERUSAHAAN;
+        $data2 = $struktur->getAllReferalBawahan($id_perusahaan);
+        $data['jumlah_mitra'] =(double) $data2['data']['jumlah_mitra_referal']-2;
+        $data['jumlah_mitra_level1'] =(double) count($data2['data']['mitra_referal'][0])-1;
+        $data['jumlah_mitra_level2'] =(double) count($data2['data']['mitra_referal'][1]);
+        $data['jumlah_mitra_level3'] =(double) count($data2['data']['mitra_referal'][2]);
+        $data['jumlah_mitra_level4'] =(double) count($data2['data']['mitra_referal'][3]);
+        return ['status' => 'Success', 'message' => 'Rekapitulasi Bulanan', 'data' => $data];
+        
+    }
+
 }

@@ -357,17 +357,25 @@ class Trip {
         $k = 0;
         while ($state) {
             $c = 0;
-
+            $state2 = true;
             while ($state2) {
-                $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
                 $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
+                if ($id_bawah[$k][$c]['id_user'] == ID_PERUSAHAAN) {
+                    if (count($id_bawah[$k]) - 1 <= $c) {
+                        $state2 = false;
+                    }
+                    $c++;
+                    continue;
+                }
 
                 if (empty($id_bawah[$k + 1]) && !empty($temp)) {
+                    $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
                     $id_bawah[$k + 1] = $temp;
                     $i = $i + count($temp);
                 } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
                     array_push($id_bawah[$k + 1], $temp);
                 }
+
                 if (count($id_bawah[$k]) - 1 <= $c) {
                     $state2 = false;
                 }

@@ -367,3 +367,10 @@ $app->get('/owner/rekap/dasbor/', function ($request, $response) {
     $dataOwner->setDb($this->db);
     return $response->withJson($dataOwner->ownerRekapDasbor(), SERVER_OK);
 });
+
+// GET REKAP STRUKTUR OWNER
+$app->get('/owner/rekap/struktur/', function ($request, $response) {
+    $dataOwner = new Owner(null, null);
+    $dataOwner->setDb($this->db);
+    return $response->withJson($dataOwner->ownerRekapStruktur(), SERVER_OK);
+});
