@@ -360,3 +360,10 @@ $app->delete('/owner/cabang/{id}', function ($request, $response, $args) {
     $dataOwner->setDb($this->db);
     return $response->withJson($dataOwner->ownerDeleteCabang($args['id']), SERVER_OK);
 });
+
+// GET REKAP DASHBOARD OWNER
+$app->get('/owner/rekap/dasbor/', function ($request, $response) {
+    $dataOwner = new Owner(null, null);
+    $dataOwner->setDb($this->db);
+    return $response->withJson($dataOwner->ownerRekapDasbor(), SERVER_OK);
+});

@@ -493,4 +493,49 @@ class Owner {
         }return ['status' => 'Error', 'message' => 'Cabang Gagal Dihapus'];
     }
 
+    public function getTopupSaldoMonthly() {
+        $sql = "SELECT SUM(jumlah_topup) AS topup_saldo_bulanan FROM top_up
+                WHERE MONTH(tanggal_topup) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_topup) = YEAR(CURRENT_DATE())";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTripMonthly() {
+        $id_driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT COUNT(id_trip) AS trip_bulanan FROM trip
+                WHERE MONTH(tanggal_transaksi) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_transaksi) = YEAR(CURRENT_DATE())
+                AND id_driver != '$id_driver_siluman'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTripTransaksiMonthly() {
+        $id_driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT SUM(total_harga) AS tansaksi_bulanan FROM trip
+                WHERE MONTH(tanggal_transaksi) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_transaksi) = YEAR(CURRENT_DATE())
+                AND id_driver != '$id_driver_siluman'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function ownerRekapDasbor() {
+        $saldo_topup_month = $this->getTopupSaldoMonthly();
+        $trip_month = $this->getTripMonthly();
+        $transaksi_month = $this->getTripTransaksiMonthly();
+        $data['tansaksi_bulanan'] =(double) $transaksi_month['tansaksi_bulanan'];
+        $data['topup_saldo_bulanan'] =(double) $saldo_topup_month['topup_saldo_bulanan'];
+        $data['trip_bulanan'] =(double) $trip_month['trip_bulanan'];
+        return ['status' => 'Success', 'message' => 'Rekapitulasi Bulanan', 'data' => $data];
+        
+    }
+
 }
