@@ -246,3 +246,10 @@ $app->post('/admin/emergency/list/', function ($request, $response) {
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsEmergency(), 'recordsFiltered' => count($emergency), 'data' => $data_user], SERVER_OK);
 });
+
+// ADMIN Reject withdraw Transfer
+$app->get('/admin/rekap/dasbor/', function ($request, $response) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminRekapDasbor(), SERVER_OK);
+});

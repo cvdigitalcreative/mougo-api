@@ -155,7 +155,8 @@ class Admin {
     public function countsTopup() {
         $sql = "SELECT * FROM top_up
         INNER JOIN user ON user.id_user = top_up.id_user
-        INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup";
+        INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup
+        WHERE status_topup = 1";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
@@ -299,7 +300,8 @@ class Admin {
 
     public function countsBantuan() {
         $sql = "SELECT * FROM bantuan
-        INNER JOIN user ON user.id_user = bantuan.id_user";
+        INNER JOIN user ON user.id_user = bantuan.id_user
+        WHERE bantuan.jawaban = '-'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
@@ -419,8 +421,11 @@ class Admin {
     }
 
     public function countsWithdraw() {
-        $sql = "SELECT * FROM withdraw
-        INNER JOIN user ON user.id_user = withdraw.id_user";
+        $sql = "SELECT withdraw.id, user.nama, withdraw.jumlah, jenis_withdraw.jenis_withdraw, status_withdraw.status_withdraw, withdraw.tanggal_withdraw FROM withdraw
+        INNER JOIN user ON user.id_user = withdraw.id_user
+        INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
+        INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw
+        WHERE withdraw.status_withdraw = '0'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
@@ -487,6 +492,65 @@ class Admin {
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
+    }
+
+    public function getKonfirmasiTopup() {
+        $sql = "SELECT COUNT(top_up.id_topup) AS jumlah_konfirmasi_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup
+                WHERE status_topup = 1 ";
+                
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getKonfirmasiDriver() {
+        $sql = "SELECT COUNT(user.id_user) AS jumlah_konfirmasi_driver FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                WHERE (driver.foto_skck <> '-'
+                AND driver.foto_sim <> '-'
+                AND driver.foto_stnk <> '-'
+                AND driver.foto_diri <> '-'
+                AND driver.status_akun_aktif = 0)";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getEmergencyAll() {
+        $sql = "SELECT COUNT(id_emergency) AS jumlah_emergency FROM emergency";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBantuanReply() {
+        $sql = "SELECT COUNT(id_bantuan) AS jumlah_bantuan FROM bantuan
+                WHERE jawaban = '-'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function adminRekapDasbor() {
+        $topup_konfirmasi = $this->getKonfirmasiTopup();
+        $driver_konfirmasi = $this->getKonfirmasiDriver();
+        $emergency_konfirmasi = $this->getEmergencyAll();
+        $bantuan_konfirmasi = $this->getBantuanReply();
+        $data['jumlah_konfirmasi_topup'] =(double) $topup_konfirmasi['jumlah_konfirmasi_topup'];
+        $data['jumlah_konfirmasi_driver'] =(double) $driver_konfirmasi['jumlah_konfirmasi_driver'];
+        $data['jumlah_emergency'] =(double) $emergency_konfirmasi['jumlah_emergency'];
+        $data['jumlah_bantuan'] =(double) $bantuan_konfirmasi['jumlah_bantuan'];
+        return ['status' => 'Success', 'message' => 'Rekapitulasi', 'data' => $data];
+        
     }
 
     
