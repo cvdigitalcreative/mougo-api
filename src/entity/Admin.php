@@ -431,7 +431,57 @@ class Admin {
         return $est->rowCount();
     }
 
-    private $column_search_emergency = array('nama', 'no_telpon', 'tanggal_emergency');
+    public function cekDataBantuan($id) {
+        $sql = "SELECT * FROM bantuan
+                WHERE id_bantuan LIKE '$id' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function deleteBantuan($id) {
+        $sql = "DELETE FROM bantuan
+                WHERE id_bantuan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function deleteBantuanList($id) {
+        if (empty($this->cekDataBantuan($id, null))) {
+            return ['status' => 'Error', 'message' => "Bantuan tidak ditemukan"];
+        }
+        if (!$this->deleteBantuan($id)) {
+            return ['status' => 'Error', 'message' => "Gagal Menghapus Bantuan"];
+        }
+        return ['status' => 'Success', 'message' => "Berhasil Menghapus Bantuan"];
+    }
+
+    public function updateBantuanList($id, $pertanyaan, $jawaban) {
+        if (empty($this->cekDataBantuan($id))) {
+            return ['status' => 'Error', 'message' => "Bantuan tidak ditemukan"];
+        }
+        if (empty($pertanyaan) && empty($jawaban)) {
+            return ['status' => 'Success', 'message' => "Tidak Ada Item Bantuan Yang Diupdate"];
+        }
+        $sql = "UPDATE bantuan
+                SET ";
+        if (!empty($pertanyaan)) {
+            $sql = $sql . "pertanyaan = '$pertanyaan' ";
+        }
+        if (!empty($pertanyaan) && !empty($jawaban)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($jawaban)) {
+            $sql = $sql . "jawaban = '$jawaban' ";
+        }
+        $sql = $sql . " WHERE id_bantuan = '$id' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return ['status' => 'Success', 'message' => "Berhasil Mengupdate Bantuan"];
+    }
+
+  private $column_search_emergency = array('nama', 'no_telpon', 'tanggal_emergency');
     private $emergency_id = array('nama' => 'asc');
 
     public function getEmergencyWeb($order_by, $order, $start, $length, $search) {
@@ -553,5 +603,4 @@ class Admin {
         
     }
 
-    
 }
