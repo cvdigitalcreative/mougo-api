@@ -462,6 +462,23 @@ class Umum {
         return $stmt;
     }
 
+    public function getAllDriverWeb() {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN position ON position.id_user = user.id_user
+                WHERE user.role = 2 
+                AND driver.status_online = 1
+                LIMIT 100";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
     public function getAllCustomer() {
         $sql = "SELECT * FROM user
                 INNER JOIN detail_user ON detail_user.id_user = user.id_user
