@@ -320,7 +320,7 @@ $app->post('/driver/trip/mou-now/', function ($request, $response) {
     $data_trip['jenis_trip'] = (int) $data_trip['jenis_trip'];
     $data_trip['no_telpon'] = $data_user['no_telpon'];
     $data_trip['nama'] = $data_user['nama'];
-    $data_trip['jarak'] =(double) $data_user['jarak'];
+    $data_trip['jarak'] =(double) $data_trip['jarak'];
     return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
 })->add($tokenCheck);
 
