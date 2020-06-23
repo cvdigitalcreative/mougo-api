@@ -272,6 +272,59 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
 })->add($tokenCheck);
 
 // DRIVER
+// ACCEPT MOW NOW TRIP
+$app->post('/driver/trip/mou-now/', function ($request, $response) {
+    $id_driver = $request->getParsedBody();
+    $user = new User(null, null, null, null, null, null);
+    $user->setDB($this->db);
+    if (empty($id_driver['id_driver']) && empty($id_driver['id_trip'])) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
+    }
+
+    $cek_driver = new Driver(null,null,null,null,null);
+    $cek_driver->setDb($this->db);
+    $data_driver = $cek_driver->getProfileDriver($id_driver['id_driver']);
+
+    $id_trip = decrypt($id_driver['id_trip'],MOUGO_CRYPTO_KEY);
+    $trip_acc = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    $trip_acc->setDb($this->db);
+    $data_trip = $trip_acc->getTemporaryOrderDetail($id_trip);
+
+    if($data_driver['jenis_kendaraan'] == $data_trip['jenis_trip'] - 2 ){
+        return $response->withJson(['status' => 'Error', 'message' => 'Orderan Tidak Sesuai Dengan Kendaraan Driver'], SERVER_OK);
+    }
+
+    if (empty($data_trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Order Tidak Ada Atau Telah Diambil'], SERVER_OK);
+    }
+    $cek = new Umum();
+    $cek->setDb($this->db);
+    $saldo = $cek->getSaldoUser($id_driver['id_driver']);
+    $data['saldo'] = (double) $saldo['jumlah_saldo'];
+    if ($data_trip['total_harga'] > $data['saldo']) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);
+    }
+
+    $trip_acc->saldoTripUser($id_driver['id_driver'], TIPE_TRIP_ACCEPT, $data_trip['jenis_pembayaran'], DRIVER_ROLE, $data_trip['total_harga'], $data['saldo']);
+
+    if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
+    }
+    if (!$trip_acc->driverInputOrder($id_driver['id_driver'], $data_trip, STATUS_MENGANTAR_KETUJUAN)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Input Data'], SERVER_OK);
+    }
+    $data_user = $user->getProfileUser($data_trip['id_customer']);
+    $data_trip['id_trip'] = (int) $data_trip['id_trip'];
+    $data_trip['status_trip'] = STATUS_MENGANTAR_KETUJUAN;
+    $data_trip['jenis_pembayaran'] = (int) $data_trip['jenis_pembayaran'];
+    $data_trip['jenis_trip'] = (int) $data_trip['jenis_trip'];
+    $data_trip['no_telpon'] = $data_user['no_telpon'];
+    $data_trip['nama'] = $data_user['nama'];
+    $data_trip['jarak'] =(double) $data_user['jarak'];
+    return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
+})->add($tokenCheck);
+
+// DRIVER
 // MENJEMPUT
 $app->put('/driver/trip/terjemput/{id_trip}', function ($request, $response, $args) {
     $id_trip = $args['id_trip'];
