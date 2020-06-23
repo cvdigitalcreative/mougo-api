@@ -290,7 +290,7 @@ $app->post('/driver/trip/mou-now/', function ($request, $response) {
     $trip_acc->setDb($this->db);
     $data_trip = $trip_acc->getTemporaryOrderDetail($id_trip);
 
-    if($data_driver['jenis_kendaraan'] == $data_trip['jenis_trip'] - 2 ){
+    if($data_driver['jenis_kendaraan'] != $data_trip['jenis_trip'] - 2 ){
         return $response->withJson(['status' => 'Error', 'message' => 'Orderan Tidak Sesuai Dengan Kendaraan Driver'], SERVER_OK);
     }
 
