@@ -274,6 +274,13 @@ class User {
         if ($data['status_aktif_trip'] != 3) {
             return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun, Akun Telah Aktif'];
         }
+        if($data['role'] == USER_ROLE ){
+            //Token saldo point input
+            if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertDetailProfile() && $this->gantiStatusAkun()) {
+                return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
+            }
+            return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];
+        }
         //Token saldo point input
         if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition() && $this->insertDetailProfile() && $this->gantiStatusAkun()) {
             return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];

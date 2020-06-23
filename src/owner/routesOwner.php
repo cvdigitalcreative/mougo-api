@@ -374,3 +374,31 @@ $app->get('/owner/rekap/struktur/', function ($request, $response) {
     $dataOwner->setDb($this->db);
     return $response->withJson($dataOwner->ownerRekapStruktur(), SERVER_OK);
 });
+
+// OWNER
+// GET Driver
+$app->get('/owner/driver/web/', function ($request, $response) {
+    $getdriver = new Umum();
+    $getdriver->setDb($this->db);
+    $driver = $getdriver->getAllDriverWeb();
+    if (empty($driver)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+    }
+    $dataDriver = [];
+    for ($i = 0; $i < count($driver); $i++) {
+        if($driver[$i]['latitude']==POSITION_LAT && $driver[$i]['longitude']==POSITION_LONG){
+
+        }
+        $dataDriver[$i]['id_user'] = $driver[$i]['id_user'];
+        $dataDriver[$i]['nama'] = decrypt($driver[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['email'] = decrypt($driver[$i]['email'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_telpon'] = decrypt($driver[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_polisi'] = decrypt($driver[$i]['no_polisi'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['cabang'] = $driver[$i]['cabang'];
+        $dataDriver[$i]['jenis_kendaraan'] = $driver[$i]['jenis_kendaraan'];
+        $dataDriver[$i]['merk_kendaraan'] = $driver[$i]['merk_kendaraan'];
+        $dataDriver[$i]['latitude'] = $driver[$i]['latitude'];
+        $dataDriver[$i]['longitude'] = $driver[$i]['longitude'];
+    }
+    return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
+});
