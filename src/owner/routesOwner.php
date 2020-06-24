@@ -386,7 +386,7 @@ $app->get('/owner/driver/web/', function ($request, $response) {
     }
     $dataDriver = [];
     for ($i = 0; $i < count($driver); $i++) {
-        if($driver[$i]['latitude']==POSITION_LAT && $driver[$i]['longitude']==POSITION_LONG){
+        if ($driver[$i]['latitude'] == POSITION_LAT && $driver[$i]['longitude'] == POSITION_LONG) {
 
         }
         $dataDriver[$i]['id_user'] = $driver[$i]['id_user'];
@@ -401,4 +401,289 @@ $app->get('/owner/driver/web/', function ($request, $response) {
         $dataDriver[$i]['longitude'] = $driver[$i]['longitude'];
     }
     return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
+});
+
+// GET DATA UNTUK OWNER TERBARU PAGINATION
+// OWNER GET ALL EVENT
+$app->post('/owner/event/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $event = $owner->getEventWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($event)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Event Tidak Ditemukan'], SERVER_OK);
+    }
+
+    foreach ($event as $index => $value) {
+        $tanggal = $value['tanggal_event'];
+        $timestamp = strtotime($tanggal);
+        $timestamp = date("d-m-Y", $timestamp);
+        $event[$index]['tanggal_event'] = $timestamp;
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsEvent(), 'recordsFiltered' => count($event), 'data' => $event], SERVER_OK);
+});
+
+// OWNER GET ALL DRIVER
+$app->post('/owner/driver/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $driver = $owner->getDriverWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($driver)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $dataDriver = [];
+    for ($i = 0; $i < count($driver); $i++) {
+        $dataDriver[$i]['nama'] = decrypt($driver[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['email'] = decrypt($driver[$i]['email'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_telpon'] = decrypt($driver[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_polisi'] = decrypt($driver[$i]['no_polisi'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['cabang'] = $driver[$i]['cabang'];
+        $dataDriver[$i]['jenis_kendaraan'] = $driver[$i]['jenis_kendaraan'];
+        $dataDriver[$i]['merk_kendaraan'] = $driver[$i]['merk_kendaraan'];
+        $dataDriver[$i]['foto_ktp'] = $driver[$i]['foto_ktp'];
+        $dataDriver[$i]['foto_kk'] = $driver[$i]['foto_kk'];
+        $dataDriver[$i]['foto_sim'] = $driver[$i]['foto_sim'];
+        $dataDriver[$i]['foto_skck'] = $driver[$i]['foto_skck'];
+        $dataDriver[$i]['foto_stnk'] = $driver[$i]['foto_stnk'];
+        $dataDriver[$i]['foto_diri'] = $driver[$i]['foto_diri'];
+        $dataDriver[$i]['no_rekening'] = $driver[$i]['no_rekening'];
+        $dataDriver[$i]['nama_bank'] = $driver[$i]['name'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsDriver(), 'recordsFiltered' => count($driver), 'data' => $dataDriver], SERVER_OK);
+});
+
+// OWNER GET ALL CUSTOMER
+$app->post('/owner/customer/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $customer = $owner->getCustomerWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($customer)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Customer Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $dataCustomer = [];
+    for ($i = 0; $i < count($customer); $i++) {
+        $dataCustomer[$i]['nama'] = decrypt($customer[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $dataCustomer[$i]['email'] = decrypt($customer[$i]['email'], MOUGO_CRYPTO_KEY);
+        $dataCustomer[$i]['no_telpon'] = decrypt($customer[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataCustomer[$i]['provinsi'] = $customer[$i]['provinsi'];
+        $dataCustomer[$i]['kota'] = $customer[$i]['kota'];
+        $dataCustomer[$i]['kode_referal'] = $customer[$i]['kode_referal'];
+        $dataCustomer[$i]['kode_sponsor'] = $customer[$i]['kode_sponsor'];
+        $dataCustomer[$i]['no_rekening'] = $customer[$i]['no_rekening'];
+        $dataCustomer[$i]['nama_bank'] = $customer[$i]['name'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCustomer(), 'recordsFiltered' => count($customer), 'data' => $dataCustomer], SERVER_OK);
+});
+
+// OWNER GET ALL ADMIN
+$app->post('/owner/admin/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $admin = $owner->getAdminWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($admin)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Admin Tidak Ditemukan'], SERVER_OK);
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsAdmin(), 'recordsFiltered' => count($admin), 'data' => $admin], SERVER_OK);
+});
+
+// OWNER GET ALL CABANG
+$app->post('/owner/cabang/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $cabang = $owner->getCabangWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($cabang)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Cabang Tidak Ditemukan'], SERVER_OK);
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCabang(), 'recordsFiltered' => count($cabang), 'data' => $cabang], SERVER_OK);
+});
+
+// OWNER GET ALL WITHDRAW
+$app->post('/owner/withdraw/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Admin(null, null, null, null);
+    $owner->setDb($this->db);
+
+    $withdraw = $owner->getWithdrawWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($withdraw)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($withdraw); $i++) {
+        $withdraw[$i]['nama'] = decrypt($withdraw[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsWithdraw(), 'recordsFiltered' => count($withdraw), 'data' => $withdraw], SERVER_OK);
+});
+
+// OWNER GET ALL TOPUP
+$app->post('/owner/topup/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $topup = $owner->getTopupWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($topup)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Topup Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($topup); $i++) {
+        $topup[$i]['nama'] = decrypt($topup[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $topup[$i]['jumlah_topup'] = (double) $topup[$i]['jumlah_topup'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $topup], SERVER_OK);
+});
+
+// OWNER GET ALL TRANSFER
+$app->post('/owner/transfer/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $transfer = $owner->getTransferWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($transfer)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Transfer Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($transfer); $i++) {
+        $transfer[$i]['nama_pengirim'] = decrypt($transfer[$i]['nama_pengirim'], MOUGO_CRYPTO_KEY);
+        $transfer[$i]['nama_penerima'] = decrypt($transfer[$i]['nama_penerima'], MOUGO_CRYPTO_KEY);
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTransfer(), 'recordsFiltered' => count($transfer), 'data' => $transfer], SERVER_OK);
+});
+
+// OWNER GET ALL BONUS LEVEL
+$app->post('/owner/bonus/level/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $bonus = $owner->getBonusLevelWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bonus)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bonus Level Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($bonus); $i++) {
+        $bonus[$i]['nama'] = decrypt($bonus[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusLevel(), 'recordsFiltered' => count($bonus), 'data' => $bonus], SERVER_OK);
+});
+
+// OWNER GET ALL BONUS TRIP
+$app->post('/owner/bonus/trip/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $bonus = $owner->getBonusTripWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bonus)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bonus Trip Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($bonus); $i++) {
+        $bonus[$i]['nama'] = decrypt($bonus[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTrip(), 'recordsFiltered' => count($bonus), 'data' => $bonus], SERVER_OK);
+});
+
+// OWNER GET ALL BONUS TRANSFER
+$app->post('/owner/bonus/transfer/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $bonus = $owner->getBonusTransferWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bonus)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bonus Transfer Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($bonus); $i++) {
+        $bonus[$i]['nama'] = decrypt($bonus[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTransfer(), 'recordsFiltered' => count($bonus), 'data' => $bonus], SERVER_OK);
+});
+
+// OWNER GET ALL TRIP
+$app->post('/owner/trip/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $trip = $owner->getTripWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Trip Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($trip); $i++) {
+        $trip[$i]['nama_driver'] = decrypt($trip[$i]['nama_driver'], MOUGO_CRYPTO_KEY);
+        $trip[$i]['nama_customer'] = decrypt($trip[$i]['nama_customer'], MOUGO_CRYPTO_KEY);
+        $trip[$i]['total_harga'] = (double) $trip[$i]['total_harga'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTrip(), 'recordsFiltered' => count($trip), 'data' => $trip], SERVER_OK);
+});
+
+// OWNER GET ALL USER
+$app->post('/owner/user/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $user = $owner->getUserWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($user)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'User Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $dataUser = [];
+    for ($i = 0; $i < count($user); $i++) {
+        $dataUser[$i]['id_user'] = $user[$i]['id_user'];
+        $dataUser[$i]['nama'] = decrypt($user[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $dataUser[$i]['email'] = decrypt($user[$i]['email'], MOUGO_CRYPTO_KEY);
+        $dataUser[$i]['no_telpon'] = decrypt($user[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataUser[$i]['provinsi'] = $user[$i]['provinsi'];
+        $dataUser[$i]['kota'] = $user[$i]['kota'];
+        $dataUser[$i]['kode_referal'] = $user[$i]['kode_referal'];
+        $dataUser[$i]['kode_sponsor'] = $user[$i]['kode_sponsor'];
+        $dataUser[$i]['no_rekening'] = $user[$i]['no_rekening'];
+        $dataUser[$i]['nama_bank'] = $user[$i]['name'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsUser(), 'recordsFiltered' => count($user), 'data' => $dataUser], SERVER_OK);
 });

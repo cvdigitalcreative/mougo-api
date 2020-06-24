@@ -528,25 +528,791 @@ class Owner {
         $saldo_topup_month = $this->getTopupSaldoMonthly();
         $trip_month = $this->getTripMonthly();
         $transaksi_month = $this->getTripTransaksiMonthly();
-        $data['tansaksi_bulanan'] =(double) $transaksi_month['tansaksi_bulanan'];
-        $data['topup_saldo_bulanan'] =(double) $saldo_topup_month['topup_saldo_bulanan'];
-        $data['trip_bulanan'] =(double) $trip_month['trip_bulanan'];
+        $data['tansaksi_bulanan'] = (double) $transaksi_month['tansaksi_bulanan'];
+        $data['topup_saldo_bulanan'] = (double) $saldo_topup_month['topup_saldo_bulanan'];
+        $data['trip_bulanan'] = (double) $trip_month['trip_bulanan'];
         return ['status' => 'Success', 'message' => 'Rekapitulasi Bulanan', 'data' => $data];
-        
+
     }
 
     public function ownerRekapStruktur() {
-        $struktur = new Trip(null, null, null, null, null, null, null, null, null, null, null, null,null, null);
+        $struktur = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         $struktur->setDb($this->db);
         $id_perusahaan = ID_PERUSAHAAN;
         $data2 = $struktur->getAllReferalBawahan($id_perusahaan);
-        $data['jumlah_mitra'] =(double) $data2['data']['jumlah_mitra_referal']-2;
-        $data['jumlah_mitra_level1'] =(double) count($data2['data']['mitra_referal'][0])-1;
-        $data['jumlah_mitra_level2'] =(double) count($data2['data']['mitra_referal'][1]);
-        $data['jumlah_mitra_level3'] =(double) count($data2['data']['mitra_referal'][2]);
-        $data['jumlah_mitra_level4'] =(double) count($data2['data']['mitra_referal'][3]);
+        $data['jumlah_mitra'] = (double) $data2['data']['jumlah_mitra_referal'] - 2;
+        $data['jumlah_mitra_level1'] = (double) count($data2['data']['mitra_referal'][0]) - 1;
+        $data['jumlah_mitra_level2'] = (double) count($data2['data']['mitra_referal'][1]);
+        $data['jumlah_mitra_level3'] = (double) count($data2['data']['mitra_referal'][2]);
+        $data['jumlah_mitra_level4'] = (double) count($data2['data']['mitra_referal'][3]);
         return ['status' => 'Success', 'message' => 'Rekapitulasi Bulanan', 'data' => $data];
-        
+
+    }
+
+    private $column_search_event = array('judul_event', 'deskripsi_event', 'gambar_event', 'tanggal_event');
+    private $event_id = array('judul_event' => 'asc');
+
+    public function getEventWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getEventQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getEventQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM event";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || 1 || 2 || 3) {
+                $temp = "event";
+            }
+            $order_in = $this->column_search_event[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->event_id)) {
+            $order_by = $this->event_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsEvent() {
+        $sql = "SELECT * FROM event";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_driver = array('nama', 'email', 'no_telpon', 'no_polisi', 'cabang', 'jenis_kendaraan', 'merk_kendaraan', 'no_rekening', 'nama_bank', 'foto_diri', 'foto_ktp', 'foto_kk', 'foto_sim', 'foto_skck', 'foto_stnk');
+    private $driver_id = array('nama' => 'asc');
+
+    public function getDriverWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getDriverQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getDriverQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                WHERE user.role = 2";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || 1 || 2) {
+                $temp = "user";
+            } else if ($order_by == 3 || 4 || 5 || 6 || 9 || 12 || 13 || 14) {
+                $temp = "driver";
+            } else if ($order_by == 7 || 8 || 10 || 11) {
+                $temp = "detail_user";
+            }
+            $order_in = $this->column_search_driver[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->driver_id)) {
+            $order_by = $this->driver_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsDriver() {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                WHERE user.role = 2";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_customer = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'no_rekening', 'nama_bank', 'kode_referal', 'kode_sponsor');
+    private $customer_id = array('nama' => 'asc');
+
+    public function getCustomerWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getCustomerQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getCustomerQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+                INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
+                WHERE user.role = 1";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || 1 || 2) {
+                $temp = "user";
+            } else if ($order_by == 3 || 4 || 5 || 6) {
+                $temp = "detail_user";
+            } else if ($order_by == 7) {
+                $temp = "kode_referal";
+            } else if ($order_by == 8) {
+                $temp = "kode_sponsor";
+            }
+            $order_in = $this->column_search_customer[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->customer_id)) {
+            $order_by = $this->customer_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsCustomer() {
+        $sql = "SELECT * FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+                INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
+                WHERE user.role = 1";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_admin = array('email_admin', 'nama_admin', 'no_telpon');
+    private $admin_id = array('email_admin' => 'asc');
+
+    public function getAdminWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getAdminQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getAdminQuery($order_by, $order, $search) {
+        $sql = "SELECT email_admin, nama_admin, no_telpon FROM admin";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || 1 || 2) {
+                $temp = "admin";
+            }
+            $order_in = $this->column_search_admin[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->admin_id)) {
+            $order_by = $this->admin_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsAdmin() {
+        $sql = "SELECT email_admin, nama_admin, no_telpon FROM admin";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_cabang = array('id', 'cabang');
+    private $cabang_id = array('id' => 'asc');
+
+    public function getCabangWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getCabangQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getCabangQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM cabang";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || 1) {
+                $temp = "cabang";
+            }
+            $order_in = $this->column_search_cabang[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->cabang_id)) {
+            $order_by = $this->cabang_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsCabang() {
+        $sql = "SELECT * FROM cabang";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_topup = array('nama', 'jumlah_topup', 'status_topup', 'admin', 'tanggal_topup');
+    private $topup_id = array('nama' => 'asc');
+
+    public function getTopupWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getTopupQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTopupQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, top_up.jumlah_topup, status_topup.status, admin.nama_admin, top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN admin ON admin.email_admin = top_up.admin
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || 2 || 3 || 4) {
+                $temp = "top_up";
+            }
+            $order_in = $this->column_search_topup[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->topup_id)) {
+            $order_by = $this->topup_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsTopup() {
+        $sql = "SELECT user.nama, top_up.jumlah_topup, status_topup.status, admin.nama_admin, top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN admin ON admin.email_admin = top_up.admin
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_transfer = array('nama', 'nama', 'total_transfer', 'tanggal_transfer');
+    private $transfer_id = array('nama' => 'asc');
+
+    public function getTransferWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getTransferQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTransferQuery($order_by, $order, $search) {
+        $sql = "SELECT sender.nama AS nama_pengirim, receipent.nama AS nama_penerima, transfer.total_transfer, transfer.tanggal_transfer FROM transfer
+                INNER JOIN user AS sender ON sender.id_user = transfer.sender_user_id
+                INNER JOIN user AS receipent ON receipent.id_user = transfer.receipent_user_id";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "sender";
+            } else if ($order_by == 1) {
+                $temp = "receipent";
+            } else if ($order_by == 2 || 3) {
+                $temp = "transfer";
+            }
+            $order_in = $this->column_search_transfer[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->transfer_id)) {
+            $order_by = $this->transfer_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsTransfer() {
+        $sql = "SELECT sender.nama AS nama_pengirim, receipent.nama AS nama_penerima, transfer.total_transfer, transfer.tanggal_transfer FROM transfer
+                INNER JOIN user AS sender ON sender.id_user = transfer.sender_user_id
+                INNER JOIN user AS receipent ON receipent.id_user = transfer.receipent_user_id";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_bonus = array('nama', 'pendapatan', 'tanggal_pendapatan');
+    private $bonus_id = array('nama' => 'asc');
+
+    public function getBonusLevelWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBonusLevelQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBonusLevelQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, bonus_level.pendapatan, bonus_level.tanggal_pendapatan FROM bonus_level
+                INNER JOIN user ON user.id_user = bonus_level.id_user";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || 2) {
+                $temp = "bonus_level";
+            }
+            $order_in = $this->column_search_bonus[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bonus_id)) {
+            $order_by = $this->bonus_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBonusLevel() {
+        $sql = "SELECT user.nama, bonus_level.pendapatan, bonus_level.tanggal_pendapatan FROM bonus_level
+                INNER JOIN user ON user.id_user = bonus_level.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    public function getBonusTripWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBonusTripQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBonusTripQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, bonus_trip.pendapatan, bonus_trip.tanggal_pendapatan FROM bonus_trip
+        INNER JOIN user ON user.id_user = bonus_trip.id_user";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || 2) {
+                $temp = "bonus_trip";
+            }
+            $order_in = $this->column_search_bonus[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bonus_id)) {
+            $order_by = $this->bonus_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBonusTrip() {
+        $sql = "SELECT user.nama, bonus_trip.pendapatan, bonus_trip.tanggal_pendapatan FROM bonus_trip
+                INNER JOIN user ON user.id_user = bonus_trip.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_bonus_tf = array('nama', 'pendapatan', 'tanggal_transfer');
+    private $bonus_tf_id = array('nama' => 'asc');
+
+    public function getBonusTransferWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBonusTransferQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBonusTransferQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, bonus_transfer.pendapatan, bonus_transfer.tanggal_transfer FROM bonus_transfer
+                INNER JOIN user ON user.id_user = bonus_transfer.id_user";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || 2) {
+                $temp = "bonus_transfer";
+            }
+            $order_in = $this->column_search_bonus_tf[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bonus_tf_id)) {
+            $order_by = $this->bonus_tf_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBonusTransfer() {
+        $sql = "SELECT user.nama, bonus_transfer.pendapatan, bonus_transfer.tanggal_transfer FROM bonus_transfer
+                INNER JOIN user ON user.id_user = bonus_transfer.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_trip = array('nama', 'nama', 'alamat_jemput', 'alamat_destinasi', 'tanggal_transaksi', 'total_harga');
+    private $trip_id = array('nama' => 'asc');
+
+    public function getTripWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getTripQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTripQuery($order_by, $order, $search) {
+        $sql = "SELECT driver.nama AS nama_driver, customer.nama AS nama_customer, alamat_jemput, alamat_destinasi, total_harga, tanggal_transaksi FROM trip
+                INNER JOIN user AS customer ON customer.id_user = trip.id_customer
+                INNER JOIN user AS driver ON driver.id_user = trip.id_driver";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "customer";
+            } else if ($order_by == 1) {
+                $temp = "driver";
+            } else if ($order_by == 2 || 3 || 4 || 5) {
+                $temp = "trip";
+            }
+            $order_in = $this->column_search_trip[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->trip_id)) {
+            $order_by = $this->trip_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsTrip() {
+        $sql = "SELECT driver.nama AS nama_driver, customer.nama AS nama_customer, alamat_jemput, alamat_destinasi, total_harga, tanggal_transaksi FROM trip
+                INNER JOIN user AS customer ON customer.id_user = trip.id_customer
+                INNER JOIN user AS driver ON driver.id_user = trip.id_driver";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_user = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'kode_referal', 'kode_sponsor', 'no_rekening', 'nama_bank');
+    private $user_id = array('nama' => 'asc');
+
+    public function getUserWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getUserQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getUserQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+                INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || 1 || 2) {
+                $temp = "user";
+            }
+            if ($order_by == 3 || 4 || 7 || 8) {
+                $temp = "detail_user";
+            }
+            if ($order_by == 5) {
+                $temp = "kode_referal";
+            }
+            if ($order_by == 6) {
+                $temp = "kode_sponsor";
+            }
+            $order_in = $this->column_search_user[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->user_id)) {
+            $order_by = $this->user_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsUser() {
+        $sql = "SELECT * FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+                INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
     }
 
 }
