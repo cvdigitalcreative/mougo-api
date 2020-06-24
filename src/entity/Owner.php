@@ -649,11 +649,11 @@ class Owner {
 
         if (isset($order_by)) {
             $temp = "";
-            if ($order_by == 0 || 1 || 2) {
+            if ($order_by == 0 || $order_by == 1 || $order_by == 2) {
                 $temp = "user";
-            } else if ($order_by == 3 || 4 || 5 || 6 || 9 || 12 || 13 || 14) {
+            } else if ($order_by == 3 || $order_by == 4 || $order_by == 5 || $order_by == 6 || $order_by == 9 || $order_by == 12 || $order_by == 13 || $order_by == 14) {
                 $temp = "driver";
-            } else if ($order_by == 7 || 8 || 10 || 11) {
+            } else if ($order_by == 7 || $order_by == 8 || $order_by == 10 || $order_by == 11) {
                 $temp = "detail_user";
             }
             $order_in = $this->column_search_driver[$order_by];
@@ -721,9 +721,9 @@ class Owner {
 
         if (isset($order_by)) {
             $temp = "";
-            if ($order_by == 0 || 1 || 2) {
+            if ($order_by == 0 || $order_by == 1 || $order_by == 2) {
                 $temp = "user";
-            } else if ($order_by == 3 || 4 || 5 || 6) {
+            } else if ($order_by == 3 || $order_by == 4 || $order_by == 5 || $order_by == 6) {
                 $temp = "detail_user";
             } else if ($order_by == 7) {
                 $temp = "kode_referal";
@@ -1282,17 +1282,16 @@ class Owner {
 
         if (isset($order_by)) {
             $temp = "";
-            if ($order_by == 0 || 1 || 2) {
+            if ($order_by == 0 || $order_by == 1 || $order_by == 2) {
                 $temp = "user";
-            }
-            if ($order_by == 3 || 4 || 7 || 8 ) {
+            } else if ($order_by == 3 || $order_by == 4) {
                 $temp = "detail_user";
-            }
-            if ($order_by == 5) {
+            } else if ($order_by == 5) {
                 $temp = "kode_referal";
-            }
-            if ($order_by == 6) {
+            } else if ($order_by == 6) {
                 $temp = "kode_sponsor";
+            } else if ($order_by == 7 || $order_by == 8) {
+                $temp = "detail_user";
             }
             $order_in = $this->column_search_user[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
