@@ -1244,7 +1244,7 @@ class Owner {
         return $est->rowCount();
     }
 
-    private $column_search_user = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'kode_referal', 'kode_sponsor', 'no_rekening', 'nama_bank');
+    private $column_search_user = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'kode_referal', 'kode_sponsor', 'no_rekening', 'atas_nama_bank');
     private $user_id = array('nama' => 'asc');
 
     public function getUserWeb($order_by, $order, $start, $length, $search) {
@@ -1285,7 +1285,7 @@ class Owner {
             if ($order_by == 0 || 1 || 2) {
                 $temp = "user";
             }
-            if ($order_by == 3 || 4 || 7 || 8) {
+            if ($order_by == 3 || 4 || 7 || 8 ) {
                 $temp = "detail_user";
             }
             if ($order_by == 5) {
