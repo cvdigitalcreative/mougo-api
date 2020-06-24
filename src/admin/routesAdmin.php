@@ -262,9 +262,16 @@ $app->post('/admin/emergency/list/', function ($request, $response) {
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsEmergency(), 'recordsFiltered' => count($emergency), 'data' => $data_user], SERVER_OK);
 });
 
-// ADMIN Reject withdraw Transfer
+// ADMIN REKAP DASBOR
 $app->get('/admin/rekap/dasbor/', function ($request, $response) {
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
     return $response->withJson($admin->adminRekapDasbor(), SERVER_OK);
+});
+
+// ADMIN REKAP DRIVER
+$app->get('/admin/rekap/driver/', function ($request, $response) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson(['status' => 'Success', 'data' =>$admin->getKonfirmasiDriver()], SERVER_OK);
 });
