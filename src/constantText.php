@@ -160,3 +160,13 @@ define('TIPE_TRIP_CANCEL', 2);
 // EMERGENCY 
 define('NOMOR_EMERGENCY', "085369797900");
 define('JENIS_EMERGENCY_TELPON', 1);
+
+// BONUS BONUS
+define('BONUS_LEVEL', 'Bonus Level');
+define('ID_BONUS_LEVEL', 1);
+define('BONUS_TRIP', 'Bonus Trip');
+define('ID_BONUS_TRIP', 2);
+define('BONUS_TRANSFER', 'Bonus Transfer');
+define('ID_BONUS_TRANSFER', 3);
+
+

@@ -687,3 +687,23 @@ $app->post('/owner/user/web/', function ($request, $response) {
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsUser(), 'recordsFiltered' => count($user), 'data' => $dataUser], SERVER_OK);
 });
+
+// OWNER GET ALL TRIP
+$app->post('/owner/trip/driver/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $trip = $owner->getTripDriverWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Trip Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($trip); $i++) {
+        $trip[$i]['nama'] = decrypt($trip[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $trip[$i]['total_harga'] = (double) $trip[$i]['total_harga'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTripDriver(), 'recordsFiltered' => count($trip), 'data' => $trip], SERVER_OK);
+});

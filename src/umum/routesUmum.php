@@ -461,3 +461,27 @@ $app->post('/common/emergency/{id_user}', function ($request, $response, $args) 
     $user->setDb($this->db);
     return $response->withJson($user->insertEmergencyUser($args['id_user']), SERVER_OK);
 })->add($tokenCheck);
+
+// USER
+// GET HISTORY BONUS
+$app->get('/common/bonus/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBonus($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET HISTORY BONUS DETAIL
+$app->get('/common/bonus/{id}/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBonusDetail($args['id'], $args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET HISTORY BONUS ALL
+$app->get('/common/bonus-all/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBonusAllHistory($args['id_user']), SERVER_OK);
+})->add($tokenCheck);

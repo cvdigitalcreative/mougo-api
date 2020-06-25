@@ -1317,4 +1317,68 @@ class Owner {
         return $est->rowCount();
     }
 
+    
+    private $column_search_trip_driver = array('nama', 'tanggal_transaksi', 'total_harga');
+    private $trip_driver_id = array('nama' => 'asc');
+
+    public function getTripDriverWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getTripDriverQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTripDriverQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama , total_harga, tanggal_transaksi FROM trip
+                INNER JOIN user ON user.id_user = trip.id_driver
+                WHERE user.role = 2";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 2) {
+                $temp = "trip";
+            } 
+            $order_in = $this->column_search_trip_driver[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->trip_driver_id)) {
+            $order_by = $this->trip_driver_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsTripDriver() {
+        $sql = "SELECT user.nama , total_harga, tanggal_transaksi FROM trip
+                INNER JOIN user ON user.id_user = trip.id_driver
+                WHERE user.role = 2";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
 }

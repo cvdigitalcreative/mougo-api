@@ -470,7 +470,7 @@ class Umum {
                 INNER JOIN detail_user ON detail_user.id_user = driver.id_user
                 INNER JOIN bank ON bank.code = detail_user.bank
                 INNER JOIN position ON position.id_user = user.id_user
-                WHERE user.role = 2 
+                WHERE user.role = 2
                 AND driver.status_online = 1
                 LIMIT 100";
         $est = $this->getDb()->prepare($sql);
@@ -783,7 +783,7 @@ class Umum {
         $point_user = $this->getPointUser($id_user);
         $point_user = $point_user['jumlah_point'] + (0.15 * TRANSFER_CHARGE);
 
-        $this->inputBonusTransfer($id_user, (0.15*TRANSFER_CHARGE));
+        $this->inputBonusTransfer($id_user, (0.15 * TRANSFER_CHARGE));
 
         if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan) || !$this->updatePoint($id_user, $point_user)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
@@ -1190,11 +1190,11 @@ class Umum {
         return ['status' => 'Success', 'data' => array_slice($data, 0, 15)];
     }
 
-    public function getEmergency(){
+    public function getEmergency() {
         $data = [
-            'nomor_emergency' => NOMOR_EMERGENCY
+            'nomor_emergency' => NOMOR_EMERGENCY,
         ];
-        return ['status' => 'Success', 'data' => $data, 'message' => 'Nomor Emergency Mougo'];    
+        return ['status' => 'Success', 'data' => $data, 'message' => 'Nomor Emergency Mougo'];
     }
 
     public function insertEmergencyUser($id_user) {
@@ -1209,6 +1209,162 @@ class Umum {
         if ($est->execute($data)) {
             return ['status' => 'Success', 'message' => 'Berhasil Melaporkan Emergency'];
         }return ['status' => 'Error', 'message' => 'Gagal Melaporkan Emergency'];
+
+    }
+
+    public function getBonusLevel($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_level FROM bonus_level
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonusTrip($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_trip FROM bonus_trip
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonusTransfer($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_transfer FROM bonus_transfer
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonus($id_user) {
+        $user = $this->cekUser($id_user);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $level = $this->getBonusLevel($id_user);
+        $trip = $this->getBonusTrip($id_user);
+        $transfer = $this->getBonusTransfer($id_user);
+
+        $data[0]['id_bonus'] = ID_BONUS_LEVEL;
+        $data[0]['nama_bonus'] = BONUS_LEVEL;
+        $data[0]['pendapatan'] = (double) $level['pendapatan_level'];
+        $data[1]['id_bonus'] = ID_BONUS_TRIP;
+        $data[1]['nama_bonus'] = BONUS_TRANSFER;
+        $data[1]['pendapatan'] = (double) $trip['pendapatan_trip'];
+        $data[2]['id_bonus'] = ID_BONUS_TRANSFER;
+        $data[2]['nama_bonus'] = BONUS_TRANSFER;
+        $data[2]['pendapatan'] = (double) $transfer['pendapatan_transfer'];
+        return ['status' => 'Success', 'message' => 'Bonus History', 'data' => $data];
+    }
+
+    public function getBonusLevelDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_pendapatan FROM bonus_level
+                WHERE id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusTripDetail($id_user) {
+        $sql = "SELECT  jenis_trip.jenis_trip AS keterangan_bonus, pendapatan, tanggal_pendapatan FROM bonus_trip
+                INNER JOIN trip ON trip.id_trip = bonus_trip.id_trip
+                INNER JOIN jenis_trip ON jenis_trip.id = trip.jenis_trip
+                WHERE bonus_trip.id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusTransferDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_transfer AS tanggal_pendapatan FROM bonus_transfer
+                WHERE id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusDetail($id, $id_user) {
+        $user = $this->cekUser($id_user);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        if ($id == ID_BONUS_LEVEL) {
+            $data = $this->getBonusLevelDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Level'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_LEVEL;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        if ($id == ID_BONUS_TRIP) {
+            $data = $this->getBonusTripDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Trip'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        if ($id == ID_BONUS_TRANSFER) {
+            $data = $this->getBonusTransferDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Transfer'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_TRANSFER;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        return ['status' => 'Error', 'message' => 'Id Salah'];
+    }
+
+    public function getBonusAllHistory($id_user) {
+        $user = $this->cekUser($id_user);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getBonusLevelDetail($id_user);
+        for ($i = 0; $i < count($data); $i++) {
+            $data[$i]['keterangan_bonus'] = BONUS_LEVEL;
+            $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+        }
+
+        $data2 = $this->getBonusTripDetail($id_user);
+        for ($i = 0; $i < count($data2); $i++) {
+            $data2[$i]['pendapatan'] = (double) $data2[$i]['pendapatan'];
+        }
+
+        $data3 = $this->getBonusTransferDetail($id_user);
+        for ($i = 0; $i < count($data3); $i++) {
+            $data3[$i]['keterangan_bonus'] = BONUS_TRANSFER;
+            $data3[$i]['pendapatan'] = (double) $data3[$i]['pendapatan'];
+        }
+
+        if (empty($data) && empty($data2) && empty($data3)) {
+            return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus'];
+        }
+
+        $data = array_merge($data, $data2);
+        $data = array_merge($data, $data3);
+
+        for ($i = 0; $i < count($data); $i++) {
+            for ($j = 0; $j < count($data) - $i - 1; $j++) {
+                if ($data[$j]['tanggal_pendapatan'] < $data[$j + 1]['tanggal_pendapatan']) {
+                    $temp = $data[$j + 1];
+                    $data[$j + 1] = $data[$j];
+                    $data[$j] = $temp;
+                }
+            }
+        }
+        return ['status' => 'Success', 'data' => $data];
 
     }
 
