@@ -168,5 +168,9 @@ define('BONUS_TRIP', 'Bonus Trip');
 define('ID_BONUS_TRIP', 2);
 define('BONUS_TRANSFER', 'Bonus Transfer');
 define('ID_BONUS_TRANSFER', 3);
+define('BONUS_SPONSOR', 'Bonus Sponsor');
+define('ID_BONUS_SPONSOR', 4);
+define('BONUS_TITIK', 'Bonus Titik');
+define('ID_BONUS_TITIK', 5);
 
 
