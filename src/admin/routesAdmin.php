@@ -273,5 +273,5 @@ $app->get('/admin/rekap/dasbor/', function ($request, $response) {
 $app->get('/admin/rekap/driver/', function ($request, $response) {
     $admin = new Admin(null, null, null, null);
     $admin->setDb($this->db);
-    return $response->withJson(['status' => 'Success', 'data' =>$admin->getKonfirmasiDriver()], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'datas' =>$admin->getKonfirmasiDriver()], SERVER_OK);
 });
