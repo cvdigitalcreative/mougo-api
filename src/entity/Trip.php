@@ -298,6 +298,30 @@ class Trip {
             $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $id_trip, $temp_hasil);
         }
 
+        // 10% dari Bersih(harga*0.2) digunakan untuk bonus titik dan bonus sponsor
+        $bersih_sponsor_titik = 0.1 * $bersih;
+
+        // 1% BONUS SPONSOR DRIVER DAN CUSTOMER ATASAN
+        $bersih_sponsor = 0.5 * $bersih_sponsor_titik;
+
+        
+        $sponsor_user = 0.5 * $bersih_sponsor;
+        // SPONSOR ATASAN DRIVER
+        $atasan_sponsor_driver = $this->getSponsorUp($id_driver);
+        $point_atasan_sponsor_driver = $bayar->getPointUser($atasan_sponsor_driver['id_user_atasan']);
+        $point_sponsor_driver = $sponsor_user + $point_atasan_sponsor_driver['jumlah_point'];
+        $bayar->updatePoint($atasan_sponsor_driver['id_user_atasan'], $point_sponsor_driver);
+        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $id_trip, $sponsor_user);
+
+        // SPONSOR ATASAN CUSTOMER
+        $atasan_sponsor_customer = $this->getSponsorUp($id_customer);
+        $point_atasan_sponsor_customer = $bayar->getPointUser($atasan_sponsor_customer['id_user_atasan']);
+        $point_sponsor_customer = $sponsor_user + $point_atasan_sponsor_customer['jumlah_point'];
+        $bayar->updatePoint($atasan_sponsor_customer['id_user_atasan'], $point_sponsor_customer);
+        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $id_trip, $sponsor_user);
+
+        
+
         return true;
     }
 
@@ -310,6 +334,13 @@ class Trip {
 
     public function insertBonusLevel($id_user, $id_trip, $pendapatan) {
         $sql = "INSERT INTO bonus_level(id_user, id_trip, pendapatan)
+                VALUES('$id_user','$id_trip','$pendapatan')";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function insertBonusSponsor($id_user, $id_trip, $pendapatan) {
+        $sql = "INSERT INTO bonus_sponsor(id_user_atasan, id_trip, pendapatan)
                 VALUES('$id_user','$id_trip','$pendapatan')";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
