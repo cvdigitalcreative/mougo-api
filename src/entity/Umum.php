@@ -1245,15 +1245,16 @@ class Umum {
         $trip = $this->getBonusTrip($id_user);
         $transfer = $this->getBonusTransfer($id_user);
 
-        $data[0]['id_bonus'] = ID_BONUS_LEVEL;
-        $data[0]['nama_bonus'] = BONUS_LEVEL;
-        $data[0]['pendapatan'] = (double) $level['pendapatan_level'];
-        $data[1]['id_bonus'] = ID_BONUS_TRIP;
-        $data[1]['nama_bonus'] = BONUS_TRANSFER;
-        $data[1]['pendapatan'] = (double) $trip['pendapatan_trip'];
-        $data[2]['id_bonus'] = ID_BONUS_TRANSFER;
-        $data[2]['nama_bonus'] = BONUS_TRANSFER;
-        $data[2]['pendapatan'] = (double) $transfer['pendapatan_transfer'];
+        $data['total_bonus'] = $level['pendapatan_level'] + $trip['pendapatan_trip'] + $transfer['pendapatan_transfer'];
+        $data['data_bonus'][0]['id_bonus'] = ID_BONUS_LEVEL;
+        $data['data_bonus'][0]['nama_bonus'] = BONUS_LEVEL;
+        $data['data_bonus'][0]['pendapatan'] = (double) $level['pendapatan_level'];
+        $data['data_bonus'][1]['id_bonus'] = ID_BONUS_TRIP;
+        $data['data_bonus'][1]['nama_bonus'] = BONUS_TRANSFER;
+        $data['data_bonus'][1]['pendapatan'] = (double) $trip['pendapatan_trip'];
+        $data['data_bonus'][2]['id_bonus'] = ID_BONUS_TRANSFER;
+        $data['data_bonus'][2]['nama_bonus'] = BONUS_TRANSFER;
+        $data['data_bonus'][2]['pendapatan'] = (double) $transfer['pendapatan_transfer'];
         return ['status' => 'Success', 'message' => 'Bonus History', 'data' => $data];
     }
 
