@@ -1236,6 +1236,22 @@ class Umum {
         return $est->fetch();
     }
 
+    public function getBonusSponsor($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_sponsor FROM bonus_sponsor
+                WHERE id_user_atasan = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonusTitik($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_titik FROM bonus_titik
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
     public function getBonus($id_user) {
         $user = $this->cekUser($id_user);
         if (empty($user)) {
@@ -1244,17 +1260,25 @@ class Umum {
         $level = $this->getBonusLevel($id_user);
         $trip = $this->getBonusTrip($id_user);
         $transfer = $this->getBonusTransfer($id_user);
+        $sponsor = $this->getBonusSponsor($id_user);
+        $titik = $this->getBonusTitik($id_user);
 
-        $data['total_bonus'] = $level['pendapatan_level'] + $trip['pendapatan_trip'] + $transfer['pendapatan_transfer'];
+        $data['total_bonus'] = $level['pendapatan_level'] + $trip['pendapatan_trip'] + $transfer['pendapatan_transfer'] + $sponsor['pendapatan_sponsor'] + $titik['pendapatan_titik'];
         $data['data_bonus'][0]['id_bonus'] = ID_BONUS_LEVEL;
         $data['data_bonus'][0]['nama_bonus'] = BONUS_LEVEL;
         $data['data_bonus'][0]['pendapatan'] = (double) $level['pendapatan_level'];
         $data['data_bonus'][1]['id_bonus'] = ID_BONUS_TRIP;
-        $data['data_bonus'][1]['nama_bonus'] = BONUS_TRANSFER;
+        $data['data_bonus'][1]['nama_bonus'] = BONUS_TRIP;
         $data['data_bonus'][1]['pendapatan'] = (double) $trip['pendapatan_trip'];
         $data['data_bonus'][2]['id_bonus'] = ID_BONUS_TRANSFER;
         $data['data_bonus'][2]['nama_bonus'] = BONUS_TRANSFER;
         $data['data_bonus'][2]['pendapatan'] = (double) $transfer['pendapatan_transfer'];
+        $data['data_bonus'][3]['id_bonus'] = ID_BONUS_SPONSOR;
+        $data['data_bonus'][3]['nama_bonus'] = BONUS_SPONSOR;
+        $data['data_bonus'][3]['pendapatan'] = (double) $sponsor['pendapatan_sponsor'];
+        $data['data_bonus'][4]['id_bonus'] = ID_BONUS_TITIK;
+        $data['data_bonus'][4]['nama_bonus'] = BONUS_TITIK;
+        $data['data_bonus'][4]['pendapatan'] = (double) $titik['pendapatan_titik'];
         return ['status' => 'Success', 'message' => 'Bonus History', 'data' => $data];
     }
 
@@ -1280,6 +1304,24 @@ class Umum {
 
     public function getBonusTransferDetail($id_user) {
         $sql = "SELECT pendapatan, tanggal_transfer AS tanggal_pendapatan FROM bonus_transfer
+                WHERE id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusSponsorDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_pendapatan FROM bonus_sponsor
+                WHERE id_user_atasan = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusTitikDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_pendapatan FROM bonus_titik
                 WHERE id_user = '$id_user'
                 ORDER BY tanggal_pendapatan DESC";
         $est = $this->db->prepare($sql);
@@ -1324,6 +1366,28 @@ class Umum {
             }
             return ['status' => 'Success', 'data' => $data];
         }
+        if ($id == ID_BONUS_SPONSOR) {
+            $data = $this->getBonusSponsorDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Sponsor'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_SPONSOR;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        if ($id == ID_BONUS_TITIK) {
+            $data = $this->getBonusTitikDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Titik'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_TITIK;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
         return ['status' => 'Error', 'message' => 'Id Salah'];
     }
 
@@ -1349,12 +1413,26 @@ class Umum {
             $data3[$i]['pendapatan'] = (double) $data3[$i]['pendapatan'];
         }
 
-        if (empty($data) && empty($data2) && empty($data3)) {
+        $data4 = $this->getBonusSponsorDetail($id_user);
+        for ($i = 0; $i < count($data4); $i++) {
+            $data4[$i]['keterangan_bonus'] = BONUS_SPONSOR;
+            $data4[$i]['pendapatan'] = (double) $data4[$i]['pendapatan'];
+        }
+
+        $data5 = $this->getBonusTitikDetail($id_user);
+        for ($i = 0; $i < count($data5); $i++) {
+            $data5[$i]['keterangan_bonus'] = BONUS_TITIK;
+            $data5[$i]['pendapatan'] = (double) $data5[$i]['pendapatan'];
+        }
+
+        if (empty($data) && empty($data2) && empty($data3)  && empty($data4) && empty($data5)) {
             return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus'];
         }
 
         $data = array_merge($data, $data2);
         $data = array_merge($data, $data3);
+        $data = array_merge($data, $data4);
+        $data = array_merge($data, $data5);
 
         for ($i = 0; $i < count($data); $i++) {
             for ($j = 0; $j < count($data) - $i - 1; $j++) {
