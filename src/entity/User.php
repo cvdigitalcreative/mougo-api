@@ -82,6 +82,11 @@ class User {
         //CEK Kode Referal dan Sponsor Atasan
         $atasanRefSp = $this->atasanRefSp();
 
+        $user_email = decrypt($user_email, MOUGO_CRYPTO_KEY);
+        $user_email = str_replace(' ','',$user_email);
+        $user_email = encrypt($user_email, MOUGO_CRYPTO_KEY);
+        $this->email = $user_email;
+
         if (empty($atasanRefSp)) {
             return ['status' => 'Error', 'message' => 'Referal Atasan Tidak Ditemukan'];
         }
