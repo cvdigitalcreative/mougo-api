@@ -307,7 +307,7 @@ class User {
             $state2 = true;
 
             while($state2){
-                if($tampungBawah[$i][$j]['id_user'] == 'perusahaan001'){
+                if($tampungBawah[$i][$j]['id_user'] == ID_PERUSAHAAN){
                     if(empty($tampungBawah[$i][$j+1])){
                         $state2 = false;
                     }
