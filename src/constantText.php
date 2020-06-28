@@ -19,7 +19,7 @@ define('KODE_SPONSOR_USER', "S");
 define('TAMBAH_SALDO', 1);
 
 // TRANSFER SALDO
-define('MINIMAL_TRANSFER', 10000);
+define('MINIMAL_TRANSFER', 1000);
 define('TRANSFER_CHARGE', 1000);
 
 // FUNGSI USER
@@ -173,4 +173,6 @@ define('ID_BONUS_SPONSOR', 4);
 define('BONUS_TITIK', 'Bonus Titik');
 define('ID_BONUS_TITIK', 5);
 
+// TRIP SILUMAN
+define('ID_TRIP_SILUMAN', 29);
 

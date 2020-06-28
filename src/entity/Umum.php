@@ -770,20 +770,49 @@ class Umum {
         return $est->execute();
     }
 
-    public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
+    public function bonusTransferLevel($id_user, $pendapatan) {
+        $getAtasan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getAtasan->setDb($this->db);
+        $temp_hasil = $pendapatan;
+        $atasanUser = $getAtasan->getAllReferalAtasan($id_user);
+        for ($i = 0; $i < count($atasanUser); $i++) {
+            $temp_hasil = $temp_hasil * 0.5;
+            if ($i + 1 == count($atasanUser)) {
+                $temp_hasil = $temp_hasil * 2;
+            }
+            $point_atasan = $this->getPointUser($atasanUser[$i]['id_user_atasan']);
+            $atasan_point = (double) $point_atasan['jumlah_point'];
+            $total_point = $atasan_point + $temp_hasil;
+            $this->updatePoint($atasanUser[$i]['id_user_atasan'], $total_point);
+            $getAtasan->insertBonusLevel($atasanUser[$i]['id_user_atasan'], ID_TRIP_SILUMAN, $temp_hasil);
+        }
+    }
 
+    public function bonusTransferSponsor($id_user, $pendapatan) {
+        $getAtasan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getAtasan->setDb($this->db);
+        $atasan_sponsor = $getAtasan->getSponsorUp($id_user);
+        $point_atasan_sponsor = $this->getPointUser($atasan_sponsor['id_user_atasan']);
+        $point_sponsor = $pendapatan + $point_atasan_sponsor['jumlah_point'];
+        $this->updatePoint($atasan_sponsor['id_user_atasan'], $point_sponsor);
+        $getAtasan->insertBonusSponsor($atasan_sponsor['id_user_atasan'], ID_TRIP_SILUMAN, $pendapatan);
+    }
+
+    public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
         $saldo_user = $this->getSaldoUser($id_user);
         $saldo_penerima = $this->getSaldoUser($id_user_penerima);
         $saldo_perusahaan = $this->getSaldoUser(ID_PERUSAHAAN);
 
         $saldo_user = $saldo_user['jumlah_saldo'] - ($jumlah + TRANSFER_CHARGE);
         $saldo_penerima = $saldo_penerima['jumlah_saldo'] + $jumlah;
-        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + (0.85 * TRANSFER_CHARGE);
+        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + (0.5 * TRANSFER_CHARGE);
 
         $point_user = $this->getPointUser($id_user);
         $point_user = $point_user['jumlah_point'] + (0.15 * TRANSFER_CHARGE);
 
         $this->inputBonusTransfer($id_user, (0.15 * TRANSFER_CHARGE));
+        $this->bonusTransferLevel($id_user, (0.15 * TRANSFER_CHARGE));
+        $this->bonusTransferSponsor($id_user, (0.1 * TRANSFER_CHARGE));
 
         if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan) || !$this->updatePoint($id_user, $point_user)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
