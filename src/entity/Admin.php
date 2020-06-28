@@ -360,6 +360,16 @@ class Admin {
         return $sql;
     }
 
+    public function countsBantuanList() {
+        $driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT * FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                WHERE bantuan.id_user = '$driver_siluman' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
     private $column_search_withdraw = array('nama', 'jumlah', 'jenis_withdraw' , 'status_withdraw' , 'tanggal_withdraw');
     private $withdraw_id = array('nama' => 'asc');
 
