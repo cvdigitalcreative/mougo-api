@@ -32,7 +32,7 @@ $app->post('/admin/topup/', function ($request, $response) {
 
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => $admin->countsTopup(), 'data' => $data_user], SERVER_OK);
 });
 
 // ADMIN Accept Konfirmasi Pembayaran
@@ -76,7 +76,7 @@ $app->post('/admin/driver/', function ($request, $response) {
         $dataDriver[$i]['merk_kendaraan'] = $topup[$i]['merk_kendaraan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $dataDriver], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => $admin->countsTopup(), 'data' => $dataDriver], SERVER_OK);
 });
 
 // ADMIN Data Driver (Belum Konfirmasi)
@@ -165,7 +165,7 @@ $app->post('/admin/bantuan/web/', function ($request, $response) {
 
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => $admin->countsBantuan(), 'data' => $data_user], SERVER_OK);
 });
 
 // ADMIN GET ALL BANTUAN LIST
@@ -188,7 +188,7 @@ $app->post('/admin/bantuan/list/', function ($request, $response) {
         $data_user[$i]['tanggal_bantuan'] = $bantuan[$i]['tanggal_bantuan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => $admin->countsBantuan(), 'data' => $data_user], SERVER_OK);
 });
 
 // DELETE ALL BANTUAN LIST
@@ -223,7 +223,7 @@ $app->post('/admin/withdraw/', function ($request, $response) {
         $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsWithdraw(), 'recordsFiltered' => count($withdraw), 'data' => $withdraw], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsWithdraw(), 'recordsFiltered' => $admin->countsWithdraw(), 'data' => $withdraw], SERVER_OK);
 });
 
 // ADMIN Accept withdraw Transfer
@@ -259,7 +259,7 @@ $app->post('/admin/emergency/list/', function ($request, $response) {
         $data_user[$i]['tanggal_emergency'] = $emergency[$i]['tanggal_emergency'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsEmergency(), 'recordsFiltered' => count($emergency), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsEmergency(), 'recordsFiltered' => $admin->countsEmergency(), 'data' => $data_user], SERVER_OK);
 });
 
 // ADMIN REKAP DASBOR

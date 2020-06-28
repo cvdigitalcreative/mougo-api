@@ -1425,7 +1425,7 @@ class Umum {
             $data5[$i]['pendapatan'] = (double) $data5[$i]['pendapatan'];
         }
 
-        if (empty($data) && empty($data2) && empty($data3)  && empty($data4) && empty($data5)) {
+        if (empty($data) && empty($data2) && empty($data3) && empty($data4) && empty($data5)) {
             return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus'];
         }
 
@@ -1444,6 +1444,59 @@ class Umum {
             }
         }
         return ['status' => 'Success', 'data' => $data];
+
+    }
+
+    public function kodeReferalAll($id_user) {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $bawahPerusahaan = $getBawahan->getReferalDownSys($id_user);
+
+        $tampungBawah[0] = $bawahPerusahaan;
+        $state = true;
+        $i = 0;
+        while ($state) {
+            $j = 0;
+            $state2 = true;
+
+            while ($state2) {
+                if ($tampungBawah[$i][$j]['id_user'] == ID_PERUSAHAAN) {
+                    if (empty($tampungBawah[$i][$j + 1])) {
+                        $state2 = false;
+                    }
+                    $j++;
+                    continue;
+                }
+                $temp = $getBawahan->getReferalDownSys($tampungBawah[$i][$j]['id_user']);
+
+                if (empty($temp)) {
+                    if (empty($tampungBawah[$i][$j + 1])) {
+                        $state2 = false;
+                    }
+                    $j++;
+                    continue;
+                }
+                if (empty($tampungBawah[$i + 1])) {
+                    $tampungBawah[$i + 1] = [];
+                    $tampungBawah[$i + 1] = $temp;
+                } else {
+                    $tampungBawah[$i + 1] = array_merge($tampungBawah[$i + 1], $temp);
+                }
+                if (empty($tampungBawah[$i][$j + 1])) {
+                    $state2 = false;
+                }
+
+                $j++;
+            }
+
+            if (empty($tampungBawah[$i + 1])) {
+                $state = false;
+            }
+
+            $i++;
+        }
+
+        return $tampungBawah;
 
     }
 
