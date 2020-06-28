@@ -446,6 +446,14 @@ class Trip {
         return $est->fetchAll();
     }
 
+    public function getReferalDownSys($id) {
+        $sql = "SELECT kode_referal.* FROM kode_referal
+                WHERE kode_referal.id_user_atasan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
     public function getAllSponsorAtasan($id) {
         $id_atasan = [];
         $i = 0;

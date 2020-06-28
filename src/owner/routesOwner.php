@@ -423,7 +423,7 @@ $app->post('/owner/event/web/', function ($request, $response) {
         $event[$index]['tanggal_event'] = $timestamp;
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsEvent(), 'recordsFiltered' => count($event), 'data' => $event], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsEvent(), 'recordsFiltered' => $owner->countsEvent(), 'data' => $event], SERVER_OK);
 });
 
 // OWNER GET ALL DRIVER
@@ -457,7 +457,7 @@ $app->post('/owner/driver/web/', function ($request, $response) {
         $dataDriver[$i]['nama_bank'] = $driver[$i]['name'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsDriver(), 'recordsFiltered' => count($driver), 'data' => $dataDriver], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsDriver(), 'recordsFiltered' => $owner->countsDriver(), 'data' => $dataDriver], SERVER_OK);
 });
 
 // OWNER GET ALL CUSTOMER
@@ -485,7 +485,7 @@ $app->post('/owner/customer/web/', function ($request, $response) {
         $dataCustomer[$i]['nama_bank'] = $customer[$i]['name'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCustomer(), 'recordsFiltered' => count($customer), 'data' => $dataCustomer], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCustomer(), 'recordsFiltered' => $owner->countsCustomer(), 'data' => $dataCustomer], SERVER_OK);
 });
 
 // OWNER GET ALL ADMIN
@@ -500,7 +500,7 @@ $app->post('/owner/admin/web/', function ($request, $response) {
         return $response->withJson(['status' => 'Error', 'message' => 'Admin Tidak Ditemukan'], SERVER_OK);
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsAdmin(), 'recordsFiltered' => count($admin), 'data' => $admin], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsAdmin(), 'recordsFiltered' => $owner->countsAdmin(), 'data' => $admin], SERVER_OK);
 });
 
 // OWNER GET ALL CABANG
@@ -515,7 +515,7 @@ $app->post('/owner/cabang/web/', function ($request, $response) {
         return $response->withJson(['status' => 'Error', 'message' => 'Cabang Tidak Ditemukan'], SERVER_OK);
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCabang(), 'recordsFiltered' => count($cabang), 'data' => $cabang], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCabang(), 'recordsFiltered' => $owner->countsCabang(), 'data' => $cabang], SERVER_OK);
 });
 
 // OWNER GET ALL WITHDRAW
@@ -535,7 +535,7 @@ $app->post('/owner/withdraw/web/', function ($request, $response) {
         $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsWithdraw(), 'recordsFiltered' => count($withdraw), 'data' => $withdraw], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsWithdraw(), 'recordsFiltered' => $owner->countsWithdraw(), 'data' => $withdraw], SERVER_OK);
 });
 
 // OWNER GET ALL TOPUP
@@ -555,7 +555,7 @@ $app->post('/owner/topup/web/', function ($request, $response) {
         $topup[$i]['jumlah_topup'] = (double) $topup[$i]['jumlah_topup'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $topup], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTopup(), 'recordsFiltered' => $owner->countsTopup(), 'data' => $topup], SERVER_OK);
 });
 
 // OWNER GET ALL TRANSFER
@@ -575,7 +575,7 @@ $app->post('/owner/transfer/web/', function ($request, $response) {
         $transfer[$i]['nama_penerima'] = decrypt($transfer[$i]['nama_penerima'], MOUGO_CRYPTO_KEY);
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTransfer(), 'recordsFiltered' => count($transfer), 'data' => $transfer], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTransfer(), 'recordsFiltered' => $owner->countsTransfer(), 'data' => $transfer], SERVER_OK);
 });
 
 // OWNER GET ALL BONUS LEVEL
@@ -595,7 +595,7 @@ $app->post('/owner/bonus/level/web/', function ($request, $response) {
         $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusLevel(), 'recordsFiltered' => count($bonus), 'data' => $bonus], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusLevel(), 'recordsFiltered' => $owner->countsBonusLevel(), 'data' => $bonus], SERVER_OK);
 });
 
 // OWNER GET ALL BONUS TRIP
@@ -615,7 +615,7 @@ $app->post('/owner/bonus/trip/web/', function ($request, $response) {
         $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTrip(), 'recordsFiltered' => count($bonus), 'data' => $bonus], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTrip(), 'recordsFiltered' => $owner->countsBonusTrip(), 'data' => $bonus], SERVER_OK);
 });
 
 // OWNER GET ALL BONUS TRANSFER
@@ -635,7 +635,7 @@ $app->post('/owner/bonus/transfer/web/', function ($request, $response) {
         $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTransfer(), 'recordsFiltered' => count($bonus), 'data' => $bonus], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTransfer(), 'recordsFiltered' => $owner->countsBonusTransfer(), 'data' => $bonus], SERVER_OK);
 });
 
 // OWNER GET ALL TRIP
@@ -656,7 +656,7 @@ $app->post('/owner/trip/web/', function ($request, $response) {
         $trip[$i]['total_harga'] = (double) $trip[$i]['total_harga'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTrip(), 'recordsFiltered' => count($trip), 'data' => $trip], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTrip(), 'recordsFiltered' => $owner->countsTrip(), 'data' => $trip], SERVER_OK);
 });
 
 // OWNER GET ALL USER
@@ -685,7 +685,7 @@ $app->post('/owner/user/web/', function ($request, $response) {
         $dataUser[$i]['nama_bank'] = $user[$i]['name'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsUser(), 'recordsFiltered' => count($user), 'data' => $dataUser], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsUser(), 'recordsFiltered' => $owner->countsUser(), 'data' => $dataUser], SERVER_OK);
 });
 
 // OWNER GET ALL TRIP
@@ -705,5 +705,5 @@ $app->post('/owner/trip/driver/web/', function ($request, $response) {
         $trip[$i]['total_harga'] = (double) $trip[$i]['total_harga'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTripDriver(), 'recordsFiltered' => count($trip), 'data' => $trip], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTripDriver(), 'recordsFiltered' => $owner->countsTripDriver(), 'data' => $trip], SERVER_OK);
 });
