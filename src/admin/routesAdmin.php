@@ -188,7 +188,7 @@ $app->post('/admin/bantuan/list/', function ($request, $response) {
         $data_user[$i]['tanggal_bantuan'] = $bantuan[$i]['tanggal_bantuan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => $admin->countsBantuan(), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuanList(), 'recordsFiltered' => $admin->countsBantuanList(), 'data' => $data_user], SERVER_OK);
 });
 
 // ADMIN GET ALL WITHDRAW
