@@ -638,6 +638,46 @@ $app->post('/owner/bonus/transfer/web/', function ($request, $response) {
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTransfer(), 'recordsFiltered' => $owner->countsBonusTransfer(), 'data' => $bonus], SERVER_OK);
 });
 
+// OWNER GET ALL BONUS SPONSOR
+$app->post('/owner/bonus/sponsor/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $bonus = $owner->getBonusSponsorWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bonus)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bonus Sponsor Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($bonus); $i++) {
+        $bonus[$i]['nama'] = decrypt($bonus[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusSponsor(), 'recordsFiltered' => $owner->countsBonusSponsor(), 'data' => $bonus], SERVER_OK);
+});
+
+// OWNER GET ALL BONUS TITIK
+$app->post('/owner/bonus/titik/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $bonus = $owner->getBonusTitikWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bonus)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bonus Titik Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($bonus); $i++) {
+        $bonus[$i]['nama'] = decrypt($bonus[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $bonus[$i]['pendapatan'] = (double) $bonus[$i]['pendapatan'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsBonusTitik(), 'recordsFiltered' => $owner->countsBonusTitik(), 'data' => $bonus], SERVER_OK);
+});
+
 // OWNER GET ALL TRIP
 $app->post('/owner/trip/web/', function ($request, $response) {
     $data = $request->getParsedBody();

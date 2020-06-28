@@ -1119,6 +1119,122 @@ class Owner {
         return $est->rowCount();
     }
 
+    public function getBonusSponsorWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBonusSponsorQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBonusSponsorQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, bonus_sponsor.pendapatan, bonus_sponsor.tanggal_pendapatan FROM bonus_sponsor
+                INNER JOIN user ON user.id_user = bonus_sponsor.id_user_atasan";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || 2) {
+                $temp = "bonus_sponsor";
+            }
+            $order_in = $this->column_search_bonus[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bonus_id)) {
+            $order_by = $this->bonus_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBonusSponsor() {
+        $sql = "SELECT user.nama, bonus_sponsor.pendapatan, bonus_sponsor.tanggal_pendapatan FROM bonus_sponsor
+                INNER JOIN user ON user.id_user = bonus_sponsor.id_user_atasan";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    public function getBonusTitikWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBonusTitikQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBonusTitikQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, bonus_titik.pendapatan, bonus_titik.tanggal_pendapatan FROM bonus_titik
+            INNER JOIN user ON user.id_user = bonus_titik.id_user";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || 2) {
+                $temp = "bonus_titik";
+            }
+            $order_in = $this->column_search_bonus[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bonus_id)) {
+            $order_by = $this->bonus_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBonusTitik() {
+        $sql = "SELECT user.nama, bonus_titik.pendapatan, bonus_titik.tanggal_pendapatan FROM bonus_titik
+                INNER JOIN user ON user.id_user = bonus_titik.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
     private $column_search_bonus_tf = array('nama', 'pendapatan', 'tanggal_transfer');
     private $bonus_tf_id = array('nama' => 'asc');
 
