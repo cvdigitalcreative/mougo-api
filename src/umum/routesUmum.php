@@ -485,3 +485,11 @@ $app->get('/common/bonus-all/{id_user}', function ($request, $response, $args) {
     $user->setDb($this->db);
     return $response->withJson($user->getBonusAllHistory($args['id_user']), SERVER_OK);
 })->add($tokenCheck);
+
+// USER
+// BONUS TITIK 
+$app->get('/common/bonus/titik/', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->bonusTitikTrigger(), SERVER_OK);
+});

@@ -1529,4 +1529,181 @@ class Umum {
 
     }
 
+    public function getForBonusTitikCustomer() {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $role = USER_ROLE;
+        $sql = "SELECT user.*, trip.*, kode_referal.id_user AS bawah_referal FROM user
+                INNER JOIN kode_referal ON kode_referal.id_user_atasan = user.id_user
+                INNER JOIN trip ON trip.id_customer = user.id_user
+                WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
+                AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
+                AND status_trip = '$finish'
+                AND user.role = '$role'
+                GROUP BY user.id_user ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getForBonusTitikDriver() {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $role = DRIVER_ROLE;
+        $sql = "SELECT user.*, trip.*, kode_referal.id_user AS bawah_referal FROM user
+                INNER JOIN kode_referal ON kode_referal.id_user_atasan = user.id_user
+                INNER JOIN trip ON trip.id_driver = user.id_user
+                WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
+                AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
+                AND status_trip = '$finish'
+                AND user.role = '$role'
+                GROUP BY user.id_user ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getTotalHargaTripPerbulanCustomer($id_user) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT SUM(total_harga) AS total_harga FROM trip
+                WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
+                AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
+                AND status_trip = '$finish'
+                AND id_customer = '$id_user'
+                GROUP BY trip.total_harga ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getTotalHargaTripPerbulanDriver($id_user) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT SUM(total_harga) AS total_harga FROM trip
+                WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
+                AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
+                AND status_trip = '$finish'
+                AND id_driver = '$id_user'
+                GROUP BY trip.total_harga ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function insertBonusTitik($id_user, $pendapatan) {
+        $sql = "INSERT INTO bonus_titik(id_user, pendapatan)
+                VALUES('$id_user','$pendapatan')";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function bonusTitikTrigger() {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $titik_customer = $this->getForBonusTitikCustomer();
+        $titik_driver = $this->getForBonusTitikDriver();
+
+        for ($i = 0; $i < count($titik_customer); $i++) {
+            $bawah_user_customer[$i] = $getBawahan->getReferalDownSys($titik_customer[$i]['id_user']);
+        }
+
+        for ($i = 0; $i < count($titik_driver); $i++) {
+            $bawah_user_driver[$i] = $getBawahan->getReferalDownSys($titik_driver[$i]['id_user']);
+        }
+
+        $total_harga = 0;
+
+
+        for ($j=0; $j < count(($titik_customer>$titik_driver)?$titik_customer:$titik_driver); $j++) { 
+            
+            $total_harga = 0;
+            if (!empty($bawah_user_customer[$j])) {
+                for ($i = 0; $i < count($bawah_user_customer[$j]); $i++) {
+                    $harga = $this->getTotalHargaTripPerbulanCustomer($bawah_user_customer[$j][$i]['id_user']);
+                    $total_harga = $total_harga + $harga['total_harga'];
+                }
+                $bersih_harga = $total_harga;
+                $total_harga = $total_harga / 3;
+                $trip_user = $this->getTotalHargaTripPerbulanCustomer($titik_customer[$j]['id_user']);
+                if ($trip_user['total_harga'] > $total_harga && $total_harga != 0) {
+                    $point_user = $this->getPointUser($titik_customer[$j]['id_user']);
+                    $point_titik = $point_user['jumlah_point'] + ($bersih_harga * 0.01);
+                    $this->updatePoint($titik_customer[$j]['id_user'], $point_titik);
+                    $this->insertBonusTitik($titik_customer[$j]['id_user'], ($bersih_harga * 0.01));
+                }
+            }
+
+            $total_harga = 0;
+            if (!empty($bawah_user_driver[$j])) {
+                for ($i = 0; $i < count($bawah_user_driver[$j]); $i++) {
+                    $harga = $this->getTotalHargaTripPerbulanCustomer($bawah_user_driver[$j][$i]['id_user']);
+                    $total_harga = $total_harga + $harga['total_harga'];
+                }
+                $bersih_harga = $total_harga;
+                $total_harga = $total_harga / 3;
+                $trip_user = $this->getTotalHargaTripPerbulanDriver($titik_driver[$j]['id_user']);
+                if ($trip_user['total_harga'] > $total_harga && $total_harga != 0) {
+                    $point_user = $this->getPointUser($titik_driver[$j]['id_user']);
+                    $point_titik = $point_user['jumlah_point'] + ($bersih_harga * 0.01);
+                    $this->updatePoint($titik_driver[$j]['id_user'], $point_titik);
+                    $this->insertBonusTitik($titik_driver[$j]['id_user'], ($bersih_harga * 0.01));
+                }
+            }
+
+        }
+        $this->bonusTitikTransferTrigger();
+        return ['status' => 'Success', 'message' => 'Berhasil Menjalankan Bonus Titik'];
+    }
+
+    public function getTotalTransferPerbulan($id_user) {
+        $sql = "SELECT SUM(total_transfer) AS total_transfer, COUNT(total_transfer) AS jumlah_transfer FROM transfer
+                WHERE (MONTH(transfer.tanggal_transfer) = MONTH(CURRENT_DATE())
+                AND YEAR(transfer.tanggal_transfer) = YEAR(CURRENT_DATE()))
+                AND sender_user_id = '$id_user' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getUserTransferPerbulan() {
+        $sql = "SELECT *, COUNT(sender_user_id) AS jumlah_transfer FROM transfer
+                WHERE (MONTH(transfer.tanggal_transfer) = MONTH(CURRENT_DATE())
+                AND YEAR(transfer.tanggal_transfer) = YEAR(CURRENT_DATE()))
+                GROUP BY sender_user_id";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function bonusTitikTransferTrigger() {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $titik_transfer = $this->getUserTransferPerbulan();
+
+        for ($i = 0; $i < count($titik_transfer); $i++) {
+            $bawah_user_transfer[$i] = $getBawahan->getReferalDownSys($titik_transfer[$i]['sender_user_id']);
+        }
+
+        for ($j=0; $j < count($titik_transfer); $j++) { 
+            $total_harga = 0;
+            $total_transfer = 0;
+            if (!empty($bawah_user_transfer[$j])) {
+                for ($i = 0; $i < count($bawah_user_transfer[$j]); $i++) {
+                    $harga = $this->getTotalTransferPerbulan($bawah_user_transfer[$j][$i]['id_user']);
+                    $total_harga = $total_harga + $harga['total_transfer'];
+                    $total_transfer = $total_transfer + $harga['jumlah_transfer'];
+                }
+                $total_harga = $total_harga / 3;
+                $trip_user = $this->getTotalTransferPerbulan($titik_transfer[$j]['sender_user_id']);
+                if ($trip_user['total_transfer'] > $total_harga && $total_harga != 0) {
+                    $point_user = $this->getPointUser($titik_transfer[$j]['sender_user_id']);
+                    $point_titik = $point_user['jumlah_point'] + ($total_transfer * 0.1 * TRANSFER_CHARGE);
+                    $this->updatePoint($titik_transfer[$j]['sender_user_id'], $point_titik);
+                    $this->insertBonusTitik($titik_transfer[$j]['sender_user_id'], ($total_transfer * 0.1 * TRANSFER_CHARGE));
+                }
+            }
+        }
+
+        return ['status' => 'Success', 'message' =>'Bonus Titik Berhasil Dipanggil' ];
+    }
+
+
+
 }
