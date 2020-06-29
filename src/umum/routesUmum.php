@@ -301,7 +301,7 @@ $app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
         return $response->withJson(['status' => 'Error', 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri'], SERVER_OK);
     }
     if ($user['jumlah_transfer'] < MINIMAL_TRANSFER) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah'], SERVER_OK);
+        return $response->withJson(['status' => 'Error', 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 1.000 Rupiah'], SERVER_OK);
     }
     $saldo = $transfer->getSaldoUser($args['id_user']);
     if (($user['jumlah_transfer'] + TRANSFER_CHARGE) > $saldo['jumlah_saldo']) {

@@ -1530,13 +1530,15 @@ class Umum {
     }
 
     public function getForBonusTitikCustomer() {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $role = USER_ROLE;
         $sql = "SELECT user.*, trip.*, kode_referal.id_user AS bawah_referal FROM user
                 INNER JOIN kode_referal ON kode_referal.id_user_atasan = user.id_user
                 INNER JOIN trip ON trip.id_customer = user.id_user
                 WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
                 AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
-                AND status_trip = 4
-                AND user.role = 1
+                AND status_trip = '$finish'
+                AND user.role = '$role'
                 GROUP BY user.id_user ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
@@ -1544,13 +1546,15 @@ class Umum {
     }
 
     public function getForBonusTitikDriver() {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $role = DRIVER_ROLE;
         $sql = "SELECT user.*, trip.*, kode_referal.id_user AS bawah_referal FROM user
                 INNER JOIN kode_referal ON kode_referal.id_user_atasan = user.id_user
                 INNER JOIN trip ON trip.id_driver = user.id_user
                 WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
                 AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
-                AND status_trip = 4
-                AND user.role = 2
+                AND status_trip = '$finish'
+                AND user.role = '$role'
                 GROUP BY user.id_user ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
@@ -1558,10 +1562,11 @@ class Umum {
     }
 
     public function getTotalHargaTripPerbulanCustomer($id_user) {
+        $finish = STATUS_SAMPAI_TUJUAN;
         $sql = "SELECT SUM(total_harga) AS total_harga FROM trip
                 WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
                 AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
-                AND status_trip = 4
+                AND status_trip = '$finish'
                 AND id_customer = '$id_user'
                 GROUP BY trip.total_harga ";
         $est = $this->getDb()->prepare($sql);
@@ -1570,10 +1575,11 @@ class Umum {
     }
 
     public function getTotalHargaTripPerbulanDriver($id_user) {
+        $finish = STATUS_SAMPAI_TUJUAN;
         $sql = "SELECT SUM(total_harga) AS total_harga FROM trip
                 WHERE (MONTH(trip.tanggal_transaksi) = MONTH(CURRENT_DATE())
                 AND YEAR(trip.tanggal_transaksi) = YEAR(CURRENT_DATE()))
-                AND status_trip = 4
+                AND status_trip = '$finish'
                 AND id_driver = '$id_user'
                 GROUP BY trip.total_harga ";
         $est = $this->getDb()->prepare($sql);
