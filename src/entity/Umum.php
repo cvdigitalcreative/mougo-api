@@ -784,7 +784,7 @@ class Umum {
             $atasan_point = (double) $point_atasan['jumlah_point'];
             $total_point = $atasan_point + $temp_hasil;
             $this->updatePoint($atasanUser[$i]['id_user_atasan'], $total_point);
-            $getAtasan->insertBonusLevel($atasanUser[$i]['id_user_atasan'], ID_TRIP_SILUMAN, $temp_hasil);
+            $getAtasan->insertBonusLevel($atasanUser[$i]['id_user_atasan'], $temp_hasil); // ganti
         }
     }
 
@@ -795,7 +795,7 @@ class Umum {
         $point_atasan_sponsor = $this->getPointUser($atasan_sponsor['id_user_atasan']);
         $point_sponsor = $pendapatan + $point_atasan_sponsor['jumlah_point'];
         $this->updatePoint($atasan_sponsor['id_user_atasan'], $point_sponsor);
-        $getAtasan->insertBonusSponsor($atasan_sponsor['id_user_atasan'], ID_TRIP_SILUMAN, $pendapatan);
+        $getAtasan->insertBonusSponsor($atasan_sponsor['id_user_atasan'], $pendapatan); // ganti
     }
 
     public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
