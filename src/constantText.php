@@ -172,7 +172,3 @@ define('BONUS_SPONSOR', 'Bonus Sponsor');
 define('ID_BONUS_SPONSOR', 4);
 define('BONUS_TITIK', 'Bonus Titik');
 define('ID_BONUS_TITIK', 5);
-
-// TRIP SILUMAN
-define('ID_TRIP_SILUMAN', 29);
-

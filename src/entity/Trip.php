@@ -281,7 +281,7 @@ class Trip {
             $atasan_point = (double) $point_atasan['jumlah_point'];
             $total_point = $atasan_point + $temp_hasil;
             $bayar->updatePoint($atasan_driver[$i]['id_user_atasan'], $total_point);
-            $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'], $id_trip, $temp_hasil);
+            $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'], $temp_hasil); // ganti
         }
 
         $atasan_customer = $this->getAllReferalAtasan($id_customer);
@@ -295,7 +295,7 @@ class Trip {
             $atasan_point = (double) $point_atasan['jumlah_point'];
             $total_point = $atasan_point + $temp_hasil;
             $bayar->updatePoint($atasan_customer[$i]['id_user_atasan'], $total_point);
-            $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $id_trip, $temp_hasil);
+            $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $temp_hasil); // ganti
         }
 
         // 10% dari Bersih(harga*0.2) digunakan untuk bonus titik dan bonus sponsor
@@ -311,14 +311,14 @@ class Trip {
         $point_atasan_sponsor_driver = $bayar->getPointUser($atasan_sponsor_driver['id_user_atasan']);
         $point_sponsor_driver = $sponsor_user + $point_atasan_sponsor_driver['jumlah_point'];
         $bayar->updatePoint($atasan_sponsor_driver['id_user_atasan'], $point_sponsor_driver);
-        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $id_trip, $sponsor_user);
+        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $sponsor_user); // ganti
 
         // SPONSOR ATASAN CUSTOMER
         $atasan_sponsor_customer = $this->getSponsorUp($id_customer);
         $point_atasan_sponsor_customer = $bayar->getPointUser($atasan_sponsor_customer['id_user_atasan']);
         $point_sponsor_customer = $sponsor_user + $point_atasan_sponsor_customer['jumlah_point'];
         $bayar->updatePoint($atasan_sponsor_customer['id_user_atasan'], $point_sponsor_customer);
-        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $id_trip, $sponsor_user);
+        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $sponsor_user); // ganti
 
         
 
@@ -332,16 +332,16 @@ class Trip {
         return $est->execute();
     }
 
-    public function insertBonusLevel($id_user, $id_trip, $pendapatan) {
-        $sql = "INSERT INTO bonus_level(id_user, id_trip, pendapatan)
-                VALUES('$id_user','$id_trip','$pendapatan')";
+    public function insertBonusLevel($id_user, $pendapatan) { // ganti
+        $sql = "INSERT INTO bonus_level(id_user, pendapatan)
+                VALUES('$id_user','$pendapatan')";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
     }
 
-    public function insertBonusSponsor($id_user, $id_trip, $pendapatan) {
-        $sql = "INSERT INTO bonus_sponsor(id_user_atasan, id_trip, pendapatan)
-                VALUES('$id_user','$id_trip','$pendapatan')";
+    public function insertBonusSponsor($id_user, $pendapatan) { // ganti
+        $sql = "INSERT INTO bonus_sponsor(id_user_atasan, pendapatan)
+                VALUES('$id_user','$pendapatan')";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
     }
