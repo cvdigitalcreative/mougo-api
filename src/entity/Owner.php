@@ -491,9 +491,11 @@ class Owner {
     }
 
     public function getTopupSaldoMonthly() {
+        $status = STATUS_TOPUP_ACCEPT;
         $sql = "SELECT SUM(jumlah_topup) AS topup_saldo_bulanan FROM top_up
                 WHERE MONTH(tanggal_topup) = MONTH(CURRENT_DATE())
-                AND YEAR(tanggal_topup) = YEAR(CURRENT_DATE())";
+                AND YEAR(tanggal_topup) = YEAR(CURRENT_DATE())
+                AND status_topup = '$status'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetch();
@@ -501,11 +503,13 @@ class Owner {
     }
 
     public function getTripMonthly() {
+        $status = STATUS_SAMPAI_TUJUAN;
         $id_driver_siluman = ID_DRIVER_SILUMAN;
         $sql = "SELECT COUNT(id_trip) AS trip_bulanan FROM trip
                 WHERE MONTH(tanggal_transaksi) = MONTH(CURRENT_DATE())
                 AND YEAR(tanggal_transaksi) = YEAR(CURRENT_DATE())
-                AND id_driver != '$id_driver_siluman'";
+                AND id_driver != '$id_driver_siluman'
+                AND status_trip = '$status'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetch();
@@ -513,24 +517,257 @@ class Owner {
     }
 
     public function getTripTransaksiMonthly() {
+        $status = STATUS_SAMPAI_TUJUAN;
         $id_driver_siluman = ID_DRIVER_SILUMAN;
         $sql = "SELECT SUM(total_harga) AS tansaksi_bulanan FROM trip
                 WHERE MONTH(tanggal_transaksi) = MONTH(CURRENT_DATE())
                 AND YEAR(tanggal_transaksi) = YEAR(CURRENT_DATE())
-                AND id_driver != '$id_driver_siluman'";
+                AND id_driver != '$id_driver_siluman'
+                AND status_trip = '$status'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $temp = $est->fetch();
         return $temp;
     }
 
+    public function getTripTransaksiDaily() {
+        $status = STATUS_SAMPAI_TUJUAN;
+        $id_driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT SUM(total_harga) AS tansaksi_harian FROM trip
+                WHERE DAY(tanggal_transaksi) = DAY(CURRENT_DATE())
+                AND MONTH(tanggal_transaksi) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_transaksi) = YEAR(CURRENT_DATE())
+                AND id_driver != '$id_driver_siluman'
+                AND status_trip = '$status'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTopupSaldoDailyCustomer() {
+        $status = STATUS_TOPUP_ACCEPT;
+        $role = USER_ROLE;
+        $sql = "SELECT SUM(jumlah_topup) AS topup_saldo_harian_customer FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                WHERE DAY(tanggal_topup) = DAY(CURRENT_DATE())
+                AND MONTH(tanggal_topup) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_topup) = YEAR(CURRENT_DATE())
+                AND user.role = '$role'
+                AND status_topup = '$status'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTopupSaldoDailyDriver() {
+        $status = STATUS_TOPUP_ACCEPT;
+        $role = DRIVER_ROLE;
+        $sql = "SELECT SUM(jumlah_topup) AS topup_saldo_harian_driver FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                WHERE DAY(tanggal_topup) = DAY(CURRENT_DATE())
+                AND MONTH(tanggal_topup) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_topup) = YEAR(CURRENT_DATE())
+                AND user.role = '$role'
+                AND status_topup = '$status'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTopupSaldoMonthlyCustomer() {
+        $status = STATUS_TOPUP_ACCEPT;
+        $role = USER_ROLE;
+        $sql = "SELECT SUM(jumlah_topup) AS topup_saldo_bulanan_customer FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                WHERE MONTH(tanggal_topup) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_topup) = YEAR(CURRENT_DATE())
+                AND user.role = '$role'
+                AND status_topup = '$status'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTopupSaldoMonthlyDriver() {
+        $status = STATUS_TOPUP_ACCEPT;
+        $role = DRIVER_ROLE;
+        $sql = "SELECT SUM(jumlah_topup) AS topup_saldo_bulanan_driver FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                WHERE MONTH(tanggal_topup) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_topup) = YEAR(CURRENT_DATE())
+                AND user.role = '$role'
+                AND status_topup = '$status'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTripTransaksiTotal() {
+        $status = STATUS_SAMPAI_TUJUAN;
+        $id_driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT SUM(total_harga) AS tansaksi_total FROM trip
+                WHERE id_driver != '$id_driver_siluman'
+                AND status_trip = '$status'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTopupSaldoTotal() {
+        $status = STATUS_TOPUP_ACCEPT;
+        $sql = "SELECT SUM(jumlah_topup) AS topup_saldo_total FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                WHERE status_topup = '$status'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getTransferTotal() {
+        $sql = "SELECT SUM(total_transfer) AS transfer_total FROM transfer";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBonusLevelMonthly() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_level_bulanan FROM bonus_level
+                WHERE MONTH(tanggal_pendapatan) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_pendapatan) = YEAR(CURRENT_DATE())";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBonusSponsorMonthly() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_sponsor_bulanan FROM bonus_sponsor
+                WHERE MONTH(tanggal_pendapatan) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_pendapatan) = YEAR(CURRENT_DATE())";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBonusTripMonthly() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_trip_bulanan FROM bonus_trip
+                WHERE MONTH(tanggal_pendapatan) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_pendapatan) = YEAR(CURRENT_DATE())";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBonusTransferMonthly() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_transfer_bulanan FROM bonus_transfer
+                WHERE MONTH(tanggal_transfer) = MONTH(CURRENT_DATE())
+                AND YEAR(tanggal_transfer) = YEAR(CURRENT_DATE())";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBonusTitikMonthly() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_titik FROM bonus_titik
+                WHERE YEAR(tanggal_pendapatan) = YEAR(CURRENT_DATE())";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBonusLevelTotal() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_level FROM bonus_level";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp['pendapatan_level'];
+    }
+
+    public function getBonusSponsorTotal() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_sponsor FROM bonus_sponsor";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp['pendapatan_sponsor'];
+    }
+
+    public function getBonusTripTotal() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_trip FROM bonus_trip";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp['pendapatan_trip'];
+    }
+
+    public function getBonusTransferTotal() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_transfer FROM bonus_transfer";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp['pendapatan_transfer'];
+    }
+
+    public function getBonusTitikTotal() {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_titik FROM bonus_titik";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp['pendapatan_titik'];
+    }
+
+    public function getBonusTotal() {
+        return $this->getBonusLevelTotal() + $this->getBonusSponsorTotal() + $this->getBonusTripTotal() + $this->getBonusTransferTotal() + $this->getBonusTitikTotal();
+    }
+
     public function ownerRekapDasbor() {
         $saldo_topup_month = $this->getTopupSaldoMonthly();
         $trip_month = $this->getTripMonthly();
         $transaksi_month = $this->getTripTransaksiMonthly();
+        $transaksi_day = $this->getTripTransaksiDaily();
+        $topup_day_driver = $this->getTopupSaldoDailyDriver();
+        $topup_day_customer = $this->getTopupSaldoDailyCustomer();
+        $data['topup_saldo_harian_customer'] = (double) $topup_day_customer['topup_saldo_harian_customer'];
+        $data['topup_saldo_harian_driver'] = (double) $topup_day_driver['topup_saldo_harian_driver'];
+        $data['tansaksi_harian'] = (double) $transaksi_day['tansaksi_harian'];
         $data['tansaksi_bulanan'] = (double) $transaksi_month['tansaksi_bulanan'];
         $data['topup_saldo_bulanan'] = (double) $saldo_topup_month['topup_saldo_bulanan'];
         $data['trip_bulanan'] = (double) $trip_month['trip_bulanan'];
+
+        $topup_monthly_driver = $this->getTopupSaldoMonthlyDriver();
+        $topup_monthly_customer = $this->getTopupSaldoMonthlyCustomer();
+        $data['topup_saldo_bulanan_customer'] = (double) $topup_monthly_customer['topup_saldo_bulanan_customer'];
+        $data['topup_saldo_bulanan_driver'] = (double) $topup_monthly_driver['topup_saldo_bulanan_driver'];
+
+        $transaksi_total = $this->getTripTransaksiTotal();
+        $topup_total = $this->getTopupSaldoTotal();
+        $transfer_total = $this->getTransferTotal();
+        $data['tansaksi_total'] = (double) $transaksi_total['tansaksi_total'];
+        $data['topup_saldo_total'] = (double) $topup_total['topup_saldo_total'];
+        $data['transfer_total'] = (double) $transfer_total['transfer_total'];
+        $data['bonus_total'] = $this->getBonusTotal();
+
+        $bonus_level = $this->getBonusLevelMonthly();
+        $bonus_sponsor = $this->getBonusSponsorMonthly();
+        $bonus_trip = $this->getBonusTripMonthly();
+        $bonus_transfer = $this->getBonusTransferMonthly();
+        $bonus_titik = $this->getBonusTitikMonthly();
+        $data['pendapatan_level_bulanan'] = (double) $bonus_level['pendapatan_level_bulanan'];
+        $data['pendapatan_sponsor_bulanan'] = (double) $bonus_sponsor['pendapatan_sponsor_bulanan'];
+        $data['pendapatan_trip_bulanan'] = (double) $bonus_trip['pendapatan_trip_bulanan'];
+        $data['pendapatan_transfer_bulanan'] = (double) $bonus_transfer['pendapatan_transfer_bulanan'];
+        $data['pendapatan_titik'] = (double) $bonus_titik['pendapatan_titik'];
         return ['status' => 'Success', 'message' => 'Rekapitulasi Bulanan', 'data' => $data];
 
     }
@@ -542,7 +779,7 @@ class Owner {
         $data2 = $struktur->kodeReferalAll($id_perusahaan);
         $data = [];
         $jumlah = 0;
-        for ($i=0; $i < count($data2); $i++) { 
+        for ($i = 0; $i < count($data2); $i++) {
             $jumlah = $jumlah + count($data2[$i]);
         }
         $data['jumlah_mitra'] = $jumlah - 1;
@@ -1435,7 +1672,6 @@ class Owner {
         return $est->rowCount();
     }
 
-    
     private $column_search_trip_driver = array('nama', 'tanggal_transaksi', 'total_harga');
     private $trip_driver_id = array('nama' => 'asc');
 
@@ -1476,7 +1712,7 @@ class Owner {
                 $temp = "user";
             } else if ($order_by == 1 || $order_by == 2) {
                 $temp = "trip";
-            } 
+            }
             $order_in = $this->column_search_trip_driver[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
 
