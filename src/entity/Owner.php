@@ -544,7 +544,11 @@ class Owner {
         $id_perusahaan = ID_PERUSAHAAN;
         $data2 = $struktur->kodeReferalAll($id_perusahaan);
         $data = [];
-        $data['jumlah_mitra'] = (double) count($data2[0]) + count($data2[1]) + count($data2[2]) + count($data2[3]) - 1;
+        $jumlah = 0;
+        for ($i=0; $i < count($data2); $i++) { 
+            $jumlah = $jumlah + count($data2[$i]);
+        }
+        $data['jumlah_mitra'] = $jumlah - 1;
         $data['jumlah_mitra_level1'] = (double) count($data2[0]) - 1;
         $data['jumlah_mitra_level2'] = (double) count($data2[1]);
         $data['jumlah_mitra_level3'] = (double) count($data2[2]);
