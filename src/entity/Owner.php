@@ -775,7 +775,12 @@ class Owner {
     public function ownerRekapStruktur() {
         $struktur = new Umum();
         $struktur->setDb($this->db);
+
+        $sponsor = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $sponsor->setDb($this->db);
+
         $id_perusahaan = ID_PERUSAHAAN;
+        $jumlah_sponsor = $sponsor->getSponsorDown($id_perusahaan);
         $data2 = $struktur->kodeReferalAll($id_perusahaan);
         $data = [];
         $jumlah = 0;
@@ -787,6 +792,8 @@ class Owner {
         $data['jumlah_mitra_level2'] = (double) count($data2[1]);
         $data['jumlah_mitra_level3'] = (double) count($data2[2]);
         $data['jumlah_mitra_level4'] = (double) count($data2[3]);
+        $data['jumlah_referal_level1'] = (double) count($data2[0]) - 1;
+        $data['jumlah_sponsor_level1'] = (double) count($jumlah_sponsor);
         return ['status' => 'Success', 'message' => 'Rekapitulasi Bulanan', 'data' => $data];
 
     }
