@@ -1746,7 +1746,7 @@ class Owner {
         $sql = "SELECT * FROM nomor_emergency";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetch();
+        $stmt = $est->fetchAll();
         return $stmt;
     }
 
@@ -1764,7 +1764,7 @@ class Owner {
         $sql = "SELECT * FROM bank_mougo";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetch();
+        $stmt = $est->fetchAll();
         return $stmt;
     }
 
@@ -1797,7 +1797,7 @@ class Owner {
         $sql = "SELECT * FROM harga_awal_trip";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetch();
+        $stmt = $est->fetchAll();
         return $stmt;
     }
 
@@ -1824,7 +1824,7 @@ class Owner {
         $sql = "SELECT * FROM harga_kilo_trip";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        $stmt = $est->fetch();
+        $stmt = $est->fetchAll();
         return $stmt;
     }
 
