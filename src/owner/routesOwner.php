@@ -749,14 +749,14 @@ $app->post('/owner/trip/driver/web/', function ($request, $response) {
 });
 
 // OWNER GET NOMOR EMERGENCY
-$app->get('/owner/nomor/emergency/', function ($request, $response){
+$app->get('/owner/nomor/emergency/', function ($request, $response) {
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
     return $response->withJson(['status' => 'Success', 'data' => $owner->getNomorEmergency()], SERVER_OK);
 });
 
 // OWNER UPDATE NOMOR EMERGENCY
-$app->put('/owner/nomor/emergency/{id}', function ($request, $response, $args){
+$app->put('/owner/nomor/emergency/{id}', function ($request, $response, $args) {
     $update = $request->getParsedBody();
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
@@ -764,14 +764,14 @@ $app->put('/owner/nomor/emergency/{id}', function ($request, $response, $args){
 });
 
 // OWNER GET BANK MOUGO
-$app->get('/owner/bank/mougo/', function ($request, $response){
+$app->get('/owner/bank/mougo/', function ($request, $response) {
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
     return $response->withJson(['status' => 'Success', 'data' => $owner->getBankMougo()], SERVER_OK);
 });
 
 // OWNER UPDATE BANK MOUGO
-$app->put('/owner/bank/mougo/{id}', function ($request, $response, $args){
+$app->put('/owner/bank/mougo/{id}', function ($request, $response, $args) {
     $update = $request->getParsedBody();
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
@@ -779,7 +779,7 @@ $app->put('/owner/bank/mougo/{id}', function ($request, $response, $args){
 });
 
 // OWNER GET HARGA AWAL TRIP
-$app->get('/owner/harga/awal/', function ($request, $response){
+$app->get('/owner/harga/awal/', function ($request, $response) {
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
     $data = $owner->getHargaAwalTrip();
@@ -787,7 +787,7 @@ $app->get('/owner/harga/awal/', function ($request, $response){
 });
 
 // OWNER UPDATE HARGA AWAL TRIP
-$app->put('/owner/harga/awal/{id}', function ($request, $response, $args){
+$app->put('/owner/harga/awal/{id}', function ($request, $response, $args) {
     $update = $request->getParsedBody();
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
@@ -795,16 +795,15 @@ $app->put('/owner/harga/awal/{id}', function ($request, $response, $args){
 });
 
 // OWNER GET HARGA PERKILO TRIP
-$app->get('/owner/harga/perkilo/', function ($request, $response){
+$app->get('/owner/harga/perkilo/', function ($request, $response) {
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
     $data = $owner->getHargaPerkiloTrip();
     return $response->withJson(['status' => 'Success', 'data' => $data], SERVER_OK);
 });
 
-
 // OWNER UPDATE HARGA PERKILO TRIP
-$app->put('/owner/harga/perkilo/{id}', function ($request, $response, $args){
+$app->put('/owner/harga/perkilo/{id}', function ($request, $response, $args) {
     $update = $request->getParsedBody();
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
