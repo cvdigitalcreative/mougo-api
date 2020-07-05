@@ -747,3 +747,65 @@ $app->post('/owner/trip/driver/web/', function ($request, $response) {
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTripDriver(), 'recordsFiltered' => $owner->countsTripDriver(), 'data' => $trip], SERVER_OK);
 });
+
+// OWNER GET NOMOR EMERGENCY
+$app->get('/owner/nomor/emergency/', function ($request, $response) {
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson(['status' => 'Success', 'data' => $owner->getNomorEmergency()], SERVER_OK);
+});
+
+// OWNER UPDATE NOMOR EMERGENCY
+$app->put('/owner/nomor/emergency/{id}', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->editNomorEmergency($args['id'], $update['nomor_emergency']), SERVER_OK);
+});
+
+// OWNER GET BANK MOUGO
+$app->get('/owner/bank/mougo/', function ($request, $response) {
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson(['status' => 'Success', 'data' => $owner->getBankMougo()], SERVER_OK);
+});
+
+// OWNER UPDATE BANK MOUGO
+$app->put('/owner/bank/mougo/{id}', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->editBankMougo($args['id'], $update['norek_bank'], $update['nama_bank'], $update['atas_nama_bank']), SERVER_OK);
+});
+
+// OWNER GET HARGA AWAL TRIP
+$app->get('/owner/harga/awal/', function ($request, $response) {
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    $data = $owner->getHargaAwalTrip();
+    return $response->withJson(['status' => 'Success', 'data' => $data], SERVER_OK);
+});
+
+// OWNER UPDATE HARGA AWAL TRIP
+$app->put('/owner/harga/awal/{id}', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->editHargaAwalTrip($args['id'], $update['harga_awal_motor'], $update['harga_awal_mobil']), SERVER_OK);
+});
+
+// OWNER GET HARGA PERKILO TRIP
+$app->get('/owner/harga/perkilo/', function ($request, $response) {
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    $data = $owner->getHargaPerkiloTrip();
+    return $response->withJson(['status' => 'Success', 'data' => $data], SERVER_OK);
+});
+
+// OWNER UPDATE HARGA PERKILO TRIP
+$app->put('/owner/harga/perkilo/{id}', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->editHargaPerkiloTrip($args['id'], $update['harga_perkilo_motor'], $update['harga_perkilo_mobil']), SERVER_OK);
+});
