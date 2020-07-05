@@ -454,6 +454,15 @@ class Trip {
         return $est->fetchAll();
     }
 
+    public function getReferalDownSysFull($id) {
+        $sql = "SELECT kode_referal.*, user.role FROM kode_referal
+                INNER JOIN user ON user.id_user = kode_referal.id_user
+                WHERE kode_referal.id_user_atasan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
     public function getAllSponsorAtasan($id) {
         $id_atasan = [];
         $i = 0;
