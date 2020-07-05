@@ -1742,4 +1742,109 @@ class Owner {
         return $est->rowCount();
     }
 
+    public function getNomorEmergency() {
+        $sql = "SELECT * FROM nomor_emergency";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function editNomorEmergency($id, $nomor_emergency) {
+        $sql = "UPDATE nomor_emergency
+                SET nomor_emergency = '$nomor_emergency'
+                WHERE id = '$id'";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Nomor Emergency Berhasil Diupdate'];
+        }return ['status' => 'Error', 'message' => 'Nomor Emergency Gagal Diupload'];
+    }
+
+    public function getBankMougo() {
+        $sql = "SELECT * FROM bank_mougo";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function editBankMougo($id, $norek_bank, $nama_bank, $atas_nama_bank) {
+        $sql = "UPDATE bank_mougo
+                SET ";
+        if (!empty($norek_bank)) {
+            $sql = $sql . "norek_bank = '$norek_bank' ";
+        }
+        if (!empty($norek_bank) && !empty($nama_bank)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($nama_bank)) {
+            $sql = $sql . "nama_bank = '$nama_bank' ";
+        }
+        if ((!empty($norek_bank) || !empty($nama_bank)) && !empty($atas_nama_bank)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($atas_nama_bank)) {
+            $sql = $sql . "atas_nama_bank = '$atas_nama_bank' ";
+        }
+        $sql = $sql . "WHERE id = '$id'";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Keterangan Bank Mougo Berhasil Diupdate'];
+        }return ['status' => 'Error', 'message' => 'Keterangan Bank Mougo Gagal Diupload'];
+    }
+
+    public function getHargaAwalTrip() {
+        $sql = "SELECT * FROM harga_awal_trip";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function editHargaAwalTrip($id, $harga_awal_motor, $harga_awal_mobil) {
+        $sql = "UPDATE harga_awal_trip
+                SET ";
+        if (!empty($harga_awal_motor)) {
+            $sql = $sql . "harga_awal_motor = '$harga_awal_motor' ";
+        }
+        if (!empty($harga_awal_motor) && !empty($harga_awal_mobil)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($harga_awal_mobil)) {
+            $sql = $sql . "harga_awal_mobil = '$harga_awal_mobil' ";
+        }
+        $sql = $sql . "WHERE id = '$id'";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Harga Awal Trip Berhasil Diupdate'];
+        }return ['status' => 'Error', 'message' => 'Harga Awal Trip Gagal Diupload'];
+    }
+
+    public function getHargaPerkiloTrip() {
+        $sql = "SELECT * FROM harga_kilo_trip";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt;
+    }
+
+    public function editHargaPerkiloTrip($id, $harga_perkilo_motor, $harga_perkilo_mobil) {
+        $sql = "UPDATE harga_kilo_trip
+                SET ";
+        if (!empty($harga_perkilo_motor)) {
+            $sql = $sql . "harga_perkilo_motor = '$harga_perkilo_motor' ";
+        }
+        if (!empty($harga_perkilo_motor) && !empty($harga_perkilo_mobil)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($harga_perkilo_mobil)) {
+            $sql = $sql . "harga_perkilo_mobil = '$harga_perkilo_mobil' ";
+        }
+        $sql = $sql . "WHERE id = '$id'";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Harga Perkilo Trip Berhasil Diupdate'];
+        }return ['status' => 'Error', 'message' => 'Harga Perkilo Trip Gagal Diupload'];
+    }
+
 }
