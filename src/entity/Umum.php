@@ -1529,6 +1529,42 @@ class Umum {
 
     }
 
+    public function kodeReferalAllList($id_user) {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $bawahPerusahaan = $getBawahan->getReferalDownSysFull($id_user);
+
+        $tampungBawah = $bawahPerusahaan;
+        $temper = 0;
+        $cek_nice = true;
+        while (true) {
+            $temper = $temper + count($tampungBawah);
+            if ($cek_nice == true) {
+                $temper = 0;
+            }
+            for ($j = $temper; $j < count($tampungBawah); $j++) {
+                if ($tampungBawah[$j]['id_user'] == ID_PERUSAHAAN) {
+                    continue;
+                }
+
+                $temp = $getBawahan->getReferalDownSysFull($tampungBawah[$j]['id_user']);
+
+                if (empty($temp)) {
+                    continue;
+                } else {
+                    $tampungBawah = array_merge($tampungBawah, $temp);
+                }
+            }
+            $cek_nice == false;
+            if (empty($tampungBawah[count($tampungBawah) + 1])) {
+                break;
+            }
+        }
+
+        return $tampungBawah;
+
+    }
+
     public function getForBonusTitikCustomerTahun($id_user, $year) {
         $finish = STATUS_SAMPAI_TUJUAN;
         $sql = "SELECT count(id_trip) AS jumlah_trip_tahun FROM trip
@@ -1629,7 +1665,7 @@ class Umum {
 
         $bawah_user = [];
         for ($i = 0; $i < count($titik_user); $i++) {
-            $bawah_user[$i] = $getBawahan->getReferalDownSysFull($titik_user[$i]['id_user']);
+            $bawah_user[$i] = $this->kodeReferalAllList($titik_user[$i]['id_user']);
         }
 
         $tahun = date('Y');
@@ -1642,39 +1678,27 @@ class Umum {
 
             $bawahan_berhasil = 0;
             for ($i = 0; $i < count($bawah_user[$j]); $i++) {
-                $hari_temp = 0;
                 $cek = true;
+                $cek_tf = true;
+                $total_transfer = $this->getForBonusTitikTransferTahun($bawah_user[$j][$i]['id_user'], $tahun_lalu);
+                if ($total_transfer['jumlah_transfer_tahun'] < $hari * MINIMAL_TITIK_PERHARI) {
+                    $cek_tf = false;
+                }
                 if ($bawah_user[$j][$i]['role'] == USER_ROLE) {
-                    while (true) {
-                        if ($hari_temp > $hari) {
-                            $cek = true;
-                            break;
-                        }
-                        $date = $this->dayofyear2date($hari_temp);
-                        $total_trip = $this->getForBonusTitikCustomerHari($bawah_user[$j][$i]['id_user'], $date);
-                        if ($total_trip['jumlah_trip_harian'] < 10) {
-                            $cek = false;
-                            break;
-                        }
-                        $hari_temp++;
+                    $total_trip = $this->getForBonusTitikCustomerTahun($bawah_user[$j][$i]['id_user'], $tahun_lalu);
+                    if ($total_trip['jumlah_trip_tahun'] < $hari * MINIMAL_TITIK_PERHARI) {
+                        $cek = false;
                     }
                 } else {
-                    while (true) {
-                        if ($hari_temp > $hari) {
-                            $cek = true;
-                            break;
-                        }
-                        $date = $this->dayofyear2date($hari_temp);
-                        $total_trip = $this->getForBonusTitikDriverHari($bawah_user[$j][$i]['id_user'], $date);
-                        if ($total_trip['jumlah_trip_harian'] < 10) {
-                            $cek = false;
-                            break;
-                        }
-                        $hari_temp++;
+                    $total_trip = $this->getForBonusTitikDriverTahun($bawah_user[$j][$i]['id_user'], $tahun_lalu);
+                    if ($total_trip['jumlah_trip_tahun'] < $hari * MINIMAL_TITIK_PERHARI) {
+                        $cek = false;
                     }
-
                 }
                 if ($cek == true) {
+                    $bawahan_berhasil++;
+                }
+                if ($cek_tf == true) {
                     $bawahan_berhasil++;
                 }
             }
@@ -1687,58 +1711,16 @@ class Umum {
             }
 
         }
-        $this->bonusTitikTransferTrigger($titik_user, $hari);
         return ['status' => 'Success', 'message' => 'Berhasil Menjalankan Bonus Titik'];
     }
 
-    public function getForBonusTitikTransferHari($id_user, $date) {
-        $sql = "SELECT count(sender_user_id) AS jumlah_transfer_harian FROM transfer
-                WHERE DATE(transfer.tanggal_transfer) = '$date'
+    public function getForBonusTitikTransferTahun($id_user, $tahun) {
+        $sql = "SELECT count(sender_user_id) AS jumlah_transfer_tahun FROM transfer
+                WHERE YEAR(transfer.tanggal_transfer) = '$tahun'
                 AND sender_user_id = '$id_user'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->fetch();
-    }
-
-    public function bonusTitikTransferTrigger($user, $hari) {
-        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-        $getBawahan->setDb($this->db);
-
-        for ($i = 0; $i < count($user); $i++) {
-            $bawah_user_transfer[$i] = $getBawahan->getReferalDownSys($user[$i]['id_user']);
-        }
-
-        for ($j = 0; $j < count($user); $j++) {
-            $bawahan_berhasil = 0;
-            for ($i = 0; $i < count($bawah_user_transfer[$j]); $i++) {
-                $hari_temp = 0;
-                $cek = true;
-                while (true) {
-                    if ($hari_temp > $hari) {
-                        $cek = true;
-                        break;
-                    }
-                    $total_transfer = $this->getForBonusTitikTransferHari($bawah_user_transfer[$j][$i]['id_user'], $this->dayofyear2date($hari_temp));
-                    if ($total_transfer['jumlah_transfer_harian'] < 10) {
-                        $cek = false;
-                        break;
-                    }
-                }
-                if ($cek == true) {
-                    $bawahan_berhasil++;
-                }
-            }
-            if ($bawahan_berhasil > 0) {
-                $point_user = $this->getPointUser($user[$j]['id_user']);
-                $total_point_titik = $bawahan_berhasil * BONUS_TITIK_POINT;
-                $point_titik = $point_user['jumlah_point'] + ($total_point_titik);
-                $this->updatePoint($user[$j]['id_user'], $point_titik);
-                $this->insertBonusTitik($user[$j]['id_user'], ($total_point_titik));
-            }
-
-        }
-
-        return ['status' => 'Success', 'message' => 'Bonus Titik Berhasil Dipanggil'];
     }
 
 }
