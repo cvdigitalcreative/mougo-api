@@ -1847,4 +1847,22 @@ class Owner {
         }return ['status' => 'Error', 'message' => 'Harga Perkilo Trip Gagal Diupload'];
     }
 
+    public function getMinimalTransfer() {
+        $sql = "SELECT * FROM transfer_minimal";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function editMinimalTransfer($id, $transfer_minimal) {
+        $sql = "UPDATE transfer_minimal
+                SET transfer_minimal = '$transfer_minimal'
+                WHERE id = '$id'";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Minimal Transfer Berhasil Diupdate'];
+        }return ['status' => 'Error', 'message' => 'Minimal Transfer Gagal Diupload'];
+    }
+
 }
