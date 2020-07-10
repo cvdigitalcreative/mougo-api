@@ -303,8 +303,9 @@ $app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
     $cek_transfer = new Owner(null,null);
     $cek_transfer->setDb($this->db);
     $minimal_tf = $cek_transfer->getMinimalTransfer();
+    $message =  "Jumlah Minimal Transfer Tidak Boleh Kurang Dari ".$minimal_tf[0]['transfer_minimal']." Rupiah";
     if ($user['jumlah_transfer'] < $minimal_tf[0]['transfer_minimal']) {
-        return $response->withJson(['status' => 'Error', 'message' => "Jumlah Minimal Transfer Tidak Boleh Kurang Dari "+$minimal_tf[0]['transfer_minimal']+" Rupiah"], SERVER_OK);
+        return $response->withJson(['status' => 'Error', 'message' => $message], SERVER_OK);
     }
     $saldo = $transfer->getSaldoUser($args['id_user']);
     if (($user['jumlah_transfer'] + TRANSFER_CHARGE) > $saldo['jumlah_saldo']) {
@@ -342,8 +343,9 @@ $app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $respons
     $cek_transfer = new Owner(null,null);
     $cek_transfer->setDb($this->db);
     $minimal_tf = $cek_transfer->getMinimalTransfer();
+    $message =  "Jumlah Minimal Transfer Tidak Boleh Kurang Dari ".$minimal_tf[0]['transfer_minimal']." Rupiah";
     if ($user['jumlah_transfer'] < $minimal_tf[0]['transfer_minimal']) {
-        return $response->withJson(['status' => 'Error', 'message' => "Jumlah Minimal Transfer Tidak Boleh Kurang Dari "+$minimal_tf[0]['transfer_minimal']+" Rupiah"], SERVER_OK);
+        return $response->withJson(['status' => 'Error', 'message' => $message], SERVER_OK);
     }
     $saldo = $transfer->getSaldoUser($args['id_user']);
     if (($user['jumlah_transfer'] + TRANSFER_CHARGE) > $saldo['jumlah_saldo']) {
