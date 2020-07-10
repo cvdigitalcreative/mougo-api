@@ -107,6 +107,14 @@ $app->get('/customer/trip/harga/{jarak}', function ($request, $response, $args) 
     return $response->withJson($harga->getHargaTotal($args['jarak']), SERVER_OK);
 })->add($tokenCheck);
 
+// Customer
+// Harga Trip
+$app->get('/customer/trip/harga/{jenis_trip}/{jarak}', function ($request, $response, $args) {
+    $harga = new Umum();
+    $harga->setDb($this->db);
+    return $response->withJson($harga->getHargaCekTotal($args['jarak'], $args['jenis_trip']), SERVER_OK);
+})->add($tokenCheck);
+
 // CUSTOMER DRIVER
 // ISI SALDO
 $app->post('/common/topup/{id_user}', function ($request, $response, $args) {
@@ -292,8 +300,13 @@ $app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
     if ($args['id_user'] == $penerima['id_user']) {
         return $response->withJson(['status' => 'Error', 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri'], SERVER_OK);
     }
-    if ($user['jumlah_transfer'] < MINIMAL_TRANSFER) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah'], SERVER_OK);
+  
+    $cek_transfer = new Owner(null,null);
+    $cek_transfer->setDb($this->db);
+    $minimal_tf = $cek_transfer->getMinimalTransfer();
+    if ($user['jumlah_transfer'] < $minimal_tf[0]['transfer_minimal']) {
+        return $response->withJson(['status' => 'Error', 'message' => "Jumlah Minimal Transfer Tidak Boleh Kurang Dari "+$minimal_tf[0]['transfer_minimal']+" Rupiah"], SERVER_OK);
+
     }
     $saldo = $transfer->getSaldoUser($args['id_user']);
     if (($user['jumlah_transfer'] + TRANSFER_CHARGE) > $saldo['jumlah_saldo']) {
@@ -328,8 +341,11 @@ $app->post('/common/transfer/konfirmasi/{id_user}', function ($request, $respons
     if ($args['id_user'] == $penerima['id_user']) {
         return $response->withJson(['status' => 'Error', 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri'], SERVER_OK);
     }
-    if ($user['jumlah_transfer'] < MINIMAL_TRANSFER) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Jumlah Minimal Transfer Tidak Boleh Kurang Dari 10.000 Rupiah'], SERVER_OK);
+    $cek_transfer = new Owner(null,null);
+    $cek_transfer->setDb($this->db);
+    $minimal_tf = $cek_transfer->getMinimalTransfer();
+    if ($user['jumlah_transfer'] < $minimal_tf[0]['transfer_minimal']) {
+        return $response->withJson(['status' => 'Error', 'message' => "Jumlah Minimal Transfer Tidak Boleh Kurang Dari "+$minimal_tf[0]['transfer_minimal']+" Rupiah"], SERVER_OK);
     }
     $saldo = $transfer->getSaldoUser($args['id_user']);
     if (($user['jumlah_transfer'] + TRANSFER_CHARGE) > $saldo['jumlah_saldo']) {
@@ -422,3 +438,67 @@ $app->post('/common/bantuan/{id_user}', function ($request, $response, $args) {
     $user->setDb($this->db);
     return $response->withJson($user->insertBantuanUser($args['id_user'], $data['pesan_bantuan'], STRING_KOSONG), SERVER_OK);
 })->add($tokenCheck);
+
+// USER
+// GET HISTORY TRIP
+$app->get('/common/trip/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getTripHistoryUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET HISTORY ALL
+$app->get('/common/history/all/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getAllHistoryUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET EMERGENCY
+$app->get('/common/emergency/', function ($request, $response) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getEmergency(), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// POST EMERGENCY
+$app->post('/common/emergency/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->insertEmergencyUser($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET HISTORY BONUS
+$app->get('/common/bonus/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBonus($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET HISTORY BONUS DETAIL
+$app->get('/common/bonus/{id}/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBonusDetail($args['id'], $args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// GET HISTORY BONUS ALL
+$app->get('/common/bonus-all/{id_user}', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->getBonusAllHistory($args['id_user']), SERVER_OK);
+})->add($tokenCheck);
+
+// USER
+// BONUS TITIK 
+$app->get('/common/bonus/titik/', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->bonusTitikTrigger(), SERVER_OK);
+});

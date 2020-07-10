@@ -19,7 +19,7 @@ define('KODE_SPONSOR_USER', "S");
 define('TAMBAH_SALDO', 1);
 
 // TRANSFER SALDO
-define('MINIMAL_TRANSFER', 10000);
+define('MINIMAL_TRANSFER', 1000);
 define('TRANSFER_CHARGE', 1000);
 
 // FUNGSI USER
@@ -44,7 +44,9 @@ define('POINT_AWAL', 0);
 
 // HARGA
 define('HARGA_JARAK_MINIMAL', 9000);
+define('HARGA_JARAK_MINIMAL_CAR', 18000);
 define('HARGA_JARAK_PERKILO', 2000);
+define('HARGA_JARAK_PERKILO_CAR', 6000);
 
 // JARAK MIN
 define('JARAK_MINIMAL', 4);
@@ -55,6 +57,12 @@ define('STATUS_DRIVER_MENJEMPUT', 2);
 define('STATUS_MENGANTAR_KETUJUAN', 3);
 define('STATUS_SAMPAI_TUJUAN', 4);
 define('STATUS_CANCEL', 5);
+
+// JENIS TRIP
+define('TRIP_MOU_BIKE', '1');
+define('TRIP_MOU_CAR', '2');
+define('TRIP_MOU_NOW_BIKE', '3');
+define('TRIP_MOU_NOW_CAR', '4');
 
 // POSITION STATUS TRIP
 define('STATUS_TRIP_MENJEMPUT', "Driver Dalam Perjalanan Menjemput");
@@ -130,6 +138,41 @@ define('STATUS_WITHDRAW_SUCCESS', 1);
 define('STATUS_WITHDRAW_REJECT', 2);
 define('JUMLAH_WITHDRAW_MINIMAL', 100000);
 define('JUMLAH_WITHDRAW_TERKECIL', 0);
+define('PESAN_WITHDRAW_SALDO', 'Tarik point ke saldo');
+define('PESAN_WITHDRAW_REKENING', 'Tarik point ke rekening');
+
 
 // STRING KOSONG
 define('STRING_KOSONG', "-");
+
+// HISTORY TYPE
+define('TYPE_TRIP', 'Trip');
+define('TYPE_WITHDRAW', 'Withdraw');
+define('TYPE_TOPUP', 'Topup');
+define('TYPE_TRANSFER', 'Transfer');
+
+define('PESAN_TRANSFER', 'Transfer saldo berhasil');
+
+// TIPE TRIP 
+define('TIPE_TRIP_ACCEPT', 1);
+define('TIPE_TRIP_CANCEL', 2);
+
+// EMERGENCY 
+define('NOMOR_EMERGENCY', "085369797900");
+define('JENIS_EMERGENCY_TELPON', 1);
+
+// BONUS BONUS
+define('BONUS_LEVEL', 'Bonus Level');
+define('ID_BONUS_LEVEL', 1);
+define('BONUS_TRIP', 'Bonus Trip');
+define('ID_BONUS_TRIP', 2);
+define('BONUS_TRANSFER', 'Bonus Transfer');
+define('ID_BONUS_TRANSFER', 3);
+define('BONUS_SPONSOR', 'Bonus Sponsor');
+define('ID_BONUS_SPONSOR', 4);
+define('BONUS_TITIK', 'Bonus Titik');
+define('ID_BONUS_TITIK', 5);
+
+// BONUS TITIK 
+define('BONUS_TITIK_POINT', 1000);
+define('MINIMAL_TITIK_PERHARI', 10);

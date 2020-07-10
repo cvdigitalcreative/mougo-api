@@ -155,3 +155,33 @@ $app->get('/customer/trip/position/{id_driver}', function ($request, $response, 
     $position->setDb($this->db);
     return $response->withJson($position->getPosition($id, $id_trip), SERVER_OK);
 })->add($tokenCheck);
+
+// Customer
+// Cek Trip Harga Saldo Customer
+$app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $response, $args) {
+    $lat = substr($request->getQueryParam("lat"), 0, 7);
+    $long = substr($request->getQueryParam("long"), 0, 8);
+    $lat_dest = substr($request->getQueryParam("lat_destinasi"), 0, 7);
+    $long_dest = substr($request->getQueryParam("long_destinasi"), 0, 8);
+    $response_web = file_get_contents("http://router.project-osrm.org/route/v1/driving/$long,$lat;$long_dest,$lat_dest?geometries=geojson&alternatives=true&steps=true&generate_hints=false");
+    $response_web = json_decode($response_web);
+    if(empty($response_web->routes[0]->distance)){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mendapatkan Data Dari Server'], SERVER_OK);
+    }
+    $dist = ceil(($response_web->routes[0]->distance) / 1000);
+
+    $jarak = new Umum();
+    $jarak->setDb($this->db);
+
+    $harga = $jarak->getHargaCekTotal($dist, $args['jenis_trip']);
+
+    $saldo = $jarak->getSaldoUser($args['id_user']);
+    $data = [
+        'harga' => $harga['harga'],
+        'saldo' => (double) $saldo['jumlah_saldo'],
+    ];
+    if ($saldo['jumlah_saldo'] >= $harga['harga']) {
+        return $response->withJson(['status' => 'Success', 'data' => $data, 'message' => 'Saldo Anda Cukup'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Error', 'data' => $data, 'message' => 'Saldo Anda Tidak Cukup'], SERVER_OK);
+})->add($tokenCheck);

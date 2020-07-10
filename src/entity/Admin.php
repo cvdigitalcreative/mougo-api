@@ -90,6 +90,13 @@ class Admin {
         return $temp;
     }
 
+    public function deleteAdmin($id) {
+        $sql = "DELETE FROM admin
+                WHERE email_admin = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
     private $column_search = array('id_topup', 'jumlah_topup', 'nama', 'email', 'id_topup', 'tanggal_topup');
     private $orderan = array('nama' => 'asc');
 
@@ -148,7 +155,8 @@ class Admin {
     public function countsTopup() {
         $sql = "SELECT * FROM top_up
         INNER JOIN user ON user.id_user = top_up.id_user
-        INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup";
+        INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup
+        WHERE status_topup = 1";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
@@ -292,7 +300,71 @@ class Admin {
 
     public function countsBantuan() {
         $sql = "SELECT * FROM bantuan
-        INNER JOIN user ON user.id_user = bantuan.id_user";
+        INNER JOIN user ON user.id_user = bantuan.id_user
+        WHERE bantuan.jawaban = '-'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_list_bantuan = array('pertanyaan', 'jawaban', 'tanggal_bantuan');
+    private $bantuan_list = array('pertanyaan' => 'asc');
+
+    public function getBantuanList($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBantuanListQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBantuanListQuery($order_by, $order, $search) {
+        $driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT * FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                WHERE bantuan.id_user = '$driver_siluman' ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || $order_by == 1 || $order_by == 2) {
+                $temp = "bantuan";
+            }
+            $order_in = $this->column_list_bantuan[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bantuan_list)) {
+            $order_by = $this->bantuan_list;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBantuanList() {
+        $driver_siluman = ID_DRIVER_SILUMAN;
+        $sql = "SELECT * FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                WHERE bantuan.id_user = '$driver_siluman' ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
@@ -359,11 +431,186 @@ class Admin {
     }
 
     public function countsWithdraw() {
-        $sql = "SELECT * FROM withdraw
-        INNER JOIN user ON user.id_user = withdraw.id_user";
+        $sql = "SELECT withdraw.id, user.nama, withdraw.jumlah, jenis_withdraw.jenis_withdraw, status_withdraw.status_withdraw, withdraw.tanggal_withdraw FROM withdraw
+        INNER JOIN user ON user.id_user = withdraw.id_user
+        INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
+        INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw
+        WHERE withdraw.status_withdraw = '0'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
+    }
+
+    public function cekDataBantuan($id) {
+        $sql = "SELECT * FROM bantuan
+                WHERE id_bantuan LIKE '$id' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function deleteBantuan($id) {
+        $sql = "DELETE FROM bantuan
+                WHERE id_bantuan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function deleteBantuanList($id) {
+        if (empty($this->cekDataBantuan($id, null))) {
+            return ['status' => 'Error', 'message' => "Bantuan tidak ditemukan"];
+        }
+        if (!$this->deleteBantuan($id)) {
+            return ['status' => 'Error', 'message' => "Gagal Menghapus Bantuan"];
+        }
+        return ['status' => 'Success', 'message' => "Berhasil Menghapus Bantuan"];
+    }
+
+    public function updateBantuanList($id, $pertanyaan, $jawaban) {
+        if (empty($this->cekDataBantuan($id))) {
+            return ['status' => 'Error', 'message' => "Bantuan tidak ditemukan"];
+        }
+        if (empty($pertanyaan) && empty($jawaban)) {
+            return ['status' => 'Success', 'message' => "Tidak Ada Item Bantuan Yang Diupdate"];
+        }
+        $sql = "UPDATE bantuan
+                SET ";
+        if (!empty($pertanyaan)) {
+            $sql = $sql . "pertanyaan = '$pertanyaan' ";
+        }
+        if (!empty($pertanyaan) && !empty($jawaban)) {
+            $sql = $sql . ", ";
+        }
+        if (!empty($jawaban)) {
+            $sql = $sql . "jawaban = '$jawaban' ";
+        }
+        $sql = $sql . " WHERE id_bantuan = '$id' ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return ['status' => 'Success', 'message' => "Berhasil Mengupdate Bantuan"];
+    }
+
+  private $column_search_emergency = array('nama', 'no_telpon', 'tanggal_emergency');
+    private $emergency_id = array('nama' => 'asc');
+
+    public function getEmergencyWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getEmergencyQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getEmergencyQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, user.no_telpon, emergency.tanggal_emergency FROM emergency
+                INNER JOIN user ON user.id_user = emergency.id_user";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 ) {
+                $temp = "user";
+            } else if ($order_by == 2) {
+                $temp = "emergency";
+            } 
+            $order_in = $this->column_search_emergency[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->emergency_id)) {
+            $order_by = $this->emergency_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsEmergency() {
+        $sql = "SELECT * FROM emergency
+        INNER JOIN user ON user.id_user = emergency.id_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    public function getKonfirmasiTopup() {
+        $sql = "SELECT COUNT(top_up.id_topup) AS jumlah_konfirmasi_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN bukti_pembayaran ON bukti_pembayaran.id_topup = top_up.id_topup
+                WHERE status_topup = 1 ";
+                
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getKonfirmasiDriver() {
+        $sql = "SELECT COUNT(user.id_user) AS jumlah_konfirmasi_driver FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                WHERE (driver.foto_skck <> '-'
+                AND driver.foto_sim <> '-'
+                AND driver.foto_stnk <> '-'
+                AND driver.foto_diri <> '-'
+                AND driver.status_akun_aktif = 0)";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getEmergencyAll() {
+        $sql = "SELECT COUNT(id_emergency) AS jumlah_emergency FROM emergency";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function getBantuanReply() {
+        $sql = "SELECT COUNT(id_bantuan) AS jumlah_bantuan FROM bantuan
+                WHERE jawaban = '-'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function adminRekapDasbor() {
+        $topup_konfirmasi = $this->getKonfirmasiTopup();
+        $driver_konfirmasi = $this->getKonfirmasiDriver();
+        $emergency_konfirmasi = $this->getEmergencyAll();
+        $bantuan_konfirmasi = $this->getBantuanReply();
+        $data['jumlah_konfirmasi_topup'] =(double) $topup_konfirmasi['jumlah_konfirmasi_topup'];
+        $data['jumlah_konfirmasi_driver'] =(double) $driver_konfirmasi['jumlah_konfirmasi_driver'];
+        $data['jumlah_emergency'] =(double) $emergency_konfirmasi['jumlah_emergency'];
+        $data['jumlah_bantuan'] =(double) $bantuan_konfirmasi['jumlah_bantuan'];
+        return ['status' => 'Success', 'message' => 'Rekapitulasi', 'data' => $data];
+        
     }
 
 }

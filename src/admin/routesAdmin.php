@@ -32,7 +32,7 @@ $app->post('/admin/topup/', function ($request, $response) {
 
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => $admin->countsTopup(), 'data' => $data_user], SERVER_OK);
 });
 
 // ADMIN Accept Konfirmasi Pembayaran
@@ -76,7 +76,7 @@ $app->post('/admin/driver/', function ($request, $response) {
         $dataDriver[$i]['merk_kendaraan'] = $topup[$i]['merk_kendaraan'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => count($topup), 'data' => $dataDriver], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsTopup(), 'recordsFiltered' => $admin->countsTopup(), 'data' => $dataDriver], SERVER_OK);
 });
 
 // ADMIN Data Driver (Belum Konfirmasi)
@@ -165,10 +165,48 @@ $app->post('/admin/bantuan/web/', function ($request, $response) {
 
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => count($bantuan), 'data' => $data_user], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuan(), 'recordsFiltered' => $admin->countsBantuan(), 'data' => $data_user], SERVER_OK);
 });
 
-// ADMIN GET ALL BANTUAN
+// ADMIN GET ALL BANTUAN LIST
+$app->post('/admin/bantuan/list/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+
+    $bantuan = $admin->getBantuanList($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($bantuan)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $data_user = [];
+    for ($i = 0; $i < count($bantuan); $i++) {
+        $data_user[$i]['id_bantuan'] = $bantuan[$i]['id_bantuan'];
+        $data_user[$i]['pertanyaan'] = $bantuan[$i]['pertanyaan'];
+        $data_user[$i]['jawaban'] = $bantuan[$i]['jawaban'];
+        $data_user[$i]['tanggal_bantuan'] = $bantuan[$i]['tanggal_bantuan'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsBantuanList(), 'recordsFiltered' => $admin->countsBantuanList(), 'data' => $data_user], SERVER_OK);
+});
+
+// DELETE ALL BANTUAN LIST
+$app->delete('/admin/bantuan/list/{id}', function ($request, $response, $args) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->deleteBantuanList($args['id']), SERVER_OK);
+});
+
+// EDIT ALL BANTUAN LIST
+$app->put('/admin/bantuan/list/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->updateBantuanList($args['id'], $data['pertanyaan'], $data['jawaban']), SERVER_OK);
+});
+
+// ADMIN GET ALL WITHDRAW
 $app->post('/admin/withdraw/', function ($request, $response) {
     $data = $request->getParsedBody();
     $admin = new Admin(null, null, null, null);
@@ -185,7 +223,7 @@ $app->post('/admin/withdraw/', function ($request, $response) {
         $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
     }
 
-    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsWithdraw(), 'recordsFiltered' => count($withdraw), 'data' => $withdraw], SERVER_OK);
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsWithdraw(), 'recordsFiltered' => $admin->countsWithdraw(), 'data' => $withdraw], SERVER_OK);
 });
 
 // ADMIN Accept withdraw Transfer
@@ -200,4 +238,41 @@ $app->put('/admin/withdraw/reject/{id}', function ($request, $response, $args) {
     $admin = new Umum();
     $admin->setDb($this->db);
     return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT), SERVER_OK);
+});
+
+// ADMIN GET ALL EMERGENCY
+$app->post('/admin/emergency/list/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+
+    $emergency = $admin->getEmergencyWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($emergency)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Bantuan Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $data_user = [];
+    for ($i = 0; $i < count($emergency); $i++) {
+        $data_user[$i]['nama'] = decrypt($emergency[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $data_user[$i]['no_telpon'] = decrypt($emergency[$i]['no_telpon'], MOUGO_CRYPTO_KEY);;
+        $data_user[$i]['tanggal_emergency'] = $emergency[$i]['tanggal_emergency'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $admin->countsEmergency(), 'recordsFiltered' => $admin->countsEmergency(), 'data' => $data_user], SERVER_OK);
+});
+
+// ADMIN REKAP DASBOR
+$app->get('/admin/rekap/dasbor/', function ($request, $response) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminRekapDasbor(), SERVER_OK);
+});
+
+// ADMIN REKAP DRIVER
+$app->get('/admin/rekap/driver/', function ($request, $response) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    $data = $admin->getKonfirmasiDriver();
+    return $response->withJson(['status' => 'Success', 'datas' => $data['jumlah_konfirmasi_driver']], SERVER_OK);
 });

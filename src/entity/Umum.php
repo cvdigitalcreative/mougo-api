@@ -200,16 +200,47 @@ class Umum {
     }
 
     public function getHargaTotal($jarak) {
+        $cek_harga = new Owner(null,null);
+        $cek_harga->setDb($this->db);
+        $minimal_harga = $cek_harga->getHargaAwalTrip();
+        $perkilo_harga = $cek_harga->getHargaPerkiloTrip();
         if ($jarak <= JARAK_MINIMAL) {
-            return ['status' => 'Success', 'harga' => HARGA_JARAK_MINIMAL];
+            return ['status' => 'Success', 'harga' => $minimal_harga[0]['harga_awal_motor']];
         } else {
-            $harga = HARGA_JARAK_MINIMAL;
+            $harga = $minimal_harga[0]['harga_awal_motor'];
             $jarak_pertama = JARAK_MINIMAL + 1;
             for ($i = $jarak_pertama; $i <= $jarak; $i++) {
-                $harga = $harga + HARGA_JARAK_PERKILO;
+                $harga = $harga + $perkilo_harga[0]['harga_perkilo_motor'];
             }
             return ['status' => 'Success', 'harga' => $harga];
         }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
+    }
+
+    public function getHargaTotalCar($jarak) {
+        $cek_harga = new Owner(null,null);
+        $cek_harga->setDb($this->db);
+        $minimal_harga = $cek_harga->getHargaAwalTrip();
+        $perkilo_harga = $cek_harga->getHargaPerkiloTrip();
+        if ($jarak <= JARAK_MINIMAL) {
+            return ['status' => 'Success', 'harga' => $minimal_harga[0]['harga_awal_mobil']];
+        } else {
+            $harga = $minimal_harga[0]['harga_awal_mobil'];
+            $jarak_pertama = JARAK_MINIMAL + 1;
+            for ($i = $jarak_pertama; $i <= $jarak; $i++) {
+                $harga = $harga + $perkilo_harga[0]['harga_perkilo_mobil'];
+            }
+            return ['status' => 'Success', 'harga' => $harga];
+        }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
+    }
+
+    public function getHargaCekTotal($jarak, $jenis) {
+        if ($jenis == TRIP_MOU_BIKE || $jenis == TRIP_MOU_NOW_BIKE) {
+            return $this->getHargaTotal($jarak);
+        }
+        if ($jenis == TRIP_MOU_CAR || $jenis == TRIP_MOU_NOW_CAR) {
+            return $this->getHargaTotalCar($jarak);
+        }
+        return ['status' => 'Error', 'message' => 'Belum Tersedia'];
     }
 
     public function inputSaldo($jumlah_topup, $id_user) {
@@ -229,13 +260,18 @@ class Umum {
             ':admin' => ADMIN_SILUMAN_MOUGO,
         ];
         $est = $this->getDb()->prepare($sql);
+
+        $cek_bank = new Owner(null,null);
+        $cek_bank->setDb($this->db);
+        $bank_mougo = $cek_bank->getBankMougo();
+        
         if ($est->execute($data)) {
             $data = [
                 'id_topup' => $id,
                 'jumlah_topup' => $jumlah_topup,
-                'no_rek' => NO_REK_PERUSAHAAN,
-                'nama_rek' => NAMA_REK_PERUSAHAAN,
-                'nama_bank' => NAMA_BANK_PERUSAHAAN,
+                'no_rek' => $bank_mougo[0]['norek_bank'],
+                'nama_rek' => $bank_mougo[0]['atas_nama_bank'],
+                'nama_bank' => $bank_mougo[0]['nama_bank'],
             ];
             return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data' => $data];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
@@ -439,6 +475,23 @@ class Umum {
         return $stmt;
     }
 
+    public function getAllDriverWeb() {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN position ON position.id_user = user.id_user
+                WHERE user.role = 2
+                AND driver.status_online = 1
+                LIMIT 100";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
     public function getAllCustomer() {
         $sql = "SELECT * FROM user
                 INNER JOIN detail_user ON detail_user.id_user = user.id_user
@@ -447,6 +500,18 @@ class Umum {
                 INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
                 WHERE user.role = 1
                 LIMIT 100";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getAllUser() {
+        $sql = "SELECT * FROM user
+                INNER JOIN detail_user ON detail_user.id_user = user.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+                INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $stmt = $est->fetchAll();
@@ -711,17 +776,58 @@ class Umum {
         return $total;
     }
 
-    public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
+    public function inputBonusTransfer($id_user, $pendapatan) {
+        $sql = "INSERT INTO bonus_transfer(id_user, pendapatan)
+                VALUES('$id_user', '$pendapatan')";
+        $est = $this->db->prepare($sql);
+        return $est->execute();
+    }
 
+    public function bonusTransferLevel($id_user, $pendapatan) {
+        $getAtasan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getAtasan->setDb($this->db);
+        $temp_hasil = $pendapatan;
+        $atasanUser = $getAtasan->getAllReferalAtasan($id_user);
+        for ($i = 0; $i < count($atasanUser); $i++) {
+            $temp_hasil = $temp_hasil * 0.5;
+            if ($i + 1 == count($atasanUser)) {
+                $temp_hasil = $temp_hasil * 2;
+            }
+            $point_atasan = $this->getPointUser($atasanUser[$i]['id_user_atasan']);
+            $atasan_point = (double) $point_atasan['jumlah_point'];
+            $total_point = $atasan_point + $temp_hasil;
+            $this->updatePoint($atasanUser[$i]['id_user_atasan'], $total_point);
+            $getAtasan->insertBonusLevel($atasanUser[$i]['id_user_atasan'], $temp_hasil); // ganti
+        }
+    }
+
+    public function bonusTransferSponsor($id_user, $pendapatan) {
+        $getAtasan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getAtasan->setDb($this->db);
+        $atasan_sponsor = $getAtasan->getSponsorUp($id_user);
+        $point_atasan_sponsor = $this->getPointUser($atasan_sponsor['id_user_atasan']);
+        $point_sponsor = $pendapatan + $point_atasan_sponsor['jumlah_point'];
+        $this->updatePoint($atasan_sponsor['id_user_atasan'], $point_sponsor);
+        $getAtasan->insertBonusSponsor($atasan_sponsor['id_user_atasan'], $pendapatan); // ganti
+    }
+
+    public function insertTransfer($id_user, $id_user_penerima, $jumlah) {
         $saldo_user = $this->getSaldoUser($id_user);
         $saldo_penerima = $this->getSaldoUser($id_user_penerima);
         $saldo_perusahaan = $this->getSaldoUser(ID_PERUSAHAAN);
 
         $saldo_user = $saldo_user['jumlah_saldo'] - ($jumlah + TRANSFER_CHARGE);
         $saldo_penerima = $saldo_penerima['jumlah_saldo'] + $jumlah;
-        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + TRANSFER_CHARGE;
+        $saldo_perusahaan = $saldo_perusahaan['jumlah_saldo'] + (0.5 * TRANSFER_CHARGE);
 
-        if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan)) {
+        $point_user = $this->getPointUser($id_user);
+        $point_user = $point_user['jumlah_point'] + (0.15 * TRANSFER_CHARGE);
+
+        $this->inputBonusTransfer($id_user, (0.15 * TRANSFER_CHARGE));
+        $this->bonusTransferLevel($id_user, (0.15 * TRANSFER_CHARGE));
+        $this->bonusTransferSponsor($id_user, (0.1 * TRANSFER_CHARGE));
+
+        if (!$this->updateSaldo($id_user, $saldo_user) || !$this->updateSaldo($id_user_penerima, $saldo_penerima) || !$this->updateSaldo(ID_PERUSAHAAN, $saldo_perusahaan) || !$this->updatePoint($id_user, $point_user)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Saldo'];
         }
 
@@ -848,11 +954,14 @@ class Umum {
         if (empty($data)) {
             return ['status' => 'Success', 'data' => []];
         }
+        $cek_bank = new Owner(null,null);
+        $cek_bank->setDb($this->db);
+        $bank_mougo = $cek_bank->getBankMougo();
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['jumlah_topup'] = (double) $data[$i]['jumlah_topup'];
-            $data[$i]['no_rek'] = NO_REK_PERUSAHAAN;
-            $data[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
-            $data[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
+            $data[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
+            $data[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
+            $data[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
             if ($data[$i]['status'] == TOPUP_ACCEPT_NAME) {
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
             }
@@ -924,7 +1033,7 @@ class Umum {
     }
 
     public function jawabBantuanAdmin($id, $jawaban) {
-        if(empty($this->cekUserBantuan($id))){
+        if (empty($this->cekUserBantuan($id))) {
             return ['status' => 'Error', 'message' => 'Bantuan tidak ditemukan'];
         }
         if (empty($jawaban)) {
@@ -955,7 +1064,7 @@ class Umum {
                 WHERE id = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
-        return ;
+        return;
         if ($est->execute()) {
             return ['status' => 'Success', 'message' => 'Berhasil Mengaktifkan Driver'];
         }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
@@ -963,7 +1072,7 @@ class Umum {
 
     public function adminKonfirmasiWithdraw($id, $status) {
         $data = $this->cekWithdraw($id);
-        if(empty($data)){
+        if (empty($data)) {
             return ['status' => 'Error', 'message' => 'Withdraw tidak ditemukan'];
         }
         if ($data['status_withdraw'] == STATUS_WITHDRAW_SUCCESS) {
@@ -972,19 +1081,669 @@ class Umum {
         if ($data['status_withdraw'] == STATUS_WITHDRAW_REJECT) {
             return ['status' => 'Error', 'message' => 'Withdraw Tersebut Telah Ditolak Oleh Admin'];
         }
-        if ($this->editWithdraw($id,$status)) {
+        if ($this->editWithdraw($id, $status)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Withdraw'];
         }
-        if($status == STATUS_WITHDRAW_REJECT){
+        if ($status == STATUS_WITHDRAW_REJECT) {
             $point_user = $this->getPointUser($data['id_user']);
             $point = $point_user['jumlah_point'] + $data['jumlah'];
-            if(!$this->updatePoint($data['id_user'],$point)){
+            if (!$this->updatePoint($data['id_user'], $point)) {
                 return ['status' => 'Error', 'message' => 'Gagal Update Point User'];
             }
             return ['status' => 'Success', 'message' => 'Berhasil Menolak Withdraw User'];
         }
         return ['status' => 'Success', 'message' => 'Berhasil Menerima Withdraw User'];
 
+    }
+
+    public function getTripHistoryCustomer($id) {
+        $sql = "SELECT jenis_trip.jenis_trip,jenis_pembayaran.jenis_pembayaran,trip.alamat_destinasi,trip.total_harga,trip.tanggal_transaksi FROM trip
+                INNER JOIN jenis_pembayaran ON jenis_pembayaran.id = trip.jenis_pembayaran
+                INNER JOIN jenis_trip ON jenis_trip.id = trip.jenis_trip
+                WHERE trip.id_customer = '$id'
+                ORDER BY trip.tanggal_transaksi DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTripHistoryDriver($id) {
+        $sql = "SELECT jenis_trip.jenis_trip,jenis_pembayaran.jenis_pembayaran,trip.alamat_destinasi,trip.total_harga,trip.tanggal_transaksi FROM trip
+                INNER JOIN jenis_pembayaran ON jenis_pembayaran.id = trip.jenis_pembayaran
+                INNER JOIN jenis_trip ON jenis_trip.id = trip.jenis_trip
+                WHERE trip.id_driver = '$id'
+                ORDER BY trip.tanggal_transaksi DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTripHistoryUser($id) {
+        $user = $this->cekUser($id);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        if ($user['role'] == USER_ROLE) {
+            $data = $this->getTripHistoryCustomer($id);
+        } else {
+            $data = $this->getTripHistoryDriver($id);
+        }
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+        for ($i = 0; $i < count($data); $i++) {
+            $data[$i]['total_harga'] = (double) $data[$i]['total_harga'];
+        }
+        return ['status' => 'Success', 'data' => $data];
+    }
+
+    public function getAllHistoryUser($id) {
+        $user = $this->cekUser($id);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+
+        $data2 = $this->getTopupHistory($id);
+        $data3 = $this->getHistoryWithdraw($id);
+        $data4 = $this->getTransferHistory($id);
+        
+        $cek_bank = new Owner(null,null);
+        $cek_bank->setDb($this->db);
+        $bank_mougo = $cek_bank->getBankMougo();
+
+        if (!empty($data2)) {
+            for ($i = 0; $i < count($data2); $i++) {
+                $data2[$i]['jumlah_topup'] = (double) $data2[$i]['jumlah_topup'];
+                $data2[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
+                $data2[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
+                $data2[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
+                if ($data2[$i]['status'] == TOPUP_ACCEPT_NAME) {
+                    $data2[$i]['message'] = PESAN_TOPUP_ACCEPT;
+                }
+                if ($data2[$i]['status'] == TOPUP_REJECT_NAME) {
+                    $data2[$i]['message'] = PESAN_TOPUP_REJECT;
+                }
+                if ($data2[$i]['status'] == TOPUP_PENDING_NAME) {
+                    $data2[$i]['message'] = PESAN_TOPUP_PENDING;
+                }
+                $data2[$i]['status_topup'] = $data2[$i]['status'];
+                $data2[$i]['tanggal'] = $data2[$i]['tanggal_topup'];
+                $data2[$i]['type'] = TYPE_TOPUP;
+                unset($data2[$i]['status']);
+                unset($data2[$i]['tanggal_topup']);
+            }
+        }
+
+        $data = [];
+
+        if (!empty($data3)) {
+            for ($i = 0; $i < count($data3); $i++) {
+                $data[$i]['id'] = (int) $data3[$i]['id'];
+                $data[$i]['id_user'] = $data3[$i]['id_user'];
+                $data[$i]['jumlah'] = (double) $data3[$i]['jumlah'];
+                $data[$i]['jenis_withdraw'] = $data3[$i]['jenis_withdraw'];
+                $data[$i]['status_withdraw'] = $data3[$i]['status_withdraw'];
+                if ($data3[$i]['jenis_withdraw'] == JENIS_WITHDRAW_SALDO) {
+                    $data[$i]['message'] = PESAN_WITHDRAW_SALDO;
+                } else {
+                    $data[$i]['message'] = PESAN_WITHDRAW_REKENING;
+                }
+                $data[$i]['tanggal'] = $data3[$i]['tanggal_withdraw'];
+                $data[$i]['type'] = TYPE_WITHDRAW;
+            }
+        }
+
+        if (!empty($data4)) {
+            for ($i = 0; $i < count($data4); $i++) {
+                $data4[$i]['total_transfer'] = (double) $data4[$i]['total_transfer'];
+                $data4[$i]['message'] = PESAN_TRANSFER;
+                $data4[$i]['tanggal'] = $data4[$i]['tanggal_transfer'];
+                $data4[$i]['type'] = TYPE_TRANSFER;
+                unset($data4[$i]['tanggal_transfer']);
+            }
+        }
+
+        for ($i = 0; $i < count($data2); $i++) {
+            $data[count($data)] = $data2[$i];
+        }
+
+        for ($i = 0; $i < count($data4); $i++) {
+            $data[count($data)] = $data4[$i];
+        }
+
+        for ($i = 0; $i < count($data); $i++) {
+            $swapped = false;
+
+            for ($j = 0; $j < count($data) - $i - 1; $j++) {
+
+                if ($data[$j]['tanggal'] < $data[$j + 1]['tanggal']) {
+                    $t = $data[$j];
+                    $data[$j] = $data[$j + 1];
+                    $data[$j + 1] = $t;
+                    $swapped = true;
+                }
+            }
+
+            if ($swapped == false) {
+                break;
+            }
+
+        }
+
+        if (empty($data)) {
+            return ['status' => 'Success', 'data' => []];
+        }
+
+        return ['status' => 'Success', 'data' => array_slice($data, 0, 15)];
+    }
+
+    public function getEmergency() {
+        $cek_emergency = new Owner(null,null);
+        $cek_emergency->setDb($this->db);
+        $emergency = $cek_emergency->getNomorEmergency();
+        $data = [
+            'nomor_emergency' => $emergency[0]['nomor_emergency'],
+        ];
+        return ['status' => 'Success', 'data' => $data, 'message' => 'Nomor Emergency Mougo'];
+    }
+
+    public function insertEmergencyUser($id_user) {
+        $sql = 'INSERT INTO emergency( id_user , jenis_bantuan )
+        VALUE( :id_user, :jenis_bantuan)';
+        $est = $this->db->prepare($sql);
+        $data = [
+            ":id_user" => $id_user,
+            ":jenis_bantuan" => JENIS_EMERGENCY_TELPON,
+        ];
+
+        if ($est->execute($data)) {
+            return ['status' => 'Success', 'message' => 'Berhasil Melaporkan Emergency'];
+        }return ['status' => 'Error', 'message' => 'Gagal Melaporkan Emergency'];
+
+    }
+
+    public function getBonusLevel($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_level FROM bonus_level
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonusTrip($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_trip FROM bonus_trip
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonusTransfer($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_transfer FROM bonus_transfer
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonusSponsor($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_sponsor FROM bonus_sponsor
+                WHERE id_user_atasan = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonusTitik($id_user) {
+        $sql = "SELECT SUM(pendapatan) AS pendapatan_titik FROM bonus_titik
+                WHERE id_user = '$id_user'";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getBonus($id_user) {
+        $user = $this->cekUser($id_user);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $level = $this->getBonusLevel($id_user);
+        $trip = $this->getBonusTrip($id_user);
+        $transfer = $this->getBonusTransfer($id_user);
+        $sponsor = $this->getBonusSponsor($id_user);
+        $titik = $this->getBonusTitik($id_user);
+
+        $data['total_bonus'] = $level['pendapatan_level'] + $trip['pendapatan_trip'] + $transfer['pendapatan_transfer'] + $sponsor['pendapatan_sponsor'] + $titik['pendapatan_titik'];
+        $data['data_bonus'][0]['id_bonus'] = ID_BONUS_LEVEL;
+        $data['data_bonus'][0]['nama_bonus'] = BONUS_LEVEL;
+        $data['data_bonus'][0]['pendapatan'] = (double) $level['pendapatan_level'];
+        $data['data_bonus'][1]['id_bonus'] = ID_BONUS_TRIP;
+        $data['data_bonus'][1]['nama_bonus'] = BONUS_TRIP;
+        $data['data_bonus'][1]['pendapatan'] = (double) $trip['pendapatan_trip'];
+        $data['data_bonus'][2]['id_bonus'] = ID_BONUS_TRANSFER;
+        $data['data_bonus'][2]['nama_bonus'] = BONUS_TRANSFER;
+        $data['data_bonus'][2]['pendapatan'] = (double) $transfer['pendapatan_transfer'];
+        $data['data_bonus'][3]['id_bonus'] = ID_BONUS_SPONSOR;
+        $data['data_bonus'][3]['nama_bonus'] = BONUS_SPONSOR;
+        $data['data_bonus'][3]['pendapatan'] = (double) $sponsor['pendapatan_sponsor'];
+        $data['data_bonus'][4]['id_bonus'] = ID_BONUS_TITIK;
+        $data['data_bonus'][4]['nama_bonus'] = BONUS_TITIK;
+        $data['data_bonus'][4]['pendapatan'] = (double) $titik['pendapatan_titik'];
+        return ['status' => 'Success', 'message' => 'Bonus History', 'data' => $data];
+    }
+
+    public function getBonusLevelDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_pendapatan FROM bonus_level
+                WHERE id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusTripDetail($id_user) {
+        $sql = "SELECT  jenis_trip.jenis_trip AS keterangan_bonus, pendapatan, tanggal_pendapatan FROM bonus_trip
+                INNER JOIN trip ON trip.id_trip = bonus_trip.id_trip
+                INNER JOIN jenis_trip ON jenis_trip.id = trip.jenis_trip
+                WHERE bonus_trip.id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusTransferDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_transfer AS tanggal_pendapatan FROM bonus_transfer
+                WHERE id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusSponsorDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_pendapatan FROM bonus_sponsor
+                WHERE id_user_atasan = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusTitikDetail($id_user) {
+        $sql = "SELECT pendapatan, tanggal_pendapatan FROM bonus_titik
+                WHERE id_user = '$id_user'
+                ORDER BY tanggal_pendapatan DESC";
+        $est = $this->db->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getBonusDetail($id, $id_user) {
+        $user = $this->cekUser($id_user);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        if ($id == ID_BONUS_LEVEL) {
+            $data = $this->getBonusLevelDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Level'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_LEVEL;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        if ($id == ID_BONUS_TRIP) {
+            $data = $this->getBonusTripDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Trip'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        if ($id == ID_BONUS_TRANSFER) {
+            $data = $this->getBonusTransferDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Transfer'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_TRANSFER;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        if ($id == ID_BONUS_SPONSOR) {
+            $data = $this->getBonusSponsorDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Sponsor'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_SPONSOR;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        if ($id == ID_BONUS_TITIK) {
+            $data = $this->getBonusTitikDetail($id_user);
+            if (empty($data)) {
+                return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus Titik'];
+            }
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['keterangan_bonus'] = BONUS_TITIK;
+                $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+            }
+            return ['status' => 'Success', 'data' => $data];
+        }
+        return ['status' => 'Error', 'message' => 'Id Salah'];
+    }
+
+    public function getBonusAllHistory($id_user) {
+        $user = $this->cekUser($id_user);
+        if (empty($user)) {
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        $data = $this->getBonusLevelDetail($id_user);
+        for ($i = 0; $i < count($data); $i++) {
+            $data[$i]['keterangan_bonus'] = BONUS_LEVEL;
+            $data[$i]['pendapatan'] = (double) $data[$i]['pendapatan'];
+        }
+
+        $data2 = $this->getBonusTripDetail($id_user);
+        for ($i = 0; $i < count($data2); $i++) {
+            $data2[$i]['pendapatan'] = (double) $data2[$i]['pendapatan'];
+        }
+
+        $data3 = $this->getBonusTransferDetail($id_user);
+        for ($i = 0; $i < count($data3); $i++) {
+            $data3[$i]['keterangan_bonus'] = BONUS_TRANSFER;
+            $data3[$i]['pendapatan'] = (double) $data3[$i]['pendapatan'];
+        }
+
+        $data4 = $this->getBonusSponsorDetail($id_user);
+        for ($i = 0; $i < count($data4); $i++) {
+            $data4[$i]['keterangan_bonus'] = BONUS_SPONSOR;
+            $data4[$i]['pendapatan'] = (double) $data4[$i]['pendapatan'];
+        }
+
+        $data5 = $this->getBonusTitikDetail($id_user);
+        for ($i = 0; $i < count($data5); $i++) {
+            $data5[$i]['keterangan_bonus'] = BONUS_TITIK;
+            $data5[$i]['pendapatan'] = (double) $data5[$i]['pendapatan'];
+        }
+
+        if (empty($data) && empty($data2) && empty($data3) && empty($data4) && empty($data5)) {
+            return ['status' => 'Error', 'message' => 'User Belum Mendapatkan Bonus'];
+        }
+
+        $data = array_merge($data, $data2);
+        $data = array_merge($data, $data3);
+        $data = array_merge($data, $data4);
+        $data = array_merge($data, $data5);
+
+        for ($i = 0; $i < count($data); $i++) {
+            for ($j = 0; $j < count($data) - $i - 1; $j++) {
+                if ($data[$j]['tanggal_pendapatan'] < $data[$j + 1]['tanggal_pendapatan']) {
+                    $temp = $data[$j + 1];
+                    $data[$j + 1] = $data[$j];
+                    $data[$j] = $temp;
+                }
+            }
+        }
+        return ['status' => 'Success', 'data' => $data];
+
+    }
+
+    public function kodeReferalAll($id_user) {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $bawahPerusahaan = $getBawahan->getReferalDownSys($id_user);
+
+        $tampungBawah[0] = $bawahPerusahaan;
+        $state = true;
+        $i = 0;
+        while ($state) {
+            $j = 0;
+            $state2 = true;
+
+            while ($state2) {
+                if ($tampungBawah[$i][$j]['id_user'] == ID_PERUSAHAAN) {
+                    if (empty($tampungBawah[$i][$j + 1])) {
+                        $state2 = false;
+                    }
+                    $j++;
+                    continue;
+                }
+                $temp = $getBawahan->getReferalDownSys($tampungBawah[$i][$j]['id_user']);
+
+                if (empty($temp)) {
+                    if (empty($tampungBawah[$i][$j + 1])) {
+                        $state2 = false;
+                    }
+                    $j++;
+                    continue;
+                }
+                if (empty($tampungBawah[$i + 1])) {
+                    $tampungBawah[$i + 1] = [];
+                    $tampungBawah[$i + 1] = $temp;
+                } else {
+                    $tampungBawah[$i + 1] = array_merge($tampungBawah[$i + 1], $temp);
+                }
+                if (empty($tampungBawah[$i][$j + 1])) {
+                    $state2 = false;
+                }
+
+                $j++;
+            }
+
+            if (empty($tampungBawah[$i + 1])) {
+                $state = false;
+            }
+
+            $i++;
+        }
+
+        return $tampungBawah;
+
+    }
+
+    public function kodeReferalAllList($id_user) {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $bawahPerusahaan = $getBawahan->getReferalDownSysFull($id_user);
+
+        $tampungBawah = $bawahPerusahaan;
+        $temper = 0;
+        $cek_nice = true;
+        while (true) {
+            $temper = $temper + count($tampungBawah);
+            if ($cek_nice == true) {
+                $temper = 0;
+            }
+            for ($j = $temper; $j < count($tampungBawah); $j++) {
+                if ($tampungBawah[$j]['id_user'] == ID_PERUSAHAAN) {
+                    continue;
+                }
+
+                $temp = $getBawahan->getReferalDownSysFull($tampungBawah[$j]['id_user']);
+
+                if (empty($temp)) {
+                    continue;
+                } else {
+                    $tampungBawah = array_merge($tampungBawah, $temp);
+                }
+            }
+            $cek_nice == false;
+            if (empty($tampungBawah[count($tampungBawah) + 1])) {
+                break;
+            }
+        }
+
+        return $tampungBawah;
+
+    }
+
+    public function getForBonusTitikCustomerTahun($id_user, $year) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT count(id_trip) AS jumlah_trip_tahun FROM trip
+                WHERE YEAR(trip.tanggal_transaksi) = '$year'
+                AND status_trip = '$finish'
+                AND id_customer = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getForBonusTitikDriverTahun($id_user, $year) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT count(id_trip) AS jumlah_trip_tahun FROM trip
+                WHERE YEAR(trip.tanggal_transaksi) = '$year'
+                AND status_trip = '$finish'
+                AND id_driver = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getForBonusTitikCustomerBulan($id_user, $year, $month) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT count(id_trip) AS jumlah_trip_bulan FROM trip
+                WHERE MONTH(trip.tanggal_transaksi) = '$month'
+                AND YEAR(trip.tanggal_transaksi) = '$year'
+                AND status_trip = '$finish'
+                AND id_customer = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getForBonusTitikDriverBulan($id_user, $year, $month) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT count(id_trip) AS jumlah_trip_bulan FROM trip
+                WHERE MONTH(trip.tanggal_transaksi) = '$month'
+                AND  YEAR(trip.tanggal_transaksi) = '$year'
+                AND status_trip = '$finish'
+                AND id_driver = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getForBonusTitikCustomerHari($id_user, $date) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT count(id_trip) AS jumlah_trip_harian FROM trip
+                WHERE DATE(trip.tanggal_transaksi) = '$date'
+                AND status_trip = '$finish'
+                AND id_customer = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getForBonusTitikDriverHari($id_user, $date) {
+        $finish = STATUS_SAMPAI_TUJUAN;
+        $sql = "SELECT count(id_trip) AS jumlah_trip_harian FROM trip
+                WHERE DATE(trip.tanggal_transaksi) = '$date'
+                AND status_trip = '$finish'
+                AND id_driver = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getForBonusTitik() {
+        $sql = "SELECT user.*, kode_referal.id_user AS bawah_referal FROM user
+                INNER JOIN kode_referal ON kode_referal.id_user_atasan = user.id_user
+                GROUP BY user.id_user ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function insertBonusTitik($id_user, $pendapatan) {
+        $sql = "INSERT INTO bonus_titik(id_user, pendapatan)
+                VALUES('$id_user','$pendapatan')";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function dayofyear2date($tDay, $tFormat = 'Y-m-d') {
+        $day = intval($tDay);
+        $day = ($day == 0) ? $day : $day - 1;
+        $offset = intval(intval($tDay) * 86400);
+        $str = date($tFormat, strtotime('Jan 1, ' . date('Y')) + $offset);
+        return ($str);
+    }
+
+    public function bonusTitikTrigger() {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+
+        $titik_user = $this->getForBonusTitik();
+
+        $bawah_user = [];
+        for ($i = 0; $i < count($titik_user); $i++) {
+            $bawah_user[$i] = $this->kodeReferalAllList($titik_user[$i]['id_user']);
+        }
+
+        $tahun = date('Y');
+        $tahun_lalu = date('Y') - 1;
+
+        $datediff = strtotime("$tahun-01-01") - strtotime("$tahun_lalu-01-01");
+        $hari = round($datediff / (60 * 60 * 24));
+
+        for ($j = 0; $j < count($titik_user); $j++) {
+
+            $bawahan_berhasil = 0;
+            for ($i = 0; $i < count($bawah_user[$j]); $i++) {
+                $cek = true;
+                $cek_tf = true;
+                $total_transfer = $this->getForBonusTitikTransferTahun($bawah_user[$j][$i]['id_user'], $tahun_lalu);
+                if ($total_transfer['jumlah_transfer_tahun'] < $hari * MINIMAL_TITIK_PERHARI) {
+                    $cek_tf = false;
+                }
+                if ($bawah_user[$j][$i]['role'] == USER_ROLE) {
+                    $total_trip = $this->getForBonusTitikCustomerTahun($bawah_user[$j][$i]['id_user'], $tahun_lalu);
+                    if ($total_trip['jumlah_trip_tahun'] < $hari * MINIMAL_TITIK_PERHARI) {
+                        $cek = false;
+                    }
+                } else {
+                    $total_trip = $this->getForBonusTitikDriverTahun($bawah_user[$j][$i]['id_user'], $tahun_lalu);
+                    if ($total_trip['jumlah_trip_tahun'] < $hari * MINIMAL_TITIK_PERHARI) {
+                        $cek = false;
+                    }
+                }
+                if ($cek == true) {
+                    $bawahan_berhasil++;
+                }
+                if ($cek_tf == true) {
+                    $bawahan_berhasil++;
+                }
+            }
+            if ($bawahan_berhasil > 0) {
+                $total_point_titik = $bawahan_berhasil * BONUS_TITIK_POINT;
+                $point_user = $this->getPointUser($titik_user[$j]['id_user']);
+                $point_titik = $point_user['jumlah_point'] + ($total_point_titik);
+                $this->updatePoint($titik_user[$j]['id_user'], $point_titik);
+                $this->insertBonusTitik($titik_user[$j]['id_user'], ($total_point_titik));
+            }
+
+        }
+        return ['status' => 'Success', 'message' => 'Berhasil Menjalankan Bonus Titik'];
+    }
+
+    public function getForBonusTitikTransferTahun($id_user, $tahun) {
+        $sql = "SELECT count(sender_user_id) AS jumlah_transfer_tahun FROM transfer
+                WHERE YEAR(transfer.tanggal_transfer) = '$tahun'
+                AND sender_user_id = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
     }
 
 }

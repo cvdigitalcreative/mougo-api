@@ -48,7 +48,22 @@ class Trip {
         if (!$this->isDataValid()) {
             return ['status' => 'Error', 'message' => 'Order Trip Data Input Tidak Boleh Kosong'];
         }
+        if ($this->jenis_pembayaran == PEMBAYARAN_SALDO) {
+            $trip_cek = new Umum();
+            $trip_cek->setDb($this->db);
+            $saldo_user = $trip_cek->getSaldoUser($this->id_customer);
+            if ($saldo_user['jumlah_saldo'] < $this->total_harga) {
+                return ['status' => 'Error', 'message' => 'Saldo User Kurang Untuk Melakukan Trip'];
+            }
+            $saldo_user = $saldo_user['jumlah_saldo'];
+            if (!$this->saldoTripUser($this->id_customer, TIPE_TRIP_ACCEPT, $this->jenis_pembayaran, USER_ROLE, $this->total_harga, $saldo_user)) {
+                return ['status' => 'Error', 'message' => 'Gagal Update Saldo User'];
+            }
+        }
         // $this->hitungHarga();
+        if ($this->cekTemporaryId() == 0 || $this->cekTemporaryId() == 1) {
+            $this->resetAutoIncrement($this->cekMaxId() + 1);
+        }
         $data['id_trip'] = $this->inputTemporaryOrder();
         if (!$data['id_trip']) {
             return ['status' => 'Error', 'message' => 'Pemesanan Error'];
@@ -58,12 +73,76 @@ class Trip {
 
     }
 
+    public function cekTemporaryId() {
+        $sql = "SELECT AUTO_INCREMENT AS id
+                FROM information_schema.tables
+                WHERE table_name = 'temporary_order'
+                AND table_schema = DATABASE() ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt['id'];
+    }
+
+    public function resetAutoIncrement($id) {
+        $sql = "ALTER TABLE temporary_order AUTO_INCREMENT = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function cekMaxId() {
+        $sql = "SELECT MAX(id_trip) AS max_id
+                FROM trip";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt['max_id'];
+    }
+
     private function isDataValid() {
         $isValid = true;
         if (empty($this->id_customer) || empty($this->total_harga) || empty($this->alamat_jemput) || empty($this->latitude_jemput) || empty($this->longitude_jemput) || empty($this->alamat_destinasi) || empty($this->latitude_destinasi) || empty($this->longitude_destinasi) || empty($this->jarak) || empty($this->jenis_trip) || empty($this->jenis_pembayaran)) {
             $isValid = false;
         }
         return $isValid;
+
+    }
+
+    public function saldoTripUser($id_user, $trip_fungsi, $jenis_pembayaran, $role, $harga, $saldo_user) {
+        $umum = new Umum();
+        $umum->setDb($this->db);
+        if ($role == DRIVER_ROLE && $trip_fungsi == TIPE_TRIP_ACCEPT) {
+            if ($jenis_pembayaran == PEMBAYARAN_SALDO) {
+                $saldo = $saldo_user - $harga;
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            } else {
+                $saldo = $saldo_user - ($harga * 0.2);
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            }
+        }
+        if ($role == DRIVER_ROLE && $trip_fungsi == TIPE_TRIP_CANCEL) {
+            if ($jenis_pembayaran == PEMBAYARAN_SALDO) {
+                $saldo = $saldo_user + $harga;
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            } else {
+                $saldo = $saldo_user + ($harga * 0.2);
+                $umum->updateSaldo($id_user, $saldo);
+                return true;
+            }
+        }
+        if ($role == USER_ROLE && $trip_fungsi == TIPE_TRIP_ACCEPT && $jenis_pembayaran == PEMBAYARAN_SALDO) {
+            $saldo = $saldo_user - $harga;
+            $umum->updateSaldo($id_user, $saldo);
+            return true;
+        }
+        if ($role == USER_ROLE && $trip_fungsi == TIPE_TRIP_CANCEL && $jenis_pembayaran == PEMBAYARAN_SALDO) {
+            $saldo = $saldo_user + $harga;
+            $umum->updateSaldo($id_user, $saldo);
+            return true;
+        }
 
     }
 
@@ -118,11 +197,20 @@ class Trip {
 
     public function cancelOrder($id_trip) {
         $data_order = $this->getTemporaryOrderDetail($id_trip);
+        $data_trip = $this->getTripDetail($id_trip);
+
+        $cancelOrder = new Umum();
+        $cancelOrder->setDb($this->db);
+
         if (empty($data_order)) {
-            $cancelOrder = new Umum();
-            $cancelOrder->setDb($this->db);
+            $saldo_customer = $cancelOrder->getSaldoUser($data_trip['id_customer']);
+            $saldo_driver = $cancelOrder->getSaldoUser($data_trip['id_driver']);
+            $this->saldoTripUser($data_trip['id_customer'], TIPE_TRIP_CANCEL, $data_trip['jenis_pembayaran'], USER_ROLE, $data_trip['total_harga'], $saldo_customer['jumlah_saldo']);
+            $this->saldoTripUser($data_trip['id_driver'], TIPE_TRIP_CANCEL, $data_trip['jenis_pembayaran'], DRIVER_ROLE, $data_trip['total_harga'], $saldo_driver['jumlah_saldo']);
             return $cancelOrder->updateStatusTrip($id_trip, STATUS_CANCEL);
         }
+        $saldo_customer = $cancelOrder->getSaldoUser($data_order['id_customer']);
+        $this->saldoTripUser($data_order['id_customer'], TIPE_TRIP_CANCEL, $data_order['jenis_pembayaran'], USER_ROLE, $data_order['total_harga'], $saldo_customer['jumlah_saldo']);
         $this->deleteTemporaryOrderDetail($id_trip);
         $cek = $this->driverInputOrder(ID_DRIVER_SILUMAN, $data_order, STATUS_CANCEL);
         if (empty($cek)) {
@@ -178,59 +266,88 @@ class Trip {
         $customer_point = (double) $point_customer['jumlah_point'];
         $perusahaan_point = (double) $point_perusahaan['jumlah_point'];
 
-        if ($type == PEMBAYARAN_CASH) {
-            $bersih = ($harga * 0.2);
-            $bonus = $bersih * 0.3;
+        $bersih = ($harga * 0.2);
 
-            $asli = $driver_uang - $bersih;
-            $bayar->updateSaldo($id_driver, $asli);
-
-            // 6% UANG BERSIH PERUSAHAAN
-            $bersih_perusahaan = $perusahaan_point + $bonus;
-            $bayar->updatePoint(ID_PERUSAHAAN, $bersih_perusahaan);
-
-            $bersih_trip = $bonus * 0.5;
-
-            // 3%x2 BONUS TRIP DRIVER DAN CUSTOMER
-            $total_point_driver = $driver_point + $bersih_trip;
+        if ($type == PEMBAYARAN_SALDO) {
+            $bersih_driver = ($harga * 0.8);
+            $total_point_driver = $driver_point + $bersih_driver;
             $bayar->updatePoint($id_driver, $total_point_driver);
-            $this->insertBonusTrip($id_driver, $id_trip, $bersih_trip);
-
-            $total_point_pengguna = $customer_point + $bersih_trip;
-            $bayar->updatePoint($id_customer, $total_point_pengguna);
-            $this->insertBonusTrip($id_customer, $id_trip, $bersih_trip);
-
-            // 3%x2 BONUS LEVEL DRIVER DAN CUSTOMER
-            $atasan_driver = $this->getAllReferalAtasan($id_driver);
-            $bersih_level = $bonus * 0.5;
-            $temp_hasil = $bersih_level;
-            for ($i = 0; $i < count($atasan_driver); $i++) {
-                $temp_hasil = $temp_hasil * 0.5;
-                if ($i + 1 == count($atasan_driver)) {
-                    $temp_hasil = $temp_hasil * 2;
-                }
-                $point_atasan = $bayar->getPointUser($atasan_driver[$i]['id_user_atasan']);
-                $atasan_point = (double) $point_atasan['jumlah_point'];
-                $total_point = $atasan_point + $temp_hasil;
-                $bayar->updatePoint($atasan_driver[$i]['id_user_atasan'], $total_point);
-                $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'], $id_trip, $temp_hasil);
-            }
-
-            $atasan_customer = $this->getAllReferalAtasan($id_customer);
-            $temp_hasil = $bersih_level;
-            for ($i = 0; $i < count($atasan_customer); $i++) {
-                $temp_hasil = $temp_hasil * 0.5;
-                if ($i + 1 == count($atasan_customer)) {
-                    $temp_hasil = $temp_hasil * 2;
-                }
-                $point_atasan = $bayar->getPointUser($atasan_customer[$i]['id_user_atasan']);
-                $atasan_point = (double) $point_atasan['jumlah_point'];
-                $total_point = $atasan_point + $temp_hasil;
-                $bayar->updatePoint($atasan_customer[$i]['id_user_atasan'], $total_point);
-                $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $id_trip, $temp_hasil);
-            }
-
         }
+
+        $point_driver = $bayar->getPointUser($id_driver);
+        $driver_point = (double) $point_driver['jumlah_point'];
+
+        $bonus = $bersih * 0.3;
+
+        // $asli = $driver_uang - $bersih;
+        // $bayar->updateSaldo($id_driver, $asli);
+
+        // 6% UANG BERSIH PERUSAHAAN
+        $bersih_perusahaan = $perusahaan_point + $bonus;
+        $bayar->updatePoint(ID_PERUSAHAAN, $bersih_perusahaan);
+
+        $bersih_trip = $bonus * 0.5;
+
+        // 3%x2 BONUS TRIP DRIVER DAN CUSTOMER
+        $total_point_driver = $driver_point + $bersih_trip;
+        $bayar->updatePoint($id_driver, $total_point_driver);
+        $this->insertBonusTrip($id_driver, $id_trip, $bersih_trip);
+
+        $total_point_pengguna = $customer_point + $bersih_trip;
+        $bayar->updatePoint($id_customer, $total_point_pengguna);
+        $this->insertBonusTrip($id_customer, $id_trip, $bersih_trip);
+
+        // 3%x2 BONUS LEVEL DRIVER DAN CUSTOMER
+        $atasan_driver = $this->getAllReferalAtasan($id_driver);
+        $bersih_level = $bonus * 0.5;
+        $temp_hasil = $bersih_level;
+        for ($i = 0; $i < count($atasan_driver); $i++) {
+            $temp_hasil = $temp_hasil * 0.5;
+            if ($i + 1 == count($atasan_driver)) {
+                $temp_hasil = $temp_hasil * 2;
+            }
+            $point_atasan = $bayar->getPointUser($atasan_driver[$i]['id_user_atasan']);
+            $atasan_point = (double) $point_atasan['jumlah_point'];
+            $total_point = $atasan_point + $temp_hasil;
+            $bayar->updatePoint($atasan_driver[$i]['id_user_atasan'], $total_point);
+            $this->insertBonusLevel($atasan_driver[$i]['id_user_atasan'], $temp_hasil); // ganti
+        }
+
+        $atasan_customer = $this->getAllReferalAtasan($id_customer);
+        $temp_hasil = $bersih_level;
+        for ($i = 0; $i < count($atasan_customer); $i++) {
+            $temp_hasil = $temp_hasil * 0.5;
+            if ($i + 1 == count($atasan_customer)) {
+                $temp_hasil = $temp_hasil * 2;
+            }
+            $point_atasan = $bayar->getPointUser($atasan_customer[$i]['id_user_atasan']);
+            $atasan_point = (double) $point_atasan['jumlah_point'];
+            $total_point = $atasan_point + $temp_hasil;
+            $bayar->updatePoint($atasan_customer[$i]['id_user_atasan'], $total_point);
+            $this->insertBonusLevel($atasan_customer[$i]['id_user_atasan'], $temp_hasil); // ganti
+        }
+
+        // 10% dari Bersih(harga*0.2) digunakan untuk bonus titik dan bonus sponsor
+        $bersih_sponsor_titik = 0.1 * $bersih;
+
+        // 1% BONUS SPONSOR DRIVER DAN CUSTOMER ATASAN
+        $bersih_sponsor = 0.5 * $bersih_sponsor_titik;
+
+        $sponsor_user = 0.5 * $bersih_sponsor;
+        // SPONSOR ATASAN DRIVER
+        $atasan_sponsor_driver = $this->getSponsorUp($id_driver);
+        $point_atasan_sponsor_driver = $bayar->getPointUser($atasan_sponsor_driver['id_user_atasan']);
+        $point_sponsor_driver = $sponsor_user + $point_atasan_sponsor_driver['jumlah_point'];
+        $bayar->updatePoint($atasan_sponsor_driver['id_user_atasan'], $point_sponsor_driver);
+        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $sponsor_user); // ganti
+
+        // SPONSOR ATASAN CUSTOMER
+        $atasan_sponsor_customer = $this->getSponsorUp($id_customer);
+        $point_atasan_sponsor_customer = $bayar->getPointUser($atasan_sponsor_customer['id_user_atasan']);
+        $point_sponsor_customer = $sponsor_user + $point_atasan_sponsor_customer['jumlah_point'];
+        $bayar->updatePoint($atasan_sponsor_customer['id_user_atasan'], $point_sponsor_customer);
+        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $sponsor_user); // ganti
+
         return true;
     }
 
@@ -241,9 +358,16 @@ class Trip {
         return $est->execute();
     }
 
-    public function insertBonusLevel($id_user, $id_trip, $pendapatan) {
-        $sql = "INSERT INTO bonus_level(id_user, id_trip, pendapatan)
-                VALUES('$id_user','$id_trip','$pendapatan')";
+    public function insertBonusLevel($id_user, $pendapatan) { // ganti
+        $sql = "INSERT INTO bonus_level(id_user, pendapatan)
+                VALUES('$id_user','$pendapatan')";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function insertBonusSponsor($id_user, $pendapatan) { // ganti
+        $sql = "INSERT INTO bonus_sponsor(id_user_atasan, pendapatan)
+                VALUES('$id_user','$pendapatan')";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
     }
@@ -267,21 +391,67 @@ class Trip {
     }
 
     public function getAllReferalBawahan($id) {
+        $getUser = new Umum();
+        $getUser->setDb($this->db);
         $id_bawah = [];
         $i = 0;
-        $j = 0;
         $state = true;
-        $temp_id = $id;
+        $state2 = true;
+        $data_user = $getUser->cekUser($id);
+        $data = $this->getReferalDown($id);
+        $id_bawah[0] = $data;
+
+        $i = count($data);
+        $data_lengkap = [
+            'id_user' => $id,
+            'nama' => decrypt($data_user['nama'], MOUGO_CRYPTO_KEY),
+            'jumlah_mitra_referal' => $i,
+            'mitra_referal' => [],
+        ];
+        if (empty($data)) {
+            return ['status' => 'Error', 'message' => 'Tidak ditemukan user yang menggunakan referal dengan id user tersebut', 'data' => $data_lengkap];
+        }
+        $k = 0;
         while ($state) {
-            $data = $this->getReferalDown($temp_id);
-            if ($data['id_user_atasan'] == $id_bawah[$i]) {
+            $c = 0;
+            $state2 = true;
+            while ($state2) {
+                $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
+                if ($id_bawah[$k][$c]['id_user'] == ID_PERUSAHAAN) {
+                    if (count($id_bawah[$k]) - 1 <= $c) {
+                        $state2 = false;
+                    }
+                    $c++;
+                    continue;
+                }
+
+                if (empty($id_bawah[$k + 1]) && !empty($temp)) {
+                    $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
+                    $id_bawah[$k + 1] = $temp;
+                    $i = $i + count($temp);
+                } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
+                    array_push($id_bawah[$k + 1], $temp);
+                }
+
+                if (count($id_bawah[$k]) - 1 <= $c) {
+                    $state2 = false;
+                }
+                $c++;
+            }
+            if (count($id_bawah) - 1 <= $k) {
                 $state = false;
             }
-            $id_bawah[$i] = $data;
-            $temp_id = $id_bawah[$i];
-            $i++;
+            $k++;
         }
-        return $id_bawah;
+        $data_lengkap = [
+            'id_user' => $id,
+            'nama' => decrypt($data_user['nama'], MOUGO_CRYPTO_KEY),
+            'jumlah_mitra_referal' => $i,
+            'mitra_referal' => $id_bawah,
+        ];
+
+        return ['status' => 'Success', 'message' => 'User Referal Ditemukan', 'data' => $data_lengkap];
+
     }
 
     public function getReferalUp($id) {
@@ -293,8 +463,27 @@ class Trip {
     }
 
     public function getReferalDown($id) {
-        $sql = "SELECT * FROM kode_referal
-                WHERE id_user_atasan = '$id'";
+        $sql = "SELECT kode_referal.*, kode_sponsor.kode_sponsor, user.nama FROM kode_referal
+                INNER JOIN kode_sponsor ON kode_sponsor.id_user = kode_referal.id_user
+                INNER JOIN user ON user.id_user = kode_referal.id_user
+                WHERE kode_referal.id_user_atasan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getReferalDownSys($id) {
+        $sql = "SELECT kode_referal.* FROM kode_referal
+                WHERE kode_referal.id_user_atasan = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
+    public function getReferalDownSysFull($id) {
+        $sql = "SELECT kode_referal.*, user.role FROM kode_referal
+                INNER JOIN user ON user.id_user = kode_referal.id_user
+                WHERE kode_referal.id_user_atasan = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->fetchAll();

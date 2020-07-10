@@ -79,8 +79,14 @@ class User {
         //Kode Referal dan sponsor regenerate
         $kodeRefSp = $this->generateKodeRefSp();
 
+        $this->kode_referal = $this->cekReferalUser($this->kode_referal);
         //CEK Kode Referal dan Sponsor Atasan
         $atasanRefSp = $this->atasanRefSp();
+
+        $user_email = decrypt($user_email, MOUGO_CRYPTO_KEY);
+        $user_email = str_replace(' ', '', $user_email);
+        $user_email = encrypt($user_email, MOUGO_CRYPTO_KEY);
+        $this->email = $user_email;
 
         if (empty($atasanRefSp)) {
             return ['status' => 'Error', 'message' => 'Referal Atasan Tidak Ditemukan'];
@@ -132,6 +138,13 @@ class User {
             'id_user' => $result['id_user'],
             'token' => $result['token'],
         ];
+
+        if ($role == DRIVER_ROLE) {
+            $driver = new Driver(null, null, null, null, null);
+            $driver->setDb($this->db);
+            $data_driver = $driver->getProfileDriver($result['id_user']);
+            $res['jenis_kendaraan'] = $data_driver['jenis_kendaraan'];
+        }
 
         if ($result['password'] == $this->password) {
             return ['status' => 'Success', 'data' => $res];
@@ -244,7 +257,7 @@ class User {
             case REGISTER:
                 $isValid = true;
                 if (empty($this->kode_referal)) {
-                    $this->kode_referal = KODE_REFERAL_DMS;
+                    $this->kode_referal = $this->kodeReferalGet(ID_PERUSAHAAN);
                 }
                 if (empty($this->kode_sponsor)) {
                     $this->kode_sponsor = KODE_SPONSOR_DMS;
@@ -258,6 +271,76 @@ class User {
 
     }
 
+    public function cekReferalUser($referal_atasan){
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $id_user_ref = $this->getIdUserReferal($referal_atasan);
+        $data_referal = $getBawahan->getReferalDownSys($id_user_ref);
+        if(empty($data_referal) || (count($data_referal)<2)){
+            return $referal_atasan;
+        }
+        return $this->kodeReferalGet($id_user_ref);
+    }
+
+    public function getIdUserReferal($kode_ref){
+        $sql_ref_cek = "SELECT id_user AS id_atasan FROM kode_referal
+                        WHERE kode_referal = '$kode_ref'";
+
+        $est1 = $this->db->prepare($sql_ref_cek);
+        $est1->execute();
+        $stmt = $est1->fetch();
+        return $stmt['id_atasan'];
+    }
+
+    public function kodeReferalGet($id) {
+        $getBawahan = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        $getBawahan->setDb($this->db);
+        $bawahPerusahaan = $getBawahan->getReferalDownSys($id);
+        if(empty($bawahPerusahaan)){
+            return KODE_REFERAL_DMS;
+        }
+        $tampungBawah[0] = $bawahPerusahaan;
+        $state = true;
+        $i = 0;
+        while($state){
+            $j = 0;
+            $state2 = true;
+
+            while($state2){
+                if($tampungBawah[$i][$j]['id_user'] == ID_PERUSAHAAN){
+                    if(empty($tampungBawah[$i][$j+1])){
+                        $state2 = false;
+                    }
+                    $j++;
+                    continue;
+                }
+                $temp = $getBawahan->getReferalDownSys($tampungBawah[$i][$j]['id_user']);
+                
+                if(empty($temp) || (count($temp)<2)){
+                    return $tampungBawah[$i][$j]['kode_referal'];
+                }
+                if(empty($tampungBawah[$i+1])){
+                    $tampungBawah[$i+1] = [];
+                    $tampungBawah[$i+1] = $temp;
+                }else{
+                    $tampungBawah[$i+1] = array_merge($tampungBawah[$i+1], $temp);
+                }
+                if(empty($tampungBawah[$i][$j+1])){
+                    $state2 = false;
+                }
+
+                $j++;
+            }
+
+            if(empty($tampungBawah[$i+1])){
+                $state = false;
+            }
+
+            $i++;
+        }
+        
+    }
+
     public function konfirmasiSelesai($id_user) {
         $data = $this->cekStatusUser($id_user, STATUS_AKUN_AKTIF);
         if (empty($id_user) || empty($data)) {
@@ -266,6 +349,13 @@ class User {
         $this->setId_user($id_user);
         if ($data['status_aktif_trip'] != 3) {
             return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun, Akun Telah Aktif'];
+        }
+        if ($data['role'] == USER_ROLE) {
+            //Token saldo point input
+            if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertDetailProfile() && $this->gantiStatusAkun()) {
+                return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
+            }
+            return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];
         }
         //Token saldo point input
         if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition() && $this->insertDetailProfile() && $this->gantiStatusAkun()) {
