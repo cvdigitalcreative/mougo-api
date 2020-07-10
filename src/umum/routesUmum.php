@@ -300,6 +300,7 @@ $app->post('/common/transfer/{id_user}', function ($request, $response, $args) {
     if ($args['id_user'] == $penerima['id_user']) {
         return $response->withJson(['status' => 'Error', 'message' => 'Anda Tidak Bisa Transfer Ke Akun Anda Sendiri'], SERVER_OK);
     }
+  
     $cek_transfer = new Owner(null,null);
     $cek_transfer->setDb($this->db);
     $minimal_tf = $cek_transfer->getMinimalTransfer();
