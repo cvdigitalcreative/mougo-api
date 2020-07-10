@@ -415,44 +415,36 @@ class Trip {
         for ($i=0; $i < count($id_bawah[0]); $i++) { 
             $id_bawah[0][$i]['nama'] = decrypt($id_bawah[0][$i]['nama'], MOUGO_CRYPTO_KEY);
         }
-        while ($state) {
-            $c = 0;
-            $state2 = true;
-            while ($state2) {
-                $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
-                if ($id_bawah[$k][$c]['id_user'] == ID_PERUSAHAAN) {
-                    if (count($id_bawah[$k]) - 1 <= $c) {
-                        $state2 = false;
-                    }
-                    $c++;
-                    continue;
-                }
+        // while ($state) {
+        //     $c = 0;
+        //     $state2 = true;
+        //     while ($state2) {
+        //         $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
+        //         if ($id_bawah[$k][$c]['id_user'] == ID_PERUSAHAAN) {
+        //             if (count($id_bawah[$k]) - 1 <= $c) {
+        //                 $state2 = false;
+        //             }
+        //             $c++;
+        //             continue;
+        //         }
 
-                if (empty($id_bawah[$k + 1]) && !empty($temp)) {
-                    for ($i=0; $i < count($temp); $i++) { 
-                        $temp[$i]['nama'] = decrypt($temp[$i]['nama'], MOUGO_CRYPTO_KEY);
-                    }
-                    $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
-                    $id_bawah[$k + 1] = $temp;
-                    $i = $i + count($temp);
-                } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
-                    for ($i=0; $i < count($temp); $i++) { 
-                        $temp[$i]['nama'] = decrypt($temp[$i]['nama'], MOUGO_CRYPTO_KEY);
-                    }
-                    $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
-                    array_push($id_bawah[$k + 1], $temp);
-                }
+        //         if (empty($id_bawah[$k + 1]) && !empty($temp)) {
+        //             $id_bawah[$k + 1] = $temp;
+        //             $i = $i + count($temp);
+        //         } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
+        //             array_push($id_bawah[$k + 1], $temp);
+        //         }
 
-                if (count($id_bawah[$k]) - 1 <= $c) {
-                    $state2 = false;
-                }
-                $c++;
-            }
-            if (count($id_bawah) - 1 <= $k) {
-                $state = false;
-            }
-            $k++;
-        }
+        //         if (count($id_bawah[$k]) - 1 <= $c) {
+        //             $state2 = false;
+        //         }
+        //         $c++;
+        //     }
+        //     if (count($id_bawah) - 1 <= $k) {
+        //         $state = false;
+        //     }
+        //     $k++;
+        // }
         $data_lengkap = [
             'id_user' => $id,
             'nama' => decrypt($data_user['nama'], MOUGO_CRYPTO_KEY),
