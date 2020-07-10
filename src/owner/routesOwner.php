@@ -809,3 +809,19 @@ $app->put('/owner/harga/perkilo/{id}', function ($request, $response, $args) {
     $owner->setDb($this->db);
     return $response->withJson($owner->editHargaPerkiloTrip($args['id'], $update['harga_perkilo_motor'], $update['harga_perkilo_mobil']), SERVER_OK);
 });
+
+// OWNER GET TRANSFER
+$app->get('/owner/transfer/minimal/', function ($request, $response) {
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    $data = $owner->getMinimalTransfer();
+    return $response->withJson(['status' => 'Success', 'data' => $data], SERVER_OK);
+});
+
+// OWNER UPDATE TRANSFER
+$app->put('/owner/transfer/minimal/{id}', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->editMinimalTransfer($args['id'], $update['transfer_minimal']), SERVER_OK);
+});
