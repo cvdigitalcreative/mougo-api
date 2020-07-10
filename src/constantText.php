@@ -175,3 +175,4 @@ define('ID_BONUS_TITIK', 5);
 
 // BONUS TITIK 
 define('BONUS_TITIK_POINT', 1000);
+define('MINIMAL_TITIK_PERHARI', 10);
