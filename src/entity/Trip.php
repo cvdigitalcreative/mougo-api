@@ -61,6 +61,9 @@ class Trip {
             }
         }
         // $this->hitungHarga();
+        if ($this->cekTemporaryId() == 0 || $this->cekTemporaryId() == 1) {
+            $this->resetAutoIncrement($this->cekMaxId() + 1);
+        }
         $data['id_trip'] = $this->inputTemporaryOrder();
         if (!$data['id_trip']) {
             return ['status' => 'Error', 'message' => 'Pemesanan Error'];
@@ -68,6 +71,32 @@ class Trip {
         $data['status_trip'] = $this->status_trip;
         return ['status' => 'Success', 'data' => $data];
 
+    }
+
+    public function cekTemporaryId() {
+        $sql = "SELECT AUTO_INCREMENT AS id
+                FROM information_schema.tables
+                WHERE table_name = 'temporary_order'
+                AND table_schema = DATABASE() ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt['id'];
+    }
+
+    public function resetAutoIncrement($id) {
+        $sql = "ALTER TABLE temporary_order AUTO_INCREMENT = '$id'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function cekMaxId() {
+        $sql = "SELECT MAX(id_trip) AS max_id
+                FROM trip";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetch();
+        return $stmt['max_id'];
     }
 
     private function isDataValid() {
@@ -304,7 +333,6 @@ class Trip {
         // 1% BONUS SPONSOR DRIVER DAN CUSTOMER ATASAN
         $bersih_sponsor = 0.5 * $bersih_sponsor_titik;
 
-        
         $sponsor_user = 0.5 * $bersih_sponsor;
         // SPONSOR ATASAN DRIVER
         $atasan_sponsor_driver = $this->getSponsorUp($id_driver);
@@ -319,8 +347,6 @@ class Trip {
         $point_sponsor_customer = $sponsor_user + $point_atasan_sponsor_customer['jumlah_point'];
         $bayar->updatePoint($atasan_sponsor_customer['id_user_atasan'], $point_sponsor_customer);
         $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $sponsor_user); // ganti
-
-        
 
         return true;
     }
