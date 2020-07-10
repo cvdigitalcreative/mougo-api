@@ -345,6 +345,9 @@ class Owner {
         if (empty($admin->cekDataAdmin($id, null))) {
             return ['status' => 'Error', 'message' => "Admin tidak ditemukan"];
         }
+        if (empty($nama) && empty($password) && empty($no_telpon)) {
+            return ['status' => 'Success', 'message' => "Tidak Ada Item Admin Yang Diupdate"];
+        }
         $sql = "UPDATE admin
                 SET ";
         if (!empty($nama)) {
