@@ -790,7 +790,7 @@ class Owner {
         for ($i = 0; $i < count($data2); $i++) {
             $jumlah = $jumlah + count($data2[$i]);
         }
-        $data['jumlah_mitra'] = $jumlah - 1;
+        $data['jumlah_mitra'] = $this->countsUser();
         $data['jumlah_mitra_level1'] = (double) count($data2[0]) - 1;
         $data['jumlah_mitra_level2'] = (double) count($data2[1]);
         $data['jumlah_mitra_level3'] = (double) count($data2[2]);
