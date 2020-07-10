@@ -200,26 +200,34 @@ class Umum {
     }
 
     public function getHargaTotal($jarak) {
+        $cek_harga = new Owner(null,null);
+        $cek_harga->setDb($this->db);
+        $minimal_harga = $cek_harga->getHargaAwalTrip();
+        $perkilo_harga = $cek_harga->getHargaPerkiloTrip();
         if ($jarak <= JARAK_MINIMAL) {
-            return ['status' => 'Success', 'harga' => HARGA_JARAK_MINIMAL];
+            return ['status' => 'Success', 'harga' => $minimal_harga[0]['harga_awal_motor']];
         } else {
-            $harga = HARGA_JARAK_MINIMAL;
+            $harga = $minimal_harga[0]['harga_awal_motor'];
             $jarak_pertama = JARAK_MINIMAL + 1;
             for ($i = $jarak_pertama; $i <= $jarak; $i++) {
-                $harga = $harga + HARGA_JARAK_PERKILO;
+                $harga = $harga + $perkilo_harga[0]['harga_perkilo_motor'];
             }
             return ['status' => 'Success', 'harga' => $harga];
         }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
     }
 
     public function getHargaTotalCar($jarak) {
+        $cek_harga = new Owner(null,null);
+        $cek_harga->setDb($this->db);
+        $minimal_harga = $cek_harga->getHargaAwalTrip();
+        $perkilo_harga = $cek_harga->getHargaPerkiloTrip();
         if ($jarak <= JARAK_MINIMAL) {
-            return ['status' => 'Success', 'harga' => HARGA_JARAK_MINIMAL_CAR];
+            return ['status' => 'Success', 'harga' => $minimal_harga[0]['harga_awal_mobil']];
         } else {
-            $harga = HARGA_JARAK_MINIMAL_CAR;
+            $harga = $minimal_harga[0]['harga_awal_mobil'];
             $jarak_pertama = JARAK_MINIMAL + 1;
             for ($i = $jarak_pertama; $i <= $jarak; $i++) {
-                $harga = $harga + HARGA_JARAK_PERKILO_CAR;
+                $harga = $harga + $perkilo_harga[0]['harga_perkilo_mobil'];
             }
             return ['status' => 'Success', 'harga' => $harga];
         }return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Harga'];
@@ -252,13 +260,18 @@ class Umum {
             ':admin' => ADMIN_SILUMAN_MOUGO,
         ];
         $est = $this->getDb()->prepare($sql);
+
+        $cek_bank = new Owner(null,null);
+        $cek_bank->setDb($this->db);
+        $bank_mougo = $cek_bank->getBankMougo();
+        
         if ($est->execute($data)) {
             $data = [
                 'id_topup' => $id,
                 'jumlah_topup' => $jumlah_topup,
-                'no_rek' => NO_REK_PERUSAHAAN,
-                'nama_rek' => NAMA_REK_PERUSAHAAN,
-                'nama_bank' => NAMA_BANK_PERUSAHAAN,
+                'no_rek' => $bank_mougo[0]['norek_bank'],
+                'nama_rek' => $bank_mougo[0]['atas_nama_bank'],
+                'nama_bank' => $bank_mougo[0]['nama_bank'],
             ];
             return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data' => $data];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
@@ -941,11 +954,14 @@ class Umum {
         if (empty($data)) {
             return ['status' => 'Success', 'data' => []];
         }
+        $cek_bank = new Owner(null,null);
+        $cek_bank->setDb($this->db);
+        $bank_mougo = $cek_bank->getBankMougo();
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['jumlah_topup'] = (double) $data[$i]['jumlah_topup'];
-            $data[$i]['no_rek'] = NO_REK_PERUSAHAAN;
-            $data[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
-            $data[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
+            $data[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
+            $data[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
+            $data[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
             if ($data[$i]['status'] == TOPUP_ACCEPT_NAME) {
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
             }
@@ -1132,13 +1148,17 @@ class Umum {
         $data2 = $this->getTopupHistory($id);
         $data3 = $this->getHistoryWithdraw($id);
         $data4 = $this->getTransferHistory($id);
+        
+        $cek_bank = new Owner(null,null);
+        $cek_bank->setDb($this->db);
+        $bank_mougo = $cek_bank->getBankMougo();
 
         if (!empty($data2)) {
             for ($i = 0; $i < count($data2); $i++) {
                 $data2[$i]['jumlah_topup'] = (double) $data2[$i]['jumlah_topup'];
-                $data2[$i]['no_rek'] = NO_REK_PERUSAHAAN;
-                $data2[$i]['nama_rek'] = NAMA_REK_PERUSAHAAN;
-                $data2[$i]['nama_bank'] = NAMA_BANK_PERUSAHAAN;
+                $data2[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
+                $data2[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
+                $data2[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
                 if ($data2[$i]['status'] == TOPUP_ACCEPT_NAME) {
                     $data2[$i]['message'] = PESAN_TOPUP_ACCEPT;
                 }
@@ -1220,8 +1240,11 @@ class Umum {
     }
 
     public function getEmergency() {
+        $cek_emergency = new Owner(null,null);
+        $cek_emergency->setDb($this->db);
+        $emergency = $cek_emergency->getNomorEmergency();
         $data = [
-            'nomor_emergency' => NOMOR_EMERGENCY,
+            'nomor_emergency' => $emergency[0]['nomor_emergency'],
         ];
         return ['status' => 'Success', 'data' => $data, 'message' => 'Nomor Emergency Mougo'];
     }
