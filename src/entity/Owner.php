@@ -1742,6 +1742,77 @@ class Owner {
         return $est->rowCount();
     }
 
+    private $column_search_topup_driver = array('nama', 'jumlah_topup', 'status', 'nama_admin', 'tanggal_topup');
+    private $topup_driver_id = array('nama' => 'asc');
+
+    public function getTopupDriverWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getTopupDriverQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getTopupDriverQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, top_up.jumlah_topup, status_topup.status, admin.nama_admin, top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN admin ON admin.email_admin = top_up.admin
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup
+                WHERE user.role = '2' ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 4) {
+                $temp = "top_up"; 
+            } else if ($order_by == 2){
+                $temp = "status_topup";
+            } else if ($order_by == 3){
+                $temp = "admin";
+            }
+            $order_in = $this->column_search_topup_driver[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->topup_driver_id)) {
+            $order_by = $this->topup_driver_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsTopupDriver() {
+        $sql = "SELECT user.nama, top_up.jumlah_topup, status_topup.status, admin.nama_admin, top_up.tanggal_topup FROM top_up
+                INNER JOIN user ON user.id_user = top_up.id_user
+                INNER JOIN admin ON admin.email_admin = top_up.admin
+                INNER JOIN status_topup ON status_topup.id = top_up.status_topup
+                WHERE user.role = '2'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
     public function getNomorEmergency() {
         $sql = "SELECT * FROM nomor_emergency";
         $est = $this->getDb()->prepare($sql);

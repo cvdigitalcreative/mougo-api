@@ -748,6 +748,27 @@ $app->post('/owner/trip/driver/web/', function ($request, $response) {
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTripDriver(), 'recordsFiltered' => $owner->countsTripDriver(), 'data' => $trip], SERVER_OK);
 });
 
+// OWNER GET ALL TOPUP DRIVER
+$app->post('/owner/topup/driver/web/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $trip = $owner->getTopupDriverWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Topup Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($trip); $i++) {
+        $trip[$i]['nama'] = decrypt($trip[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $trip[$i]['jumlah_topup'] = (double) $trip[$i]['jumlah_topup'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsTopupDriver(), 'recordsFiltered' => $owner->countsTopupDriver(), 'data' => $trip], SERVER_OK);
+});
+
+
 // OWNER GET NOMOR EMERGENCY
 $app->get('/owner/nomor/emergency/', function ($request, $response) {
     $owner = new Owner(null, null);
