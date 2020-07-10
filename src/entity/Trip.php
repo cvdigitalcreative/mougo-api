@@ -412,6 +412,9 @@ class Trip {
             return ['status' => 'Error', 'message' => 'Tidak ditemukan user yang menggunakan referal dengan id user tersebut', 'data' => $data_lengkap];
         }
         $k = 0;
+        for ($i=0; $i < count($id_bawah[0]); $i++) { 
+            $id_bawah[0][$i]['nama'] = decrypt($id_bawah[0][$i]['nama'], MOUGO_CRYPTO_KEY);
+        }
         while ($state) {
             $c = 0;
             $state2 = true;
@@ -426,10 +429,17 @@ class Trip {
                 }
 
                 if (empty($id_bawah[$k + 1]) && !empty($temp)) {
+                    for ($i=0; $i < count($temp); $i++) { 
+                        $temp[$i]['nama'] = decrypt($temp[$i]['nama'], MOUGO_CRYPTO_KEY);
+                    }
                     $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
                     $id_bawah[$k + 1] = $temp;
                     $i = $i + count($temp);
                 } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
+                    for ($i=0; $i < count($temp); $i++) { 
+                        $temp[$i]['nama'] = decrypt($temp[$i]['nama'], MOUGO_CRYPTO_KEY);
+                    }
+                    $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
                     array_push($id_bawah[$k + 1], $temp);
                 }
 
