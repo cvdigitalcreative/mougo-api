@@ -936,13 +936,42 @@ class Umum {
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
         }
         $data = $this->getTransferHistory($id);
-        if (empty($data)) {
+        $data2 = $this->getTransferHistoryReceipt($id);
+        if (empty($data) && empty($data2)) {
             return ['status' => 'Success', 'data' => []];
         }
+
         for ($i = 0; $i < count($data); $i++) {
+            $data[$i]['message'] = PESAN_TRANSFER;
             $data[$i]['total_transfer'] = (double) $data[$i]['total_transfer'];
         }
-        return ['status' => 'Success', 'data' => $data];
+        for ($i = 0; $i < count($data2); $i++) {
+            $data2[$i]['message'] = PESAN_TRANSFER_DITERIMA;
+            $data2[$i]['total_transfer'] = (double) $data2[$i]['total_transfer'];
+        }
+
+        $data_lengkap = array_merge($data,$data2);
+
+        for ($i = 0; $i < count($data_lengkap); $i++) {
+            $swapped = false;
+
+            for ($j = 0; $j < count($data_lengkap) - $i - 1; $j++) {
+
+                if ($data_lengkap[$j]['tanggal_transfer'] < $data_lengkap[$j + 1]['tanggal_transfer']) {
+                    $t = $data_lengkap[$j];
+                    $data_lengkap[$j] = $data_lengkap[$j + 1];
+                    $data_lengkap[$j + 1] = $t;
+                    $swapped = true;
+                }
+            }
+
+            if ($swapped == false) {
+                break;
+            }
+
+        }
+
+        return ['status' => 'Success', 'data' => $data_lengkap];
     }
 
     public function getTopupHistory($id) {
