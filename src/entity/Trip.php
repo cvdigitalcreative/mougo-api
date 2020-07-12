@@ -333,20 +333,19 @@ class Trip {
         // 1% BONUS SPONSOR DRIVER DAN CUSTOMER ATASAN
         $bersih_sponsor = 0.5 * $bersih_sponsor_titik;
 
-        $sponsor_user = 0.5 * $bersih_sponsor;
         // SPONSOR ATASAN DRIVER
         $atasan_sponsor_driver = $this->getSponsorUp($id_driver);
         $point_atasan_sponsor_driver = $bayar->getPointUser($atasan_sponsor_driver['id_user_atasan']);
-        $point_sponsor_driver = $sponsor_user + $point_atasan_sponsor_driver['jumlah_point'];
+        $point_sponsor_driver = $bersih_sponsor + $point_atasan_sponsor_driver['jumlah_point'];
         $bayar->updatePoint($atasan_sponsor_driver['id_user_atasan'], $point_sponsor_driver);
-        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $sponsor_user); // ganti
+        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $bersih_sponsor); // ganti
 
         // SPONSOR ATASAN CUSTOMER
         $atasan_sponsor_customer = $this->getSponsorUp($id_customer);
         $point_atasan_sponsor_customer = $bayar->getPointUser($atasan_sponsor_customer['id_user_atasan']);
-        $point_sponsor_customer = $sponsor_user + $point_atasan_sponsor_customer['jumlah_point'];
+        $point_sponsor_customer = $bersih_sponsor + $point_atasan_sponsor_customer['jumlah_point'];
         $bayar->updatePoint($atasan_sponsor_customer['id_user_atasan'], $point_sponsor_customer);
-        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $sponsor_user); // ganti
+        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $bersih_sponsor); // ganti
 
         return true;
     }
