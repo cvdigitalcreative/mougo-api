@@ -333,20 +333,19 @@ class Trip {
         // 1% BONUS SPONSOR DRIVER DAN CUSTOMER ATASAN
         $bersih_sponsor = 0.5 * $bersih_sponsor_titik;
 
-        $sponsor_user = 0.5 * $bersih_sponsor;
         // SPONSOR ATASAN DRIVER
         $atasan_sponsor_driver = $this->getSponsorUp($id_driver);
         $point_atasan_sponsor_driver = $bayar->getPointUser($atasan_sponsor_driver['id_user_atasan']);
-        $point_sponsor_driver = $sponsor_user + $point_atasan_sponsor_driver['jumlah_point'];
+        $point_sponsor_driver = $bersih_sponsor + $point_atasan_sponsor_driver['jumlah_point'];
         $bayar->updatePoint($atasan_sponsor_driver['id_user_atasan'], $point_sponsor_driver);
-        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $sponsor_user); // ganti
+        $this->insertBonusSponsor($atasan_sponsor_driver['id_user_atasan'], $bersih_sponsor); // ganti
 
         // SPONSOR ATASAN CUSTOMER
         $atasan_sponsor_customer = $this->getSponsorUp($id_customer);
         $point_atasan_sponsor_customer = $bayar->getPointUser($atasan_sponsor_customer['id_user_atasan']);
-        $point_sponsor_customer = $sponsor_user + $point_atasan_sponsor_customer['jumlah_point'];
+        $point_sponsor_customer = $bersih_sponsor + $point_atasan_sponsor_customer['jumlah_point'];
         $bayar->updatePoint($atasan_sponsor_customer['id_user_atasan'], $point_sponsor_customer);
-        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $sponsor_user); // ganti
+        $this->insertBonusSponsor($atasan_sponsor_customer['id_user_atasan'], $bersih_sponsor); // ganti
 
         return true;
     }
@@ -412,37 +411,39 @@ class Trip {
             return ['status' => 'Error', 'message' => 'Tidak ditemukan user yang menggunakan referal dengan id user tersebut', 'data' => $data_lengkap];
         }
         $k = 0;
-        while ($state) {
-            $c = 0;
-            $state2 = true;
-            while ($state2) {
-                $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
-                if ($id_bawah[$k][$c]['id_user'] == ID_PERUSAHAAN) {
-                    if (count($id_bawah[$k]) - 1 <= $c) {
-                        $state2 = false;
-                    }
-                    $c++;
-                    continue;
-                }
-
-                if (empty($id_bawah[$k + 1]) && !empty($temp)) {
-                    $id_bawah[$k][$c]['nama'] = decrypt($id_bawah[$k][$c]['nama'], MOUGO_CRYPTO_KEY);
-                    $id_bawah[$k + 1] = $temp;
-                    $i = $i + count($temp);
-                } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
-                    array_push($id_bawah[$k + 1], $temp);
-                }
-
-                if (count($id_bawah[$k]) - 1 <= $c) {
-                    $state2 = false;
-                }
-                $c++;
-            }
-            if (count($id_bawah) - 1 <= $k) {
-                $state = false;
-            }
-            $k++;
+        for ($i=0; $i < count($id_bawah[0]); $i++) { 
+            $id_bawah[0][$i]['nama'] = decrypt($id_bawah[0][$i]['nama'], MOUGO_CRYPTO_KEY);
         }
+        // while ($state) {
+        //     $c = 0;
+        //     $state2 = true;
+        //     while ($state2) {
+        //         $temp = $this->getReferalDown($id_bawah[$k][$c]['id_user']);
+        //         if ($id_bawah[$k][$c]['id_user'] == ID_PERUSAHAAN) {
+        //             if (count($id_bawah[$k]) - 1 <= $c) {
+        //                 $state2 = false;
+        //             }
+        //             $c++;
+        //             continue;
+        //         }
+
+        //         if (empty($id_bawah[$k + 1]) && !empty($temp)) {
+        //             $id_bawah[$k + 1] = $temp;
+        //             $i = $i + count($temp);
+        //         } else if (!empty($id_bawah[$k + 1]) && !empty($temp)) {
+        //             array_push($id_bawah[$k + 1], $temp);
+        //         }
+
+        //         if (count($id_bawah[$k]) - 1 <= $c) {
+        //             $state2 = false;
+        //         }
+        //         $c++;
+        //     }
+        //     if (count($id_bawah) - 1 <= $k) {
+        //         $state = false;
+        //     }
+        //     $k++;
+        // }
         $data_lengkap = [
             'id_user' => $id,
             'nama' => decrypt($data_user['nama'], MOUGO_CRYPTO_KEY),

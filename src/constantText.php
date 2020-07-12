@@ -151,7 +151,8 @@ define('TYPE_WITHDRAW', 'Withdraw');
 define('TYPE_TOPUP', 'Topup');
 define('TYPE_TRANSFER', 'Transfer');
 
-define('PESAN_TRANSFER', 'Transfer saldo berhasil');
+define('PESAN_TRANSFER', 'Transfer saldo berhasil Dikirim');
+define('PESAN_TRANSFER_DITERIMA', 'Transfer saldo berhasil Diterima');
 
 // TIPE TRIP 
 define('TIPE_TRIP_ACCEPT', 1);
