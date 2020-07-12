@@ -920,6 +920,17 @@ class Umum {
         return $stmt;
     }
 
+    public function getTransferHistoryReceipt($id) {
+        $sql = "SELECT user.nama,user.email,user.no_telpon,transfer.total_transfer,transfer.tanggal_transfer FROM transfer
+                INNER JOIN user ON user.id_user = transfer.sender_user_id
+                WHERE transfer.receipent_user_id = '$id'
+                ORDER BY transfer.tanggal_transfer DESC";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
     public function getTransferHistoryUser($id) {
         if (empty($this->cekUser($id))) {
             return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
@@ -1148,6 +1159,7 @@ class Umum {
         $data2 = $this->getTopupHistory($id);
         $data3 = $this->getHistoryWithdraw($id);
         $data4 = $this->getTransferHistory($id);
+        $data5 = $this->getTransferHistoryReceipt($id);
         
         $cek_bank = new Owner(null,null);
         $cek_bank->setDb($this->db);
@@ -1205,12 +1217,26 @@ class Umum {
             }
         }
 
+        if (!empty($data5)) {
+            for ($i = 0; $i < count($data5); $i++) {
+                $data5[$i]['total_transfer'] = (double) $data5[$i]['total_transfer'];
+                $data5[$i]['message'] = PESAN_TRANSFER_DITERIMA;
+                $data5[$i]['tanggal'] = $data5[$i]['tanggal_transfer'];
+                $data5[$i]['type'] = TYPE_TRANSFER;
+                unset($data5[$i]['tanggal_transfer']);
+            }
+        }
+
         for ($i = 0; $i < count($data2); $i++) {
             $data[count($data)] = $data2[$i];
         }
 
         for ($i = 0; $i < count($data4); $i++) {
             $data[count($data)] = $data4[$i];
+        }
+
+        for ($i = 0; $i < count($data5); $i++) {
+            $data[count($data)] = $data5[$i];
         }
 
         for ($i = 0; $i < count($data); $i++) {
