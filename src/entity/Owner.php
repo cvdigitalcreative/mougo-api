@@ -931,6 +931,83 @@ class Owner {
         return $est->rowCount();
     }
 
+    private $column_search_driver_location = array('nama', 'email', 'no_telpon', 'no_polisi', 'cabang', 'jenis_kendaraan', 'merk_kendaraan', 'latitude', 'longitude');
+    private $driver_location_id = array('nama' => 'asc');
+
+    public function getDriverLocationWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getDriverLocationQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getDriverLocationQuery($order_by, $order, $search) {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN position ON position.id_user = user.id_user
+                WHERE user.role = 2
+                AND driver.status_online = 1 ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0 || $order_by == 1 || $order_by == 2) {
+                $temp = "user";
+            } else if ($order_by == 3 || $order_by == 4 || $order_by == 5 || $order_by == 6) {
+                $temp = "driver";
+            } else if ($order_by == 7 || $order_by == 8) {
+                $temp = "position";
+            }
+            $order_in = $this->column_search_driver_location[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->driver_location_id)) {
+            $order_by = $this->driver_location_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsDriverLocation() {
+        $sql = "SELECT * FROM user
+                INNER JOIN driver ON driver.id_user = user.id_user
+                INNER JOIN cabang ON cabang.id = driver.cabang
+                INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+                INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN bank ON bank.code = detail_user.bank
+                INNER JOIN position ON position.id_user = user.id_user
+                WHERE user.role = 2
+                AND driver.status_online = 1 ";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
     private $column_search_customer = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'no_rekening', 'nama_bank', 'kode_referal', 'kode_sponsor');
     private $customer_id = array('nama' => 'asc');
 
@@ -1786,10 +1863,10 @@ class Owner {
             if ($order_by == 0) {
                 $temp = "user";
             } else if ($order_by == 1 || $order_by == 4) {
-                $temp = "top_up"; 
-            } else if ($order_by == 2){
+                $temp = "top_up";
+            } else if ($order_by == 2) {
                 $temp = "status_topup";
-            } else if ($order_by == 3){
+            } else if ($order_by == 3) {
                 $temp = "admin";
             }
             $order_in = $this->column_search_topup_driver[$order_by];
@@ -1811,6 +1888,67 @@ class Owner {
                 INNER JOIN admin ON admin.email_admin = top_up.admin
                 INNER JOIN status_topup ON status_topup.id = top_up.status_topup
                 WHERE user.role = '2'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
+    }
+
+    private $column_search_bantuan = array('nama', 'pertanyaan', 'jawaban', 'tanggal_bantuan');
+    private $bantuan_id = array('nama' => 'asc');
+
+    public function getBantuanWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getBantuanQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getBantuanQuery($order_by, $order, $search) {
+        $sql = "SELECT user.nama, bantuan.pertanyaan, bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user ";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 2 || $order_by == 3) {
+                $temp = "bantuan";
+            }
+            $order_in = $this->column_search_bantuan[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->bantuan_id)) {
+            $order_by = $this->bantuan_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsBantuan() {
+        $sql = "SELECT user.nama, bantuan.pertanyaan, bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();
