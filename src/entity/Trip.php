@@ -112,22 +112,14 @@ class Trip {
         $umum = new Umum();
         $umum->setDb($this->db);
         if ($role == DRIVER_ROLE && $trip_fungsi == TIPE_TRIP_ACCEPT) {
-            if ($jenis_pembayaran == PEMBAYARAN_SALDO) {
-                $saldo = $saldo_user - $harga;
-                $umum->updateSaldo($id_user, $saldo);
-                return true;
-            } else {
+            if ($jenis_pembayaran == PEMBAYARAN_CASH) {
                 $saldo = $saldo_user - ($harga * 0.2);
                 $umum->updateSaldo($id_user, $saldo);
                 return true;
             }
         }
         if ($role == DRIVER_ROLE && $trip_fungsi == TIPE_TRIP_CANCEL) {
-            if ($jenis_pembayaran == PEMBAYARAN_SALDO) {
-                $saldo = $saldo_user + $harga;
-                $umum->updateSaldo($id_user, $saldo);
-                return true;
-            } else {
+            if ($jenis_pembayaran == PEMBAYARAN_CASH) {
                 $saldo = $saldo_user + ($harga * 0.2);
                 $umum->updateSaldo($id_user, $saldo);
                 return true;
@@ -411,7 +403,7 @@ class Trip {
             return ['status' => 'Error', 'message' => 'Tidak ditemukan user yang menggunakan referal dengan id user tersebut', 'data' => $data_lengkap];
         }
         $k = 0;
-        for ($i=0; $i < count($id_bawah[0]); $i++) { 
+        for ($i = 0; $i < count($id_bawah[0]); $i++) {
             $id_bawah[0][$i]['nama'] = decrypt($id_bawah[0][$i]['nama'], MOUGO_CRYPTO_KEY);
         }
         // while ($state) {

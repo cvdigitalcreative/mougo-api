@@ -249,10 +249,11 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $cek->setDb($this->db);
     $saldo = $cek->getSaldoUser($id_driver['id_driver']);
     $data['saldo'] = (double) $saldo['jumlah_saldo'];
-    if ($data_trip['total_harga'] > $data['saldo']) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);
+    if ($data_trip['jenis_pembayaran'] == PEMBAYARAN_CASH) {
+        if (($data_trip['total_harga'] * 0.2) > $data['saldo']) {
+            return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);
+        }
     }
-
     $trip_acc->saldoTripUser($id_driver['id_driver'], TIPE_TRIP_ACCEPT, $data_trip['jenis_pembayaran'], DRIVER_ROLE, $data_trip['total_harga'], $data['saldo']);
 
     if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
@@ -281,16 +282,16 @@ $app->post('/driver/trip/mou-now/', function ($request, $response) {
         return $response->withJson(['status' => 'Error', 'message' => 'Input Tidak Boleh Kosong'], SERVER_OK);
     }
 
-    $cek_driver = new Driver(null,null,null,null,null);
+    $cek_driver = new Driver(null, null, null, null, null);
     $cek_driver->setDb($this->db);
     $data_driver = $cek_driver->getProfileDriver($id_driver['id_driver']);
 
-    $id_trip = decrypt($id_driver['id_trip'],MOUGO_CRYPTO_KEY);
+    $id_trip = decrypt($id_driver['id_trip'], MOUGO_CRYPTO_KEY);
     $trip_acc = new Trip(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     $trip_acc->setDb($this->db);
     $data_trip = $trip_acc->getTemporaryOrderDetail($id_trip);
 
-    if($data_driver['jenis_kendaraan'] != $data_trip['jenis_trip'] - 2 ){
+    if ($data_driver['jenis_kendaraan'] != $data_trip['jenis_trip'] - 2) {
         return $response->withJson(['status' => 'Error', 'message' => 'Orderan Tidak Sesuai Dengan Kendaraan Driver'], SERVER_OK);
     }
 
@@ -320,7 +321,7 @@ $app->post('/driver/trip/mou-now/', function ($request, $response) {
     $data_trip['jenis_trip'] = (int) $data_trip['jenis_trip'];
     $data_trip['no_telpon'] = $data_user['no_telpon'];
     $data_trip['nama'] = $data_user['nama'];
-    $data_trip['jarak'] =(double) $data_trip['jarak'];
+    $data_trip['jarak'] = (double) $data_trip['jarak'];
     return $response->withJson(['status' => 'Success', 'data' => $data_trip], SERVER_OK);
 })->add($tokenCheck);
 
