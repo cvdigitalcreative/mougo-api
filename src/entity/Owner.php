@@ -1005,7 +1005,7 @@ class Owner {
         return $est->rowCount();
     }
 
-    private $column_search_customer = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'no_rekening', 'nama_bank', 'kode_referal', 'kode_sponsor');
+    private $column_search_customer = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'no_rekening', 'nama_bank', 'kode_referal', 'kode_sponsor', 'foto_ktp', 'foto_kk');
     private $customer_id = array('nama' => 'asc');
 
     public function getCustomerWeb($order_by, $order, $start, $length, $search) {
@@ -1046,13 +1046,13 @@ class Owner {
             $temp = "";
             if ($order_by == 0 || $order_by == 1 || $order_by == 2) {
                 $temp = "user";
-            } else if ($order_by == 3 || $order_by == 4 || $order_by == 5 || $order_by == 6) {
+            } else if ($order_by == 3 || $order_by == 4 || $order_by == 5 || $order_by == 6 || $order_by == 9 || $order_by == 10) {
                 $temp = "detail_user";
             } else if ($order_by == 7) {
                 $temp = "kode_referal";
             } else if ($order_by == 8) {
                 $temp = "kode_sponsor";
-            }
+            } 
             $order_in = $this->column_search_customer[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
 
