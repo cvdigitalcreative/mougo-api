@@ -512,6 +512,8 @@ $app->post('/owner/customer/web/', function ($request, $response) {
         $dataCustomer[$i]['kode_sponsor'] = $customer[$i]['kode_sponsor'];
         $dataCustomer[$i]['no_rekening'] = $customer[$i]['no_rekening'];
         $dataCustomer[$i]['nama_bank'] = $customer[$i]['name'];
+        $dataCustomer[$i]['foto_ktp'] = $customer[$i]['foto_ktp'];
+        $dataCustomer[$i]['foto_kk'] = $customer[$i]['foto_kk'];
     }
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCustomer(), 'recordsFiltered' => $owner->countsCustomer(), 'data' => $dataCustomer], SERVER_OK);
