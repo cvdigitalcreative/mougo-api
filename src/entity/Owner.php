@@ -2074,4 +2074,28 @@ class Owner {
         }return ['status' => 'Error', 'message' => 'Minimal Transfer Gagal Diupload'];
     }
 
+    public function getDriverSearch($id) {
+        $sql = "SELECT * FROM user
+        INNER JOIN detail_user ON detail_user.id_user = user.id_user
+        INNER JOIN driver ON driver.id_user = user.id_user
+        INNER JOIN cabang ON cabang.id = driver.cabang
+        INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
+        INNER JOIN bank ON bank.code = detail_user.bank
+        WHERE (no_ktp = '$id' OR user.email = '$id' OR user.nama = '$id' OR user.no_telpon = '$id')";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function getCustomerSearch($id) {
+        $customer = USER_ROLE;
+        $sql = "SELECT * FROM user
+        INNER JOIN detail_user ON detail_user.id_user = user.id_user
+        INNER JOIN bank ON bank.code = detail_user.bank
+        WHERE user.role = '$customer' AND (no_ktp = '$id' OR user.email = '$id' OR user.nama = '$id' OR user.no_telpon = '$id')";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
 }

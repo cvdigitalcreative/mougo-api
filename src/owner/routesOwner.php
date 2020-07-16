@@ -895,3 +895,64 @@ $app->put('/owner/transfer/minimal/{id}', function ($request, $response, $args) 
     $owner->setDb($this->db);
     return $response->withJson($owner->editMinimalTransfer($args['id'], $update['transfer_minimal']), SERVER_OK);
 });
+
+// Data Driver
+$app->post('/owner/driver/search/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $driver = $owner->getDriverSearch($data['id']);
+    if (empty($driver)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $dataDriver = [];
+    $dataDriver['id_user'] = $driver['id_user'];
+    $dataDriver['nama'] = $driver['nama'];
+    $dataDriver['email'] = $driver['email'];
+    $dataDriver['no_telpon'] = $driver['no_telpon'];
+    $dataDriver['no_ktp'] = $driver['no_ktp'];
+    $dataDriver['no_polisi'] = $driver['no_polisi'];
+    $dataDriver['alamat_domisili'] = $driver['alamat_domisili'];
+    $dataDriver['cabang'] = $driver['cabang'];
+    $dataDriver['jenis_kendaraan'] = $driver['jenis_kendaraan'];
+    $dataDriver['merk_kendaraan'] = $driver['merk_kendaraan'];
+    $dataDriver['foto_ktp'] = $driver['foto_ktp'];
+    $dataDriver['foto_kk'] = $driver['foto_kk'];
+    $dataDriver['foto_sim'] = $driver['foto_sim'];
+    $dataDriver['foto_skck'] = $driver['foto_skck'];
+    $dataDriver['foto_stnk'] = $driver['foto_stnk'];
+    $dataDriver['foto_diri'] = $driver['foto_diri'];
+    $dataDriver['nama_bank'] = $driver['name'];
+    $dataDriver['no_rekening'] = $driver['no_rekening'];
+    $dataDriver['atas_nama_bank'] = $driver['atas_nama_bank'];
+
+    return $response->withJson(['status' => 'Success', 'data' => $dataDriver], SERVER_OK);
+});
+
+// Data Driver
+$app->post('/owner/customer/search/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $customer = $owner->getCustomerSearch($data['id']);
+    if (empty($customer)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Customer Tidak Ditemukan'], SERVER_OK);
+    }
+
+    $dataCustomer = [];
+    $dataCustomer['id_user'] = $customer['id_user'];
+    $dataCustomer['nama'] = $customer['nama'];
+    $dataCustomer['email'] = $customer['email'];
+    $dataCustomer['no_telpon'] = $customer['no_telpon'];
+    $dataCustomer['no_ktp'] = $customer['no_ktp'];
+    $dataCustomer['nama_bank'] = $customer['name'];
+    $dataCustomer['no_rekening'] = $customer['no_rekening'];
+    $dataCustomer['atas_nama_bank'] = $customer['atas_nama_bank'];
+    $dataCustomer['foto_ktp'] = $customer['foto_ktp'];
+    $dataCustomer['foto_kk'] = $customer['foto_kk'];
+
+    return $response->withJson(['status' => 'Success', 'data' => $dataCustomer], SERVER_OK);
+});
