@@ -276,7 +276,7 @@ class User {
         $getBawahan->setDb($this->db);
         $id_user_ref = $this->getIdUserReferal($referal_atasan);
         $data_referal = $getBawahan->getReferalDownSys($id_user_ref);
-        if(empty($data_referal) || (count($data_referal)<2)){
+        if(empty($data_referal) || (count($data_referal) < MINIMAL_REFERAL)){
             return $referal_atasan;
         }
         return $this->kodeReferalGet($id_user_ref);
