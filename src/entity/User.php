@@ -316,7 +316,7 @@ class User {
                 }
                 $temp = $getBawahan->getReferalDownSys($tampungBawah[$i][$j]['id_user']);
                 
-                if(empty($temp) || (count($temp)<2)){
+                if(empty($temp) || (count($temp) < MINIMAL_REFERAL)){
                     return $tampungBawah[$i][$j]['kode_referal'];
                 }
                 if(empty($tampungBawah[$i+1])){
