@@ -1891,7 +1891,7 @@ class Owner {
     }
 
     private $column_search_bantuan = array('nama', 'pertanyaan', 'jawaban', 'tanggal_bantuan');
-    private $bantuan_id = array('nama' => 'asc');
+    private $bantuan_id = array('tanggal_bantuan' => 'asc');
 
     public function getBantuanWeb($order_by, $order, $start, $length, $search) {
         $sql = $this->getBantuanQuery($order_by, $order, $search);

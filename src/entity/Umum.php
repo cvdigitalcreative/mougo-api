@@ -881,14 +881,15 @@ class Umum {
             }
         }
 
-        $sql = 'INSERT INTO withdraw( id_user , jumlah , jenis_withdraw, status_withdraw )
-        VALUE( :id_user , :jumlah , :jenis_withdraw, :status_withdraw)';
+        $sql = 'INSERT INTO withdraw( id_user , jumlah , jenis_withdraw, status_withdraw, admin )
+        VALUE( :id_user , :jumlah , :jenis_withdraw, :status_withdraw, :admin)';
         $est = $this->db->prepare($sql);
         $data = [
             ":id_user" => $id_user,
             ":jumlah" => $jumlah,
             ":jenis_withdraw" => $jenis,
             ":status_withdraw" => $draw_status,
+            ":admin" => '-',
         ];
 
         if ($est->execute($data)) {
@@ -1098,9 +1099,9 @@ class Umum {
         return $stmt;
     }
 
-    public function editWithdraw($id, $status) {
+    public function editWithdraw($id, $status, $email) {
         $sql = "UPDATE withdraw
-                SET status_withdraw = '$status'
+                SET status_withdraw = '$status', tanggal_withdraw = tanggal_withdraw, admin = '$email'
                 WHERE id = '$id'";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
@@ -1110,7 +1111,7 @@ class Umum {
         }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
     }
 
-    public function adminKonfirmasiWithdraw($id, $status) {
+    public function adminKonfirmasiWithdraw($id, $status, $email) {
         $data = $this->cekWithdraw($id);
         if (empty($data)) {
             return ['status' => 'Error', 'message' => 'Withdraw tidak ditemukan'];
@@ -1121,7 +1122,7 @@ class Umum {
         if ($data['status_withdraw'] == STATUS_WITHDRAW_REJECT) {
             return ['status' => 'Error', 'message' => 'Withdraw Tersebut Telah Ditolak Oleh Admin'];
         }
-        if ($this->editWithdraw($id, $status)) {
+        if ($this->editWithdraw($id, $status, $email)) {
             return ['status' => 'Error', 'message' => 'Gagal Update Withdraw'];
         }
         if ($status == STATUS_WITHDRAW_REJECT) {
