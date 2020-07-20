@@ -254,16 +254,18 @@ $app->get('/owner/withdraw/', function ($request, $response) {
 
 // OWNER Accept withdraw Transfer
 $app->put('/owner/withdraw/accept/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS), SERVER_OK);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS, $data['email']), SERVER_OK);
 });
 
 // OWNER Reject withdraw Transfer
 $app->put('/owner/withdraw/reject/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT), SERVER_OK);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT, $data['email']), SERVER_OK);
 });
 
 // OWNER
