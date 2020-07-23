@@ -958,3 +958,23 @@ $app->post('/owner/customer/search/', function ($request, $response) {
 
     return $response->withJson(['status' => 'Success', 'data' => $dataCustomer], SERVER_OK);
 });
+
+// OWNER GET HISTORY WITHDRAW
+$app->post('/owner/history/withdraw/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $withdraw = $owner->getWithdrawWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($withdraw)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($withdraw); $i++) {
+        $withdraw[$i]['nama'] = decrypt($withdraw[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsWithdraw(), 'recordsFiltered' => $owner->countsWithdraw(), 'data' => $withdraw], SERVER_OK);
+});
