@@ -274,8 +274,8 @@ $app->get('/common/user-referal/{id_user}', function ($request, $response, $args
         return $response->withJson(['status' => 'Error', 'message' => 'User tidak ditemukan'], SERVER_OK);
     }
     $child = $umum->getReferalChild($id_user_anak);
-    $total = $umum->getTotalReferalChild($args['id_user']);
-    $data['total_struktur'] = (int) $total;
+    $total = $umum->kodeReferalAllList($args['id_user']);
+    $data['total_struktur'] = count($total);
     $data['parent'] = $user_anak['nama'];
     $data['anak'] = [];
     for ($i = 0; $i < count($child); $i++) {
