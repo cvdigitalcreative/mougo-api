@@ -254,16 +254,18 @@ $app->get('/owner/withdraw/', function ($request, $response) {
 
 // OWNER Accept withdraw Transfer
 $app->put('/owner/withdraw/accept/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS), SERVER_OK);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS, $data['email']), SERVER_OK);
 });
 
 // OWNER Reject withdraw Transfer
 $app->put('/owner/withdraw/reject/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT), SERVER_OK);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT, $data['email']), SERVER_OK);
 });
 
 // OWNER
@@ -955,4 +957,24 @@ $app->post('/owner/customer/search/', function ($request, $response) {
     $dataCustomer['foto_kk'] = $customer['foto_kk'];
 
     return $response->withJson(['status' => 'Success', 'data' => $dataCustomer], SERVER_OK);
+});
+
+// OWNER GET HISTORY WITHDRAW
+$app->post('/owner/history/withdraw/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+
+    $withdraw = $owner->getWithdrawWeb($data['order'][0]['column'], $data['order'][0]['dir'], $data['start'], $data['length'], $data['search']['value']);
+
+    if (empty($withdraw)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Withdraw Tidak Ditemukan'], SERVER_OK);
+    }
+
+    for ($i = 0; $i < count($withdraw); $i++) {
+        $withdraw[$i]['nama'] = decrypt($withdraw[$i]['nama'], MOUGO_CRYPTO_KEY);
+        $withdraw[$i]['jumlah'] = (double) $withdraw[$i]['jumlah'];
+    }
+
+    return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsWithdraw(), 'recordsFiltered' => $owner->countsWithdraw(), 'data' => $withdraw], SERVER_OK);
 });

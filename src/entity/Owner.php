@@ -1894,7 +1894,7 @@ class Owner {
     }
 
     private $column_search_bantuan = array('nama', 'pertanyaan', 'jawaban', 'tanggal_bantuan');
-    private $bantuan_id = array('nama' => 'asc');
+    private $bantuan_id = array('tanggal_bantuan' => 'asc');
 
     public function getBantuanWeb($order_by, $order, $start, $length, $search) {
         $sql = $this->getBantuanQuery($order_by, $order, $search);
@@ -2099,6 +2099,75 @@ class Owner {
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->fetch();
+    }
+
+    private $column_search_withdraw = array('nama', 'jumlah', 'jenis_withdraw' , 'status_withdraw' , 'tanggal_withdraw', 'admin');
+    private $withdraw_id = array('tanggal_withdraw' => 'asc');
+
+    public function getWithdrawWeb($order_by, $order, $start, $length, $search) {
+        $sql = $this->getWithdrawQuery($order_by, $order, $search);
+
+        if ($length != -1) {
+            $sql = $sql . " LIMIT $start, $length";
+        }
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function getWithdrawQuery($order_by, $order, $search) {
+        $sql = "SELECT withdraw.id, user.nama, withdraw.jumlah, jenis_withdraw.jenis_withdraw, status_withdraw.status_withdraw, withdraw.tanggal_withdraw, withdraw.admin FROM withdraw
+                INNER JOIN user ON user.id_user = withdraw.id_user
+                INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
+                INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw";
+        // foreach ($this->column_search as $index => $value) {
+        //     if (!empty($search)) {
+        //         if ($index === 0) {
+        //             $sql = $sql . " AND $value LIKE '%$search%' ";
+
+        //         } else {
+        //             $sql = $sql . " OR ";
+        //             if($index === 1){
+        //                 $sql = $sql . "top_up.";
+        //             }
+        //             $sql = $sql . "$value LIKE '%$search%' ";
+        //         }
+        //     }
+        // }
+
+        if (isset($order_by)) {
+            $temp = "";
+            if ($order_by == 0) {
+                $temp = "user";
+            } else if ($order_by == 1 || $order_by == 4) {
+                $temp = "withdraw";
+            } else if ($order_by == 2) {
+                $temp = "jenis_withdraw";
+            } else if ($order_by == 3) {
+                $temp = "status_withdraw";
+            }
+            $order_in = $this->column_search_withdraw[$order_by];
+            $sql = $sql . " ORDER BY $temp.$order_in $order ";
+
+        } else if (isset($this->withdraw_id)) {
+            $order_by = $this->withdraw_id;
+            $key = key($order_by);
+            $order = $order_by[key($order_by)];
+            $sql = $sql . " ORDER BY $key $order ";
+
+        }
+        return $sql;
+    }
+
+    public function countsWithdraw() {
+        $sql = "SELECT withdraw.id, user.nama, withdraw.jumlah, jenis_withdraw.jenis_withdraw, status_withdraw.status_withdraw, withdraw.tanggal_withdraw FROM withdraw
+        INNER JOIN user ON user.id_user = withdraw.id_user
+        INNER JOIN jenis_withdraw ON jenis_withdraw.id = withdraw.jenis_withdraw
+        INNER JOIN status_withdraw ON status_withdraw.id = withdraw.status_withdraw";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->rowCount();
     }
 
 }

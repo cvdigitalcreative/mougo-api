@@ -228,16 +228,18 @@ $app->post('/admin/withdraw/', function ($request, $response) {
 
 // ADMIN Accept withdraw Transfer
 $app->put('/admin/withdraw/accept/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS), SERVER_OK);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_SUCCESS, $data['email']), SERVER_OK);
 });
 
 // ADMIN Reject withdraw Transfer
 $app->put('/admin/withdraw/reject/{id}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT), SERVER_OK);
+    return $response->withJson($admin->adminKonfirmasiWithdraw($args['id'], STATUS_WITHDRAW_REJECT, $data['email']), SERVER_OK);
 });
 
 // ADMIN GET ALL EMERGENCY
