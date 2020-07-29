@@ -611,10 +611,9 @@ class User {
     public function getToken() {
         $sql = "SELECT user.id_user , token , password  FROM user
                         INNER JOIN api_token ON api_token.id_user = user.id_user
-                        WHERE email = :email AND password = :pass OR no_telpon = :email AND password = :pass";
+                        WHERE email = :email OR no_telpon = :email ";
         $data_token = [
             ":email" => (!empty($this->email)) ? $this->email : $this->no_telpon,
-            ":pass" => $this->password,
         ];
         $est = $this->db->prepare($sql);
         $est->execute($data_token);
