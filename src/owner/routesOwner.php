@@ -81,10 +81,10 @@ $app->get('/owner/driver/', function ($request, $response, $args) {
     $dataDriver = [];
     for ($i = 0; $i < count($driver); $i++) {
         $dataDriver[$i]['id_user'] = $driver[$i]['id_user'];
-        $dataDriver[$i]['nama'] = decrypt($driver[$i]['nama'], MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['email'] = decrypt($driver[$i]['email'], MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['no_telpon'] = decrypt($driver[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['no_polisi'] = decrypt($driver[$i]['no_polisi'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['nama'] = $driver[$i]['nama'];
+        $dataDriver[$i]['email'] = $driver[$i]['email'];
+        $dataDriver[$i]['no_telpon'] = $driver[$i]['no_telpon'];
+        $dataDriver[$i]['no_polisi'] = $driver[$i]['no_polisi'];
         $dataDriver[$i]['cabang'] = $driver[$i]['cabang'];
         $dataDriver[$i]['jenis_kendaraan'] = $driver[$i]['jenis_kendaraan'];
         $dataDriver[$i]['merk_kendaraan'] = $driver[$i]['merk_kendaraan'];
@@ -112,9 +112,9 @@ $app->get('/owner/customer/', function ($request, $response) {
     $dataCustomer = [];
     for ($i = 0; $i < count($customer); $i++) {
         $dataCustomer[$i]['id_user'] = $customer[$i]['id_user'];
-        $dataCustomer[$i]['nama'] = decrypt($customer[$i]['nama'], MOUGO_CRYPTO_KEY);
-        $dataCustomer[$i]['email'] = decrypt($customer[$i]['email'], MOUGO_CRYPTO_KEY);
-        $dataCustomer[$i]['no_telpon'] = decrypt($customer[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataCustomer[$i]['nama'] = $customer[$i]['nama'];
+        $dataCustomer[$i]['email'] = $customer[$i]['email'];
+        $dataCustomer[$i]['no_telpon'] = $customer[$i]['no_telpon'];
         $dataCustomer[$i]['provinsi'] = $customer[$i]['provinsi'];
         $dataCustomer[$i]['kota'] = $customer[$i]['kota'];
         $dataCustomer[$i]['kode_referal'] = $customer[$i]['kode_referal'];
