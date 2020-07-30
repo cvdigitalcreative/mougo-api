@@ -850,6 +850,22 @@ $app->put('/owner/bank/mougo/{id}', function ($request, $response, $args) {
     return $response->withJson($owner->editBankMougo($args['id'], $update['norek_bank'], $update['nama_bank'], $update['atas_nama_bank']), SERVER_OK);
 });
 
+// OWNER INPUT BANK MOUGO
+$app->post('/owner/bank/mougo/', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->inputBankMougo($update['norek_bank'], $update['nama_bank'], $update['atas_nama_bank']), SERVER_OK);
+});
+
+// OWNER DELETE BANK MOUGO
+$app->delete('/owner/bank/mougo/{id}', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->deleteBankMougo($args['id']), SERVER_OK);
+});
+
 // OWNER GET HARGA AWAL TRIP
 $app->get('/owner/harga/awal/', function ($request, $response) {
     $owner = new Owner(null, null);

@@ -2002,6 +2002,24 @@ class Owner {
         }return ['status' => 'Error', 'message' => 'Keterangan Bank Mougo Gagal Diupload'];
     }
 
+    public function inputBankMougo($norek_bank, $nama_bank, $atas_nama_bank) {
+        $sql = "INSERT INTO bank_mougo (norek_bank, nama_bank, atas_nama_bank)
+                VALUES ('$norek_bank', '$nama_bank', '$atas_nama_bank') ";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Keterangan Bank Mougo Berhasil Ditambahkan'];
+        }return ['status' => 'Error', 'message' => 'Keterangan Bank Mougo Gagal Diupload'];
+    }
+
+    public function deleteBankMougo($id) {
+        $sql = "DELETE FROM bank_mougo
+                WHERE id = '$id' ";
+        $est = $this->db->prepare($sql);
+        if ($est->execute()) {
+            return ['status' => 'Success', 'message' => 'Keterangan Bank Mougo Berhasil Dihapus'];
+        }return ['status' => 'Error', 'message' => 'Keterangan Bank Mougo Gagal Dihapus'];
+    }
+
     public function getHargaAwalTrip() {
         $sql = "SELECT * FROM harga_awal_trip";
         $est = $this->getDb()->prepare($sql);
