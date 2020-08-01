@@ -272,6 +272,7 @@ class Umum {
                 'no_rek' => $bank_mougo[0]['norek_bank'],
                 'nama_rek' => $bank_mougo[0]['atas_nama_bank'],
                 'nama_bank' => $bank_mougo[0]['nama_bank'],
+                'list_bank' => $bank_mougo,
             ];
             return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data' => $data];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
