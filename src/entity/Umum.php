@@ -1002,11 +1002,15 @@ class Umum {
         $cek_bank = new Owner(null,null);
         $cek_bank->setDb($this->db);
         $bank_mougo = $cek_bank->getBankMougo();
+        $list_bank = [];
+        for ($i=0; $i < count($bank_mougo); $i++) { 
+            $list_bank[$i]['no_rek'] = $bank_mougo[$i]['norek_bank'];
+            $list_bank[$i]['nama_rek'] = $bank_mougo[$i]['atas_nama_bank'];
+            $list_bank[$i]['nama_bank'] = $bank_mougo[$i]['nama_bank'];
+        }
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['jumlah_topup'] = (double) $data[$i]['jumlah_topup'];
-            $data[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
-            $data[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
-            $data[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
+            $data[$i]['list_bank'] = $list_bank;
             if ($data[$i]['status'] == TOPUP_ACCEPT_NAME) {
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
             }
