@@ -264,15 +264,18 @@ class Umum {
         $cek_bank = new Owner(null,null);
         $cek_bank->setDb($this->db);
         $bank_mougo = $cek_bank->getBankMougo();
+        $list_bank = [];
+        for ($i=0; $i < count($bank_mougo); $i++) { 
+            $list_bank[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
+            $list_bank[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
+            $list_bank[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
+        }
         
         if ($est->execute($data)) {
             $data = [
                 'id_topup' => $id,
                 'jumlah_topup' => $jumlah_topup,
-                'no_rek' => $bank_mougo[0]['norek_bank'],
-                'nama_rek' => $bank_mougo[0]['atas_nama_bank'],
-                'nama_bank' => $bank_mougo[0]['nama_bank'],
-                'list_bank' => $bank_mougo,
+                'list_bank' => $list_bank,
             ];
             return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data' => $data];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
