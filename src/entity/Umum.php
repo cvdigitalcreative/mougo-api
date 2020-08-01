@@ -266,9 +266,9 @@ class Umum {
         $bank_mougo = $cek_bank->getBankMougo();
         $list_bank = [];
         for ($i=0; $i < count($bank_mougo); $i++) { 
-            $list_bank[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
-            $list_bank[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
-            $list_bank[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
+            $list_bank[$i]['no_rek'] = $bank_mougo[$i]['norek_bank'];
+            $list_bank[$i]['nama_rek'] = $bank_mougo[$i]['atas_nama_bank'];
+            $list_bank[$i]['nama_bank'] = $bank_mougo[$i]['nama_bank'];
         }
         
         if ($est->execute($data)) {
