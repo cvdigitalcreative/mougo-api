@@ -17,4 +17,4 @@ Replace `[my-app-name]` with the desired directory name for your new application
 
 That's it! Now go build something cool.
 
-Bismillah MOUGO
+Bismillah MOUGO Sukses
