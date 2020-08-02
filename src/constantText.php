@@ -96,9 +96,9 @@ define('TOPUP_REJECT_NAME', 'Rejected');
 define('TOPUP_ACCEPT', 1);
 define('TOPUP_REJECT', 2);
 
-// REK MOUGO
 define('ID_PERUSAHAAN', '2de2df615a5209a97f75218ebe2f335049f47fb0');
 define('NO_REK_PERUSAHAAN', "7996662227");
+
 define('NAMA_BANK_PERUSAHAAN', "Bank Mandiri Syariah");
 define('NAMA_REK_PERUSAHAAN', "PT. Dawam Multi Sarana");
 
