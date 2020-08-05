@@ -502,3 +502,9 @@ $app->get('/common/bonus/titik/', function ($request, $response, $args) {
     $user->setDb($this->db);
     return $response->withJson($user->bonusTitikTrigger(), SERVER_OK);
 });
+
+$app->post('/input/tanggal-pendaftaran/', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->inputTanggalPendaftaran(), SERVER_OK);
+});
