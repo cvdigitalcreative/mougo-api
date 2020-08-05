@@ -858,7 +858,7 @@ class Owner {
         return $est->rowCount();
     }
 
-    private $column_search_driver = array('nama', 'email', 'no_telpon', 'no_polisi', 'cabang', 'jenis_kendaraan', 'merk_kendaraan', 'no_rekening', 'nama_bank', 'foto_diri', 'foto_ktp', 'foto_kk', 'foto_sim', 'foto_skck', 'foto_stnk');
+    private $column_search_driver = array('nama', 'email', 'no_telpon', 'no_polisi', 'cabang', 'jenis_kendaraan', 'merk_kendaraan', 'no_rekening', 'nama_bank', 'foto_diri', 'foto_ktp', 'foto_kk', 'foto_sim', 'foto_skck', 'foto_stnk', 'tanggal_pendaftaran');
     private $driver_id = array('nama' => 'asc');
 
     public function getDriverWeb($order_by, $order, $start, $length, $search) {
@@ -879,6 +879,7 @@ class Owner {
                 INNER JOIN cabang ON cabang.id = driver.cabang
                 INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
                 INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN tanggal_pendaftaran ON tanggal_pendaftaran.id_user = user.id_user
                 INNER JOIN bank ON bank.code = detail_user.bank
                 WHERE user.role = 2";
         // foreach ($this->column_search as $index => $value) {
@@ -904,6 +905,8 @@ class Owner {
                 $temp = "driver";
             } else if ($order_by == 7 || $order_by == 8 || $order_by == 10 || $order_by == 11) {
                 $temp = "detail_user";
+            } else if ($order_by == 15) {
+                $temp = "tanggal_pendaftaran";
             }
             $order_in = $this->column_search_driver[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
@@ -924,6 +927,7 @@ class Owner {
                 INNER JOIN cabang ON cabang.id = driver.cabang
                 INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
                 INNER JOIN detail_user ON detail_user.id_user = driver.id_user
+                INNER JOIN tanggal_pendaftaran ON tanggal_pendaftaran.id_user = user.id_user
                 INNER JOIN bank ON bank.code = detail_user.bank
                 WHERE user.role = 2";
         $est = $this->getDb()->prepare($sql);
@@ -1008,7 +1012,7 @@ class Owner {
         return $est->rowCount();
     }
 
-    private $column_search_customer = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'no_rekening', 'nama_bank', 'kode_referal', 'kode_sponsor', 'foto_ktp', 'foto_kk');
+    private $column_search_customer = array('nama', 'email', 'no_telpon', 'provinsi', 'kota', 'no_rekening', 'nama_bank', 'kode_referal', 'kode_sponsor', 'foto_ktp', 'foto_kk', 'tanggal_pendaftaran');
     private $customer_id = array('nama' => 'asc');
 
     public function getCustomerWeb($order_by, $order, $start, $length, $search) {
@@ -1028,6 +1032,7 @@ class Owner {
                 INNER JOIN detail_user ON detail_user.id_user = user.id_user
                 INNER JOIN bank ON bank.code = detail_user.bank
                 INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+                INNER JOIN tanggal_pendaftaran ON tanggal_pendaftaran.id_user = user.id_user
                 INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
                 WHERE user.role = 1";
         // foreach ($this->column_search as $index => $value) {
@@ -1055,6 +1060,8 @@ class Owner {
                 $temp = "kode_referal";
             } else if ($order_by == 8) {
                 $temp = "kode_sponsor";
+            } else if ($order_by == 11) {
+                $temp = "tanggal_pendaftaran";
             } 
             $order_in = $this->column_search_customer[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
@@ -1074,6 +1081,7 @@ class Owner {
                 INNER JOIN detail_user ON detail_user.id_user = user.id_user
                 INNER JOIN bank ON bank.code = detail_user.bank
                 INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+                INNER JOIN tanggal_pendaftaran ON tanggal_pendaftaran.id_user = user.id_user
                 INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
                 WHERE user.role = 1";
         $est = $this->getDb()->prepare($sql);
