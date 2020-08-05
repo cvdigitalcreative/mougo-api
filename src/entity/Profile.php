@@ -147,6 +147,11 @@ class Profile {
         $data['jumlah_saldo'] = (double) $data['jumlah_saldo'];
         $data['jumlah_point'] = (double) $data['jumlah_point'];
 
+        $user = new User(null, null, null, null, null, null);
+        $user->setDb($this->db);
+        $tanggal = $user->getTanggalPendaftaran($id_user);
+        $data['tanggal_pendaftaran'] = $tanggal['tanggal_pendaftaran'];
+
         $nama = decrypt($data['nama'], MOUGO_CRYPTO_KEY);
         $search = array(' ');
         $replace = array('+');

@@ -101,6 +101,9 @@ class User {
             return ['status' => 'Error', 'message' => 'Daftar User Gagal'];
         }
 
+        if (!$this->insertTanggalPendaftaran()) {
+            return ['status' => 'Error', 'message' => 'Gagal Set Tanggal Pendaftaran'];
+        }
         //Input Kode Referal dan Sponsor Atasan
 
         if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
@@ -443,6 +446,26 @@ class User {
         if (!empty($stmtcek)) {
             return true;
         }return false;
+    }
+
+    public function insertTanggalPendaftaran() {
+        $sql = "INSERT INTO tanggal_pendaftaran (id_user)
+                        VALUES (:id_user)";
+        $data_user = [
+            ':id_user' => $this->id_user,
+        ];
+
+        $este = $this->db->prepare($sql);
+        return $este->execute($data_user);
+    }
+
+    public function getTanggalPendaftaran($id_user) {
+        $sql = "SELECT tanggal_pendaftaran.tanggal_pendaftaran FROM tanggal_pendaftaran 
+                WHERE id_user = '$id_user'";
+
+        $este = $this->db->prepare($sql);
+        $este->execute();
+        return $este->fetch();
     }
 
     public function insertUser($role, $status_aktif_user) {

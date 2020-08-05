@@ -1810,4 +1810,44 @@ class Umum {
         return $est->fetch();
     }
 
+    public function inputTanggalPendaftaran() {
+        $sql = "SELECT * FROM user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        
+        $sql = "SELECT * FROM tanggal_pendaftaran";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt2 = $est->fetchAll();
+        
+        if(empty($stmt2)){
+            for ($i=0; $i < count($stmt); $i++) { 
+                $id_user = $stmt[$i]['id_user'];
+                $sql = "INSERT INTO tanggal_pendaftaran(id_user, tanggal_pendaftaran)
+                VALUES('$id_user','2020-06-01 00:00:00')";
+                $est = $this->getDb()->prepare($sql);
+                $est->execute();
+            }
+        }else{
+            for ($i=0; $i < count($stmt); $i++) { 
+                $status = true;
+                for ($j=0; $j < count($stmt2) ; $j++) { 
+                    if($stmt[$i]['id_user'] == $stmt2[$j]['id_user']){
+                        $status = false;
+                    }
+                }
+                if ($status) {
+                    $id_user = $stmt[$i]['id_user'];
+                    $sql = "INSERT INTO tanggal_pendaftaran(id_user, tanggal_pendaftaran)
+                    VALUES('$id_user','2020-06-15 00:00:00')";
+                    $est = $this->getDb()->prepare($sql);
+                    $est->execute();
+                }
+            }
+        }
+        return ['status' => 'Success', 'message' => 'Berhasil Input Tanggal Pendaftaran'];
+
+    }
+
 }
