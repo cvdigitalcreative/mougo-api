@@ -101,6 +101,9 @@ class User {
             return ['status' => 'Error', 'message' => 'Daftar User Gagal'];
         }
 
+        if (!$this->insertTanggalPendaftaran()) {
+            return ['status' => 'Error', 'message' => 'Gagal Set Tanggal Pendaftaran'];
+        }
         //Input Kode Referal dan Sponsor Atasan
 
         if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
@@ -445,6 +448,26 @@ class User {
         }return false;
     }
 
+    public function insertTanggalPendaftaran() {
+        $sql = "INSERT INTO tanggal_pendaftaran (id_user)
+                        VALUES (:id_user)";
+        $data_user = [
+            ':id_user' => $this->id_user,
+        ];
+
+        $este = $this->db->prepare($sql);
+        return $este->execute($data_user);
+    }
+
+    public function getTanggalPendaftaran($id_user) {
+        $sql = "SELECT tanggal_pendaftaran.tanggal_pendaftaran FROM tanggal_pendaftaran 
+                WHERE id_user = '$id_user'";
+
+        $este = $this->db->prepare($sql);
+        $este->execute();
+        return $este->fetch();
+    }
+
     public function insertUser($role, $status_aktif_user) {
         $sql = "INSERT INTO user (id_user , nama , email , no_telpon , role , password , status_aktif_trip)
                         VALUES (:id_user , :nama , :email , :no_telpon , :role , :password , :status_aktif_trip)";
@@ -611,10 +634,9 @@ class User {
     public function getToken() {
         $sql = "SELECT user.id_user , token , password  FROM user
                         INNER JOIN api_token ON api_token.id_user = user.id_user
-                        WHERE email = :email AND password = :pass OR no_telpon = :email AND password = :pass";
+                        WHERE email = :email OR no_telpon = :email ";
         $data_token = [
             ":email" => (!empty($this->email)) ? $this->email : $this->no_telpon,
-            ":pass" => $this->password,
         ];
         $est = $this->db->prepare($sql);
         $est->execute($data_token);

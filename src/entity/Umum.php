@@ -264,14 +264,18 @@ class Umum {
         $cek_bank = new Owner(null,null);
         $cek_bank->setDb($this->db);
         $bank_mougo = $cek_bank->getBankMougo();
+        $list_bank = [];
+        for ($i=0; $i < count($bank_mougo); $i++) { 
+            $list_bank[$i]['no_rek'] = $bank_mougo[$i]['norek_bank'];
+            $list_bank[$i]['nama_rek'] = $bank_mougo[$i]['atas_nama_bank'];
+            $list_bank[$i]['nama_bank'] = $bank_mougo[$i]['nama_bank'];
+        }
         
         if ($est->execute($data)) {
             $data = [
                 'id_topup' => $id,
                 'jumlah_topup' => $jumlah_topup,
-                'no_rek' => $bank_mougo[0]['norek_bank'],
-                'nama_rek' => $bank_mougo[0]['atas_nama_bank'],
-                'nama_bank' => $bank_mougo[0]['nama_bank'],
+                'list_bank' => $list_bank,
             ];
             return ['status' => 'Success', 'message' => 'Berhasil, Silahkan Konfirmasi Top Up Anda', 'data' => $data];
         }return ['status' => 'Error', 'message' => 'Gagal Top Up'];
@@ -998,11 +1002,15 @@ class Umum {
         $cek_bank = new Owner(null,null);
         $cek_bank->setDb($this->db);
         $bank_mougo = $cek_bank->getBankMougo();
+        $list_bank = [];
+        for ($i=0; $i < count($bank_mougo); $i++) { 
+            $list_bank[$i]['no_rek'] = $bank_mougo[$i]['norek_bank'];
+            $list_bank[$i]['nama_rek'] = $bank_mougo[$i]['atas_nama_bank'];
+            $list_bank[$i]['nama_bank'] = $bank_mougo[$i]['nama_bank'];
+        }
         for ($i = 0; $i < count($data); $i++) {
             $data[$i]['jumlah_topup'] = (double) $data[$i]['jumlah_topup'];
-            $data[$i]['no_rek'] = $bank_mougo[0]['norek_bank'];
-            $data[$i]['nama_rek'] = $bank_mougo[0]['atas_nama_bank'];
-            $data[$i]['nama_bank'] = $bank_mougo[0]['nama_bank'];
+            $data[$i]['list_bank'] = $list_bank;
             if ($data[$i]['status'] == TOPUP_ACCEPT_NAME) {
                 $data[$i]['pesan_topup'] = PESAN_TOPUP_ACCEPT;
             }
@@ -1800,6 +1808,46 @@ class Umum {
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->fetch();
+    }
+
+    public function inputTanggalPendaftaran() {
+        $sql = "SELECT * FROM user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        
+        $sql = "SELECT * FROM tanggal_pendaftaran";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt2 = $est->fetchAll();
+        
+        if(empty($stmt2)){
+            for ($i=0; $i < count($stmt); $i++) { 
+                $id_user = $stmt[$i]['id_user'];
+                $sql = "INSERT INTO tanggal_pendaftaran(id_user, tanggal_pendaftaran)
+                VALUES('$id_user','2020-06-01 00:00:00')";
+                $est = $this->getDb()->prepare($sql);
+                $est->execute();
+            }
+        }else{
+            for ($i=0; $i < count($stmt); $i++) { 
+                $status = true;
+                for ($j=0; $j < count($stmt2) ; $j++) { 
+                    if($stmt[$i]['id_user'] == $stmt2[$j]['id_user']){
+                        $status = false;
+                    }
+                }
+                if ($status) {
+                    $id_user = $stmt[$i]['id_user'];
+                    $sql = "INSERT INTO tanggal_pendaftaran(id_user, tanggal_pendaftaran)
+                    VALUES('$id_user','2020-06-15 00:00:00')";
+                    $est = $this->getDb()->prepare($sql);
+                    $est->execute();
+                }
+            }
+        }
+        return ['status' => 'Success', 'message' => 'Berhasil Input Tanggal Pendaftaran'];
+
     }
 
 }

@@ -85,7 +85,7 @@ class Trip {
     }
 
     public function resetAutoIncrement($id) {
-        $sql = "ALTER TABLE temporary_order AUTO_INCREMENT = '$id'";
+        $sql = "ALTER TABLE temporary_order AUTO_INCREMENT = $id";
         $est = $this->getDb()->prepare($sql);
         return $est->execute();
     }

@@ -81,10 +81,10 @@ $app->get('/owner/driver/', function ($request, $response, $args) {
     $dataDriver = [];
     for ($i = 0; $i < count($driver); $i++) {
         $dataDriver[$i]['id_user'] = $driver[$i]['id_user'];
-        $dataDriver[$i]['nama'] = decrypt($driver[$i]['nama'], MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['email'] = decrypt($driver[$i]['email'], MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['no_telpon'] = decrypt($driver[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
-        $dataDriver[$i]['no_polisi'] = decrypt($driver[$i]['no_polisi'], MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['nama'] = decrypt($driver[$i]['nama'],MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['email'] = decrypt($driver[$i]['email'],MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_telpon'] = decrypt($driver[$i]['no_telpon'],MOUGO_CRYPTO_KEY);
+        $dataDriver[$i]['no_polisi'] = decrypt($driver[$i]['no_polisi'],MOUGO_CRYPTO_KEY);
         $dataDriver[$i]['cabang'] = $driver[$i]['cabang'];
         $dataDriver[$i]['jenis_kendaraan'] = $driver[$i]['jenis_kendaraan'];
         $dataDriver[$i]['merk_kendaraan'] = $driver[$i]['merk_kendaraan'];
@@ -112,9 +112,9 @@ $app->get('/owner/customer/', function ($request, $response) {
     $dataCustomer = [];
     for ($i = 0; $i < count($customer); $i++) {
         $dataCustomer[$i]['id_user'] = $customer[$i]['id_user'];
-        $dataCustomer[$i]['nama'] = decrypt($customer[$i]['nama'], MOUGO_CRYPTO_KEY);
-        $dataCustomer[$i]['email'] = decrypt($customer[$i]['email'], MOUGO_CRYPTO_KEY);
-        $dataCustomer[$i]['no_telpon'] = decrypt($customer[$i]['no_telpon'], MOUGO_CRYPTO_KEY);
+        $dataCustomer[$i]['nama'] = decrypt($customer[$i]['nama'],MOUGO_CRYPTO_KEY);
+        $dataCustomer[$i]['email'] = decrypt($customer[$i]['email'],MOUGO_CRYPTO_KEY);
+        $dataCustomer[$i]['no_telpon'] = decrypt($customer[$i]['no_telpon'],MOUGO_CRYPTO_KEY);
         $dataCustomer[$i]['provinsi'] = $customer[$i]['provinsi'];
         $dataCustomer[$i]['kota'] = $customer[$i]['kota'];
         $dataCustomer[$i]['kode_referal'] = $customer[$i]['kode_referal'];
@@ -848,6 +848,22 @@ $app->put('/owner/bank/mougo/{id}', function ($request, $response, $args) {
     $owner = new Owner(null, null);
     $owner->setDb($this->db);
     return $response->withJson($owner->editBankMougo($args['id'], $update['norek_bank'], $update['nama_bank'], $update['atas_nama_bank']), SERVER_OK);
+});
+
+// OWNER INPUT BANK MOUGO
+$app->post('/owner/bank/mougo/', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->inputBankMougo($update['norek_bank'], $update['nama_bank'], $update['atas_nama_bank']), SERVER_OK);
+});
+
+// OWNER DELETE BANK MOUGO
+$app->delete('/owner/bank/mougo/{id}', function ($request, $response, $args) {
+    $update = $request->getParsedBody();
+    $owner = new Owner(null, null);
+    $owner->setDb($this->db);
+    return $response->withJson($owner->deleteBankMougo($args['id']), SERVER_OK);
 });
 
 // OWNER GET HARGA AWAL TRIP
