@@ -486,6 +486,7 @@ $app->post('/owner/driver/web/', function ($request, $response) {
         $dataDriver[$i]['foto_diri'] = $driver[$i]['foto_diri'];
         $dataDriver[$i]['no_rekening'] = $driver[$i]['no_rekening'];
         $dataDriver[$i]['nama_bank'] = $driver[$i]['name'];
+        $dataDriver[$i]['tanggal_pendaftaran'] = $driver[$i]['tanggal_pendaftaran'];
     }
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsDriver(), 'recordsFiltered' => $owner->countsDriver(), 'data' => $dataDriver], SERVER_OK);
@@ -516,6 +517,7 @@ $app->post('/owner/customer/web/', function ($request, $response) {
         $dataCustomer[$i]['nama_bank'] = $customer[$i]['name'];
         $dataCustomer[$i]['foto_ktp'] = $customer[$i]['foto_ktp'];
         $dataCustomer[$i]['foto_kk'] = $customer[$i]['foto_kk'];
+        $dataCustomer[$i]['tanggal_pendaftaran'] = $customer[$i]['tanggal_pendaftaran'];
     }
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsCustomer(), 'recordsFiltered' => $owner->countsCustomer(), 'data' => $dataCustomer], SERVER_OK);
