@@ -1825,7 +1825,7 @@ class Umum {
             for ($i=0; $i < count($stmt); $i++) { 
                 $id_user = $stmt[$i]['id_user'];
                 $sql = "INSERT INTO tanggal_pendaftaran(id_user, tanggal_pendaftaran)
-                VALUES('$id_user','2020-06-01 00:00:00')";
+                VALUES('$id_user','2020-06-15 00:00:00')";
                 $est = $this->getDb()->prepare($sql);
                 $est->execute();
             }
