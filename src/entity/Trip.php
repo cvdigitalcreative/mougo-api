@@ -48,6 +48,9 @@ class Trip {
         if (!$this->isDataValid()) {
             return ['status' => 'Error', 'message' => 'Order Trip Data Input Tidak Boleh Kosong'];
         }
+        if ($this->total_harga == 0) {
+            return ['status' => 'Error', 'message' => 'Maaf Server Sedang Padat Coba Beberapa Saat Lagi'];
+        }
         if ($this->jenis_pembayaran == PEMBAYARAN_SALDO) {
             $trip_cek = new Umum();
             $trip_cek->setDb($this->db);
@@ -61,7 +64,7 @@ class Trip {
             }
         }
         // $this->hitungHarga();
-        if ($this->cekTemporaryId() == 0 || $this->cekTemporaryId() == 1) {
+        if ($this->cekTemporaryId() == 0 || $this->cekTemporaryId() == 1 || $this->cekTemporaryId() < $this->cekMaxId()) {
             $this->resetAutoIncrement($this->cekMaxId() + 1);
         }
         $data['id_trip'] = $this->inputTemporaryOrder();
