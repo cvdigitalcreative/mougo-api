@@ -58,10 +58,6 @@ class Trip {
             if ($saldo_user['jumlah_saldo'] < $this->total_harga) {
                 return ['status' => 'Error', 'message' => 'Saldo User Kurang Untuk Melakukan Trip'];
             }
-            $saldo_user = $saldo_user['jumlah_saldo'];
-            if (!$this->saldoTripUser($this->id_customer, TIPE_TRIP_ACCEPT, $this->jenis_pembayaran, USER_ROLE, $this->total_harga, $saldo_user)) {
-                return ['status' => 'Error', 'message' => 'Gagal Update Saldo User'];
-            }
         }
         // $this->hitungHarga();
         if ($this->cekTemporaryId() == 0 || $this->cekTemporaryId() == 1 || $this->cekTemporaryId() < $this->cekMaxId()) {
@@ -198,14 +194,15 @@ class Trip {
         $cancelOrder->setDb($this->db);
 
         if (empty($data_order)) {
+            if ($data_trip['status_trip'] == STATUS_MENGANTAR_KETUJUAN) {
+                return ['status' => 'Error', 'message' => 'Tidak Dapat Membatalkan Trip, Sedang Dalam Perjalanan Ketujuan'];
+            }
             $saldo_customer = $cancelOrder->getSaldoUser($data_trip['id_customer']);
             $saldo_driver = $cancelOrder->getSaldoUser($data_trip['id_driver']);
             $this->saldoTripUser($data_trip['id_customer'], TIPE_TRIP_CANCEL, $data_trip['jenis_pembayaran'], USER_ROLE, $data_trip['total_harga'], $saldo_customer['jumlah_saldo']);
             $this->saldoTripUser($data_trip['id_driver'], TIPE_TRIP_CANCEL, $data_trip['jenis_pembayaran'], DRIVER_ROLE, $data_trip['total_harga'], $saldo_driver['jumlah_saldo']);
             return $cancelOrder->updateStatusTrip($id_trip, STATUS_CANCEL);
         }
-        $saldo_customer = $cancelOrder->getSaldoUser($data_order['id_customer']);
-        $this->saldoTripUser($data_order['id_customer'], TIPE_TRIP_CANCEL, $data_order['jenis_pembayaran'], USER_ROLE, $data_order['total_harga'], $saldo_customer['jumlah_saldo']);
         $this->deleteTemporaryOrderDetail($id_trip);
         $cek = $this->driverInputOrder(ID_DRIVER_SILUMAN, $data_order, STATUS_CANCEL);
         if (empty($cek)) {
