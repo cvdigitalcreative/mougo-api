@@ -250,11 +250,19 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $saldo = $cek->getSaldoUser($id_driver['id_driver']);
     $data['saldo'] = (double) $saldo['jumlah_saldo'];
     if ($data_trip['jenis_pembayaran'] == PEMBAYARAN_CASH) {
-        if (($data_trip['total_harga'] * 0.2) > $data['saldo']) {
+        if (($data_trip['total_harga'] * 0.2) >= $data['saldo']) {
             return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);
         }
     }
     $trip_acc->saldoTripUser($id_driver['id_driver'], TIPE_TRIP_ACCEPT, $data_trip['jenis_pembayaran'], DRIVER_ROLE, $data_trip['total_harga'], $data['saldo']);
+    
+    if ($data_trip['jenis_pembayaran'] == PEMBAYARAN_SALDO) {
+        $saldo_user = $cek->getSaldoUser($data_trip['id_customer']);
+        $saldo_user = $saldo_user['jumlah_saldo'];
+        if (!$trip_acc->saldoTripUser($data_trip['id_customer'], TIPE_TRIP_ACCEPT, $data_trip['jenis_pembayaran'], USER_ROLE, $data_trip['total_harga'], $saldo_user)) {
+            return ['status' => 'Error', 'message' => 'Gagal Update Saldo User'];
+        }
+    }
 
     if (!$trip_acc->deleteTemporaryOrderDetail($id_trip)) {
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Menghapus Data'], SERVER_OK);
@@ -291,13 +299,14 @@ $app->post('/driver/trip/mou-now/', function ($request, $response) {
     $trip_acc->setDb($this->db);
     $data_trip = $trip_acc->getTemporaryOrderDetail($id_trip);
 
+    if (empty($data_trip)) {
+        return $response->withJson(['status' => 'Error', 'message' => 'Order Tidak Ada Atau Telah Diambil'], SERVER_OK);
+    }
+
     if ($data_driver['jenis_kendaraan'] != $data_trip['jenis_trip'] - 2) {
         return $response->withJson(['status' => 'Error', 'message' => 'Orderan Tidak Sesuai Dengan Kendaraan Driver'], SERVER_OK);
     }
 
-    if (empty($data_trip)) {
-        return $response->withJson(['status' => 'Error', 'message' => 'Order Tidak Ada Atau Telah Diambil'], SERVER_OK);
-    }
     $cek = new Umum();
     $cek->setDb($this->db);
     $saldo = $cek->getSaldoUser($id_driver['id_driver']);
