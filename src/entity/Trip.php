@@ -55,7 +55,7 @@ class Trip {
             $trip_cek = new Umum();
             $trip_cek->setDb($this->db);
             $saldo_user = $trip_cek->getSaldoUser($this->id_customer);
-            if ($saldo_user['jumlah_saldo'] <= $this->total_harga) {
+            if ($saldo_user['jumlah_saldo'] < $this->total_harga) {
                 return ['status' => 'Error', 'message' => 'Saldo User Kurang Untuk Melakukan Trip'];
             }
         }

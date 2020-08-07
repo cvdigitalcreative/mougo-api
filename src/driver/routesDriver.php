@@ -250,7 +250,7 @@ $app->post('/driver/trip/{id_trip}', function ($request, $response, $args) {
     $saldo = $cek->getSaldoUser($id_driver['id_driver']);
     $data['saldo'] = (double) $saldo['jumlah_saldo'];
     if ($data_trip['jenis_pembayaran'] == PEMBAYARAN_CASH) {
-        if (($data_trip['total_harga'] * 0.2) >= $data['saldo']) {
+        if (($data_trip['total_harga'] * 0.2) > $data['saldo']) {
             return $response->withJson(['status' => 'Error', 'message' => 'Saldo Anda Tidak Cukup Untuk Menerima Trip Ini'], SERVER_OK);
         }
     }
