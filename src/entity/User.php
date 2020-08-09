@@ -431,6 +431,9 @@ class User {
         if ($role == DRIVER_ROLE) {
             $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Driver Anda " . $this->getWeb_url() . "/mougo/driverRegister/" . $this->id_user;
         }
+        if ($role == MERCHANT_ROLE) {
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Merchant MOUGO Anda " . $this->getWeb_url() . "/mougo/merchantRegister/" . $this->id_user;
+        }
         return $mail->send();
 
     }
