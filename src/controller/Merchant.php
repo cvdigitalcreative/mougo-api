@@ -8,11 +8,28 @@ require_once dirname(__FILE__) . '/../entity/DetailMerchant.php';
 require_once dirname(__FILE__) . '/../model/Merchant.php';
 require_once dirname(__FILE__) . '/../model/DetailMerchant.php';
 
-function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_referal, $kode_sponsor, $no_ktp, $nama_bank, $no_rekening, $atas_nama_bank, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $no_izin, $no_fax, $nama_direktur, $url_web_aplikasi, $lama_bisnis, $omset_perbulan, $kategori_bisnis, $uploadedFiles, $directory_ktp, $directory_izin, $directory_rekening) {
+function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_referal, $kode_sponsor, $no_ktp, $nama_bank, $no_rekening, $atas_nama_bank, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $no_izin, $no_fax, $nama_direktur, $url_web_aplikasi, $lama_bisnis, $omset_perbulan, $kategori_bisnis, $uploadedFiles, $directory_ktp, $directory_izin, $directory_rekening, $directory_banner) {
 
     if (empty($email) || empty($nama) || empty($no_telpon) || empty($password) || empty($no_ktp) || empty($nama_bank) || empty($no_rekening) || empty($atas_nama_bank) || empty($nama_usaha) || empty($alamat_usaha) || empty($no_telpon_kantor) || empty($no_izin) || empty($no_fax) || empty($nama_direktur) || empty($url_web_aplikasi) || empty($lama_bisnis) || empty($omset_perbulan) || empty($kategori_bisnis) || empty($uploadedFiles['foto_ktp']->file) || empty($uploadedFiles['foto_dokumen_izin']->file) || empty($uploadedFiles['foto_rekening_tabungan']->file)) {
         return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
     }       
+
+    $path_ktp = saveFile($uploadedFiles['foto_ktp'], FOTO_KTP, $directory_ktp);
+    if ($path_ktp == STATUS_ERROR) {
+        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    }
+    $path_izin = saveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
+    if ($path_izin == STATUS_ERROR) {
+        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    }
+    $path_rekening = saveFile($uploadedFiles['foto_rekening_tabungan'], FOTO_REKENING, $directory_rekening);
+    if ($path_rekening == STATUS_ERROR) {
+        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    }
+    $path_banner = saveFile($uploadedFiles['foto_banner_ukm'], FOTO_BANNER, $directory_banner);
+    if ($path_banner == STATUS_ERROR) {
+        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    }
 
     $user = new User($nama, $email, $no_telpon, $password, $kode_referal, $kode_sponsor);
     $user->setDb($db);
@@ -28,19 +45,6 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
         return ['status' => 'Error', 'message' => 'Gagal Input Detail User'];
     }
 
-    $path_ktp = saveFile($uploadedFiles['foto_ktp'], FOTO_KTP, $directory_ktp);
-    if ($path_ktp == STATUS_ERROR) {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
-    }
-    $path_izin = saveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
-    if ($path_izin == STATUS_ERROR) {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
-    }
-    $path_rekening = saveFile($uploadedFiles['foto_rekening_tabungan'], FOTO_REKENING, $directory_rekening);
-    if ($path_rekening == STATUS_ERROR) {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
-    }
-
     $umum = new Umum();
     $umum->setDb($db);
     $umum->updateFoto($id_user, $path_ktp, FOTO_KTP);
@@ -51,9 +55,9 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
         return ['status' => 'Error', 'message' => 'Gagal Input Merchant Ukm'];
     }
 
-    $detailMerchant = new DetailMerchant($id_user, $no_izin, $no_fax, $nama_direktur, $lama_bisnis, $omset_perbulan, $path_izin, $path_rekening);
+    $detailMerchant = new DetailMerchant($id_user, $no_izin, $no_fax, $nama_direktur, $lama_bisnis, $omset_perbulan, $path_izin, $path_rekening, $path_banner);
 
-    if (!insertDetailMerchant($db, $detailMerchant->getId_user(), $detailMerchant->getNo_izin(), $detailMerchant->getNo_fax(), $detailMerchant->getNama_direktur(), $detailMerchant->getLama_bisnis(), $detailMerchant->getOmset_perbulan(), $detailMerchant->getFoto_dokumen_perizinan(), $detailMerchant->getFoto_rekening_tabungan())) {
+    if (!insertDetailMerchant($db, $detailMerchant->getId_user(), $detailMerchant->getNo_izin(), $detailMerchant->getNo_fax(), $detailMerchant->getNama_direktur(), $detailMerchant->getLama_bisnis(), $detailMerchant->getOmset_perbulan(), $detailMerchant->getFoto_dokumen_perizinan(), $detailMerchant->getFoto_rekening_tabungan(), $detailMerchant->getFoto_banner_ukm())) {
         return ['status' => 'Error', 'message' => 'Gagal Input Detail Merchant Ukm'];
     }
 
@@ -81,6 +85,9 @@ function saveFile($uploadedFile, $type, $directory) {
         }
         if ($type == FOTO_REKENING) {
             return "../assets/foto/rekening/" . $filename;
+        }
+        if ($type == FOTO_BANNER) {
+            return "../assets/foto/banner/" . $filename;
         }
     }
 }

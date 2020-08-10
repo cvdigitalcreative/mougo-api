@@ -109,6 +109,10 @@ class User {
         if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
 
             if ($this->emailKonfirmasi($this->email, $this->nama, $role)) {
+                
+                if($role == MERCHANT_ROLE){
+                    $this->insertDetailProfile();
+                }
 
                 return ['status' => 'Success', 'message' => 'Pendaftaran Sukses'];
             }
@@ -356,6 +360,13 @@ class User {
         if ($data['role'] == USER_ROLE) {
             //Token saldo point input
             if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertDetailProfile() && $this->gantiStatusAkun()) {
+                return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
+            }
+            return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];
+        }
+        if ($data['role'] == MERCHANT_ROLE) {
+            //Token saldo point input
+            if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->gantiStatusAkun()) {
                 return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
             }
             return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];

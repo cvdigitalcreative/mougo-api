@@ -9,8 +9,9 @@ class DetailMerchant {
     private $omset_perbulan;
     private $foto_dokumen_perizinan;
     private $foto_rekening_tabungan;
+    private $foto_banner_ukm;
 
-    public function __construct($id_user, $no_izin, $no_fax, $nama_direktur, $lama_bisnis, $omset_perbulan, $foto_dokumen_perizinan, $foto_rekening_tabungan) {
+    public function __construct($id_user, $no_izin, $no_fax, $nama_direktur, $lama_bisnis, $omset_perbulan, $foto_dokumen_perizinan, $foto_rekening_tabungan, $foto_banner_ukm) {
         $this->id_user = $id_user;
         $this->no_izin = $no_izin;
         $this->no_fax = $no_fax;
@@ -19,6 +20,7 @@ class DetailMerchant {
         $this->omset_perbulan = $omset_perbulan;
         $this->foto_dokumen_perizinan = $foto_dokumen_perizinan;
         $this->foto_rekening_tabungan = $foto_rekening_tabungan;
+        $this->foto_banner_ukm = $foto_banner_ukm;
     }
 
     public function getId_user() {
@@ -51,6 +53,10 @@ class DetailMerchant {
 
     public function getFoto_rekening_tabungan() {
         return $this->foto_rekening_tabungan;
+    }
+
+    public function getFoto_banner_ukm() {
+        return $this->foto_banner_ukm;
     }
 
 }

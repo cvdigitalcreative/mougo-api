@@ -122,6 +122,7 @@ define('FOTO_SIM', 4);
 define('FOTO_STNK', 5);
 define('FOTO_IZIN', 6);
 define('FOTO_REKENING', 7);
+define('FOTO_BANNER', 7);
 
 // AHLI WARIS MAKS
 define('AHLI_WARIS', 4);
