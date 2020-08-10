@@ -73,7 +73,7 @@ function saveFile($uploadedFile, $type, $directory) {
         }
         $filename = md5($uploadedFile->getClientFilename()) . time() . "." . $extension;
         if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
+            mkdir($directory, 0777, true);
         }
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
 
@@ -88,6 +88,9 @@ function saveFile($uploadedFile, $type, $directory) {
         }
         if ($type == FOTO_BANNER) {
             return "../assets/foto/banner/" . $filename;
+        }
+        if ($type == FOTO_LAYANAN) {
+            return "../assets/foto/layanan/" . $filename;
         }
     }
 }
