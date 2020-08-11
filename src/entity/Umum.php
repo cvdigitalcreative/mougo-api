@@ -1081,7 +1081,7 @@ class Umum {
         return $stmt;
     }
 
-    public function jawabBantuanAdmin($id, $jawaban) {
+    public function jawabBantuanAdmin($id, $jawaban, $email) {
         if (empty($this->cekUserBantuan($id))) {
             return ['status' => 'Error', 'message' => 'Bantuan tidak ditemukan'];
         }
@@ -1093,6 +1093,10 @@ class Umum {
             WHERE id_bantuan = '$id'";
         $est = $this->getDb()->prepare($sql);
         if ($est->execute()) {
+            $sql = "INSERT INTO admin_menjawab (id_bantuan, email_admin)
+                    VALUES('$id', '$email')";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
             return ['status' => 'Success', 'message' => 'Berhasil Menjawab Pertanyaan User'];
         }return ['status' => 'Error', 'message' => 'Gagal Mengupdate Jawaban Bantuan'];
 
@@ -1810,22 +1814,23 @@ class Umum {
         return $est->fetch();
     }
 
-    public function inputTanggalPendaftaran() {
-        $sql = "SELECT * FROM user";
+    public function inputAdminBantuan() {
+        $sql = "SELECT * FROM bantuan";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $stmt = $est->fetchAll();
         
-        $sql = "SELECT * FROM tanggal_pendaftaran";
+        $sql = "SELECT * FROM admin_menjawab";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         $stmt2 = $est->fetchAll();
         
         if(empty($stmt2)){
             for ($i=0; $i < count($stmt); $i++) { 
-                $id_user = $stmt[$i]['id_user'];
-                $sql = "INSERT INTO tanggal_pendaftaran(id_user, tanggal_pendaftaran)
-                VALUES('$id_user','2020-06-15 00:00:00')";
+                $id_bantuan = $stmt[$i]['id_bantuan'];
+                $email = ADMIN_SILUMAN_MOUGO;
+                $sql = "INSERT INTO admin_menjawab(id_bantuan, email_admin)
+                VALUES('$id_bantuan','$email')";
                 $est = $this->getDb()->prepare($sql);
                 $est->execute();
             }
@@ -1833,20 +1838,21 @@ class Umum {
             for ($i=0; $i < count($stmt); $i++) { 
                 $status = true;
                 for ($j=0; $j < count($stmt2) ; $j++) { 
-                    if($stmt[$i]['id_user'] == $stmt2[$j]['id_user']){
+                    if($stmt[$i]['id_bantuan'] == $stmt2[$j]['id_bantuan']){
                         $status = false;
                     }
                 }
                 if ($status) {
-                    $id_user = $stmt[$i]['id_user'];
-                    $sql = "INSERT INTO tanggal_pendaftaran(id_user, tanggal_pendaftaran)
-                    VALUES('$id_user','2020-06-15 00:00:00')";
+                    $id_bantuan = $stmt[$i]['id_bantuan'];
+                    $email = ADMIN_SILUMAN_MOUGO;
+                    $sql = "INSERT INTO admin_menjawab(id_bantuan, email_admin)
+                    VALUES('$id_bantuan','$email')";
                     $est = $this->getDb()->prepare($sql);
                     $est->execute();
                 }
             }
         }
-        return ['status' => 'Success', 'message' => 'Berhasil Input Tanggal Pendaftaran'];
+        return ['status' => 'Success', 'message' => 'Berhasil Input Admin Jawab'];
 
     }
 

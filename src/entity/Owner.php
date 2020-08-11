@@ -1898,7 +1898,7 @@ class Owner {
         return $est->rowCount();
     }
 
-    private $column_search_bantuan = array('nama', 'pertanyaan', 'jawaban', 'tanggal_bantuan');
+    private $column_search_bantuan = array('nama', 'pertanyaan', 'nama_admin', 'jawaban', 'tanggal_bantuan');
     private $bantuan_id = array('tanggal_bantuan' => 'asc');
 
     public function getBantuanWeb($order_by, $order, $start, $length, $search) {
@@ -1914,8 +1914,10 @@ class Owner {
     }
 
     public function getBantuanQuery($order_by, $order, $search) {
-        $sql = "SELECT user.nama, bantuan.pertanyaan, bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
-                INNER JOIN user ON user.id_user = bantuan.id_user ";
+        $sql = "SELECT user.nama, bantuan.pertanyaan, admin.nama_admin , bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
+                INNER JOIN user ON user.id_user = bantuan.id_user
+                INNER JOIN admin_menjawab ON admin_menjawab.id_bantuan = bantuan.id_bantuan 
+                INNER JOIN admin ON admin.email_admin = admin_menjawab.email_admin";
         // foreach ($this->column_search as $index => $value) {
         //     if (!empty($search)) {
         //         if ($index === 0) {
@@ -1935,8 +1937,10 @@ class Owner {
             $temp = "";
             if ($order_by == 0) {
                 $temp = "user";
-            } else if ($order_by == 1 || $order_by == 2 || $order_by == 3) {
+            } else if ($order_by == 1 || $order_by == 4 || $order_by == 3) {
                 $temp = "bantuan";
+            } else if ($order_by == 2) {
+                $temp = "admin";
             }
             $order_in = $this->column_search_bantuan[$order_by];
             $sql = $sql . " ORDER BY $temp.$order_in $order ";
@@ -1953,7 +1957,9 @@ class Owner {
 
     public function countsBantuan() {
         $sql = "SELECT user.nama, bantuan.pertanyaan, bantuan.jawaban, bantuan.tanggal_bantuan FROM bantuan
-                INNER JOIN user ON user.id_user = bantuan.id_user ";
+                INNER JOIN user ON user.id_user = bantuan.id_user 
+                INNER JOIN admin_menjawab ON admin_menjawab.id_bantuan = bantuan.id_bantuan 
+                INNER JOIN admin ON admin.email_admin = admin_menjawab.email_admin ";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
         return $est->rowCount();

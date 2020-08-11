@@ -141,7 +141,7 @@ $app->put('/admin/bantuan/{id}', function ($request, $response, $args) {
     $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->jawabBantuanAdmin($args['id'], $data['jawaban']), SERVER_OK);
+    return $response->withJson($admin->jawabBantuanAdmin($args['id'], $data['jawaban'], $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN GET ALL BANTUAN
