@@ -15,6 +15,10 @@ return [
         'upload_dir_foto_stnk' => __DIR__ . '/../assets/foto/stnk/', // upload directory
         'upload_dir_foto_sim' => __DIR__ . '/../assets/foto/sim/', // upload directory
         'upload_dir_foto_diri' => __DIR__ . '/../assets/foto/diri/', // upload directory
+        'upload_dir_foto_izin' => __DIR__ . '/../assets/foto/izin/', // upload directory
+        'upload_dir_foto_rekening' => __DIR__ . '/../assets/foto/rekening/', // upload directory
+        'upload_dir_foto_banner' => __DIR__ . '/../assets/foto/banner/', // upload directory
+        'upload_dir_foto_layanan' => __DIR__ . '/../assets/foto/layanan/', // upload directory
         
         
         // Renderer settings

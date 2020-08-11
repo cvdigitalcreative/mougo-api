@@ -109,6 +109,10 @@ class User {
         if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
 
             if ($this->emailKonfirmasi($this->email, $this->nama, $role)) {
+                
+                if($role == MERCHANT_ROLE){
+                    $this->insertDetailProfile();
+                }
 
                 return ['status' => 'Success', 'message' => 'Pendaftaran Sukses'];
             }
@@ -360,6 +364,13 @@ class User {
             }
             return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];
         }
+        if ($data['role'] == MERCHANT_ROLE) {
+            //Token saldo point input
+            if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->gantiStatusAkun()) {
+                return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
+            }
+            return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Akun'];
+        }
         //Token saldo point input
         if ($this->insertToken() && $this->insertSaldo() && $this->insertPoint() && $this->insertPosition() && $this->insertDetailProfile() && $this->gantiStatusAkun()) {
             return ['status' => 'Success', 'message' => 'Selamat Akun Mougo Anda Telah Aktif'];
@@ -430,6 +441,9 @@ class User {
         }
         if ($role == DRIVER_ROLE) {
             $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Driver Anda " . $this->getWeb_url() . "/mougo/driverRegister/" . $this->id_user;
+        }
+        if ($role == MERCHANT_ROLE) {
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Merchant MOUGO Anda " . $this->getWeb_url() . "/mougo/merchantRegister/" . $this->id_user;
         }
         return $mail->send();
 

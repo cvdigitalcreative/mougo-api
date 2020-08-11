@@ -6,6 +6,7 @@ define('SERVER_BAD', 400);
 // ROLE
 define('USER_ROLE', 1);
 define('DRIVER_ROLE', 2);
+define('MERCHANT_ROLE', 3);
 
 // KODE REFERAL DAN SPONSOR DMS MOUGO
 define('KODE_REFERAL_DMS', "RAAA000");
@@ -119,6 +120,10 @@ define('FOTO_SKCK', 2);
 define('FOTO_DIRI', 3);
 define('FOTO_SIM', 4);
 define('FOTO_STNK', 5);
+define('FOTO_IZIN', 6);
+define('FOTO_REKENING', 7);
+define('FOTO_BANNER', 8);
+define('FOTO_LAYANAN', 9);
 
 // AHLI WARIS MAKS
 define('AHLI_WARIS', 4);
@@ -180,3 +185,12 @@ define('MINIMAL_TITIK_PERHARI', 10);
 
 // MINIMAL REFERAL
 define('MINIMAL_REFERAL', 3);
+
+// STATUS
+define('STATUS_ERROR', 'Error');
+
+// STATUS MERCHANT
+define('STATUS_MERCHANT_ONLINE', 1);
+define('STATUS_MERCHANT_OFFLINE', 2);
+define('STATUS_MERCHANT_PENDING', 1);
+define('STATUS_MERCHANT_ACCEPTED', 2);
