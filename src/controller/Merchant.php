@@ -12,7 +12,7 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
 
     if (empty($email) || empty($nama) || empty($no_telpon) || empty($password) || empty($no_ktp) || empty($nama_bank) || empty($no_rekening) || empty($atas_nama_bank) || empty($nama_usaha) || empty($alamat_usaha) || empty($no_telpon_kantor) || empty($no_izin) || empty($no_fax) || empty($nama_direktur) || empty($url_web_aplikasi) || empty($lama_bisnis) || empty($omset_perbulan) || empty($kategori_bisnis) || empty($uploadedFiles['foto_ktp']->file) || empty($uploadedFiles['foto_dokumen_izin']->file) || empty($uploadedFiles['foto_rekening_tabungan']->file)) {
         return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
-    }       
+    }
 
     $path_ktp = saveFile($uploadedFiles['foto_ktp'], FOTO_KTP, $directory_ktp);
     if ($path_ktp == STATUS_ERROR) {
@@ -60,8 +60,8 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
     if (!insertDetailMerchant($db, $detailMerchant->getId_user(), $detailMerchant->getNo_izin(), $detailMerchant->getNo_fax(), $detailMerchant->getNama_direktur(), $detailMerchant->getLama_bisnis(), $detailMerchant->getOmset_perbulan(), $detailMerchant->getFoto_dokumen_perizinan(), $detailMerchant->getFoto_rekening_tabungan(), $detailMerchant->getFoto_banner_ukm())) {
         return ['status' => 'Error', 'message' => 'Gagal Input Detail Merchant Ukm'];
     }
-
-    return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Merchant'];
+    $user_id['id_user'] = $id_user;
+    return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Merchant', 'data' => $user_id];
 
 }
 
