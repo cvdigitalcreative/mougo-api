@@ -19,6 +19,7 @@ return [
         'upload_dir_foto_rekening' => __DIR__ . '/../assets/foto/rekening/', // upload directory
         'upload_dir_foto_banner' => __DIR__ . '/../assets/foto/banner/', // upload directory
         'upload_dir_foto_layanan' => __DIR__ . '/../assets/foto/layanan/', // upload directory
+        'upload_dir_foto_barang' => __DIR__ . '/../assets/foto/barang/', // upload directory
         
         
         // Renderer settings
