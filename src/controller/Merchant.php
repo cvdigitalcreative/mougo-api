@@ -188,10 +188,88 @@ function getMerchantKategori($db) {
     return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Kategori', 'data' => $data];
 }
 
+function insertMerchantKategoriBisnis($db, $nama) {
+    if (empty($nama)) {
+        return ['status' => 'Error', 'message' => 'Data input tidak boleh kosong'];
+    }
+    $data = getMerchantKategoriBisnisByName($db, $nama);
+    if (!empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori telah ada atau telah ditambahkan'];
+    }
+    if (insertKategoriBisnis($db, $nama)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Kategori'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mendaftarkan Kategori'];
+}
+
+function updateMerchantKategoriBisnis($db, $id, $nama) {
+    if (empty($nama)) {
+        return ['status' => 'Error', 'message' => 'Data input tidak boleh kosong'];
+    }
+    $data = getMerchantKategoriBisnisByName($db, $nama);
+    if (!empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori telah ada atau telah ditambahkan'];
+    }
+    if (updateKategoriBisnis($db, $id, $nama)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Kategori'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mengupdate Kategori'];
+}
+
+function deleteMerchantKategoriBisnis($db, $id) {
+    $data = getMerchantKategoriBisnisById($db, $id);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori tidak ada atau telah dihapus'];
+    }
+    if (deleteKategoriBisnis($db, $id)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Menghapus Kategori'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Menghapus Kategori'];
+}
+
 function getMerchantKategoriBarang($db) {
     $data = getMerchantKategoriBarangUKM($db);
     if (empty($data)) {
         return ['status' => 'Error', 'message' => 'Kategori tidak ditemukan'];
     }
     return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Kategori', 'data' => $data];
+}
+
+function insertMerchantKategoriBarang($db, $nama) {
+    if (empty($nama)) {
+        return ['status' => 'Error', 'message' => 'Data input tidak boleh kosong'];
+    }
+    $data = getMerchantKategoriBarangByName($db, $nama);
+    if (!empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori barang telah ada atau telah ditambahkan'];
+    }
+    if (insertKategoriBarang($db, $nama)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Kategori Barang'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mendaftarkan Kategori Barang'];
+}
+
+function updateMerchantKategoriBarang($db, $id, $nama) {
+    if (empty($nama)) {
+        return ['status' => 'Error', 'message' => 'Data input tidak boleh kosong'];
+    }
+    $data = getMerchantKategoriBarangByName($db, $nama);
+    if (!empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori barang telah ada atau telah ditambahkan'];
+    }
+    if (updateKategoriBarang($db, $id, $nama)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Kategori Barang'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mengupdate Kategori Barang'];
+}
+
+function deleteMerchantKategoriBarang($db, $id) {
+    $data = getMerchantKategoriBarangById($db, $id);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori barang tidak ada atau telah dihapus'];
+    }
+    if (deleteKategoriBarang($db, $id)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Menghapus Kategori Barang'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Menghapus Kategori Barang'];
 }
