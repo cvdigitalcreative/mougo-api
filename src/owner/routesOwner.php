@@ -997,32 +997,3 @@ $app->post('/owner/history/withdraw/', function ($request, $response) {
 
     return $response->withJson(['status' => 'Success', 'draw' => $data['draw'], 'recordsTotal' => $owner->countsWithdraw(), 'recordsFiltered' => $owner->countsWithdraw(), 'data' => $withdraw], SERVER_OK);
 });
-
-// OWNER LAYANAN POSTING
-$app->post('/owner/layanan/', function ($request, $response) {
-    $data = $request->getParsedBody();
-    $uploadedFiles = $request->getUploadedFiles();
-    return $response->withJson(postLayanan($this->db,$data['nama_layanan'], $data['deskripsi_layanan'], $uploadedFiles,$this->get('settings')['upload_dir_foto_layanan']), SERVER_OK);
-});
-
-// OWNER LAYANAN VIEW
-$app->get('/owner/layanan/', function ($request, $response) {
-    return $response->withJson(getLayanan($this->db), SERVER_OK);
-});
-
-// OWNER LAYANAN VIEW ID
-$app->get('/owner/layanan/{id}', function ($request, $response, $args) {
-    return $response->withJson(deleteLayanan($this->db, $args['id']), SERVER_OK);
-});
-
-// OWNER LAYANAN DELETE
-$app->delete('/owner/layanan/{id}', function ($request, $response, $args) {
-    return $response->withJson(deleteLayanan($this->db, $args['id']), SERVER_OK);
-});
-
-// OWNER LAYANAN UPDATE
-$app->post('/owner/layanan/{id}', function ($request, $response, $args) {
-    $data = $request->getParsedBody();
-    $uploadedFiles = $request->getUploadedFiles();
-    return $response->withJson(editLayanan($this->db, $args['id'], $data['nama_layanan'], $data['deskripsi_layanan'], $uploadedFiles,$this->get('settings')['upload_dir_foto_layanan']), SERVER_OK);
-});
