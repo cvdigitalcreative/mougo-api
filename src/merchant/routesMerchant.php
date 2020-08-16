@@ -43,15 +43,52 @@ $app->get('/merchant/{id_user}', function ($request, $response, $args) {
 
 // GET MERCHANT
 $app->get('/merchant', function ($request, $response) {
-    return $response->withJson(getMerchantDetail($this->db), SERVER_OK);
+    return $response->withJson(getMerchant($this->db), SERVER_OK);
 });
 
+// KATEGORI BISNIS
 // GET MERCHANT KATEGORI BISNIS
 $app->get('/merchant/kategori/', function ($request, $response) {
     return $response->withJson(getMerchantKategori($this->db), SERVER_OK);
 });
 
+// MEMBUAT KATEGORI BISNIS
+$app->post('/merchant/kategori/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    return $response->withJson(insertMerchantKategoriBisnis($this->db, $data['nama_kategori']), SERVER_OK);
+});
+
+// MENGUPDATE KATEGORI BISNIS
+$app->put('/merchant/kategori/{id_kategori}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    return $response->withJson(updateMerchantKategoriBisnis($this->db, $args['id_kategori'], $data['nama_kategori']), SERVER_OK);
+});
+
+// MENGUPDATE KATEGORI BISNIS
+$app->delete('/merchant/kategori/{id_kategori}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    return $response->withJson(deleteMerchantKategoriBisnis($this->db, $args['id_kategori']), SERVER_OK);
+});
+
 // GET MERCHANT KATEGORI BARANG
 $app->get('/merchant/barang/kategori/', function ($request, $response) {
     return $response->withJson(getMerchantKategoriBarang($this->db), SERVER_OK);
+});
+
+// MEMBUAT KATEGORI BARANG
+$app->post('/merchant/barang/kategori/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    return $response->withJson(insertMerchantKategoriBarang($this->db, $data['nama_kategori']), SERVER_OK);
+});
+
+// MENGUPDATE KATEGORI BARANG
+$app->put('/merchant/barang/kategori/{id_kategori}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    return $response->withJson(updateMerchantKategoriBarang($this->db, $args['id_kategori'], $data['nama_kategori']), SERVER_OK);
+});
+
+// MENGUPDATE KATEGORI BARANG
+$app->delete('/merchant/barang/kategori/{id_kategori}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    return $response->withJson(deleteMerchantKategoriBarang($this->db, $args['id_kategori']), SERVER_OK);
 });
