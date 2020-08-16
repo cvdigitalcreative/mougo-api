@@ -125,6 +125,7 @@ define('FOTO_REKENING', 7);
 define('FOTO_BANNER', 8);
 define('FOTO_LAYANAN', 9);
 define('FOTO_BARANG', 10);
+define('FOTO_BLOG', 11);
 
 // AHLI WARIS MAKS
 define('AHLI_WARIS', 4);

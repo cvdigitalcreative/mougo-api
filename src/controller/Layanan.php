@@ -33,10 +33,12 @@ function getLayananDetail($db, $id) {
 }
 
 function deleteLayanan($db, $id) {
-    if (empty(getLayananBy($db, $id))) {
+    $data = getLayananBy($db, $id);
+    if (empty($data)) {
         return ['status' => 'Error', 'message' => 'Gagal Menghapus Layanan Tidak Ditemukan'];
     }
     if (deleteLayananById($db, $id)) {
+        unlink($data['foto_layanan']);
         return ['status' => 'Success', 'message' => 'Berhasil Menghapus Layanan'];
     }
     return ['status' => 'Error', 'message' => 'Gagal Menghapus Layanan'];
