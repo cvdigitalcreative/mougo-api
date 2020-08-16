@@ -80,7 +80,7 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
         return ['status' => 'Error', 'message' => 'Gagal Input Detail Merchant Ukm'];
     }
     
-    $kategori_bisnis = str_replace( [' ',' '],'' ,$kategori_bisnis);
+    $kategori_bisnis = str_replace( [' '],'' ,$kategori_bisnis);
     $kategori_bisnis_arr = explode( "," ,$kategori_bisnis);
     for ($i=0; $i < count($kategori_bisnis_arr); $i++) { 
         insertKategori($db, $id_user, $kategori_bisnis_arr[$i]);
