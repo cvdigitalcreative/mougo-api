@@ -79,7 +79,12 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
     if (!insertDetailMerchant($db, $detailMerchant->getId_user(), $detailMerchant->getNo_izin(), $detailMerchant->getNo_fax(), $detailMerchant->getNama_direktur(), $detailMerchant->getLama_bisnis(), $detailMerchant->getOmset_perbulan(), $detailMerchant->getFoto_dokumen_perizinan(), $detailMerchant->getFoto_rekening_tabungan(), $detailMerchant->getFoto_banner_ukm())) {
         return ['status' => 'Error', 'message' => 'Gagal Input Detail Merchant Ukm'];
     }
-    insertKategori($db, $id_user, $kategori_bisnis);
+    
+    $kategori_bisnis = str_replace( ['[',']'],'' ,$kategori_bisnis);
+    $kategori_bisnis_arr = explode( "," ,$kategori_bisnis);
+    for ($i=0; $i < count($kategori_bisnis_arr); $i++) { 
+        insertKategori($db, $id_user, $kategori_bisnis_arr[$i]);
+    }
     $user_id['id_user'] = $id_user;
     return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Merchant', 'data' => $user_id];
 
