@@ -10,6 +10,8 @@ require_once dirname(__FILE__) . '/../model/Barang.php';
 require_once dirname(__FILE__) . '/../model/Merchant.php';
 require_once dirname(__FILE__) . '/../model/DetailMerchant.php';
 
+//
+// MERCHANT
 function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_referal, $kode_sponsor, $no_ktp, $nama_bank, $no_rekening, $atas_nama_bank, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $no_izin, $no_fax, $nama_direktur, $url_web_aplikasi, $lama_bisnis, $omset_perbulan, $kategori_bisnis, $uploadedFiles, $directory_ktp, $directory_izin, $directory_rekening, $directory_banner) {
 
     if (empty($email) || empty($nama) || empty($no_telpon) || empty($password) || empty($no_ktp) || empty($nama_bank) || empty($no_rekening) || empty($atas_nama_bank) || empty($nama_usaha) || empty($alamat_usaha) || empty($no_telpon_kantor) || empty($no_izin) || empty($no_fax) || empty($nama_direktur) || empty($url_web_aplikasi) || empty($lama_bisnis) || empty($omset_perbulan) || empty($kategori_bisnis) || empty($uploadedFiles['foto_ktp']->file) || empty($uploadedFiles['foto_dokumen_izin']->file) || empty($uploadedFiles['foto_rekening_tabungan']->file)) {
@@ -84,6 +86,8 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
 
 }
 
+//
+// BARANG MERCHANT
 function barangMerchant($db, $id_user, $nama_barang, $harga_barang, $kategori_barang, $uploadedFiles, $directory_barang) {
 
     if (empty($id_user) || empty($nama_barang) || empty($harga_barang) || empty($kategori_barang) || empty($uploadedFiles['foto_barang'])) {
@@ -127,6 +131,73 @@ function barangMerchant($db, $id_user, $nama_barang, $harga_barang, $kategori_ba
 
 }
 
+function getMerchantBarang($db, $id) {
+    $data = getMerchantDetailById($db, $id);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
+    }
+    $barang = getBarangById($db, $id);
+    if (!empty($barang)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Barang', 'data' => $barang];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Barang'];
+}
+
+function getMerchantBarangDetail($db, $id, $id_barang) {
+    $data = getMerchantDetailById($db, $id);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
+    }
+    $barang = getBarangByIdBarang($db, $id_barang, $id);
+    if (!empty($barang)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Barang', 'data' => $barang];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Barang'];
+}
+
+function deleteMerchantBarang($db, $id, $id_barang) {
+    $data = getMerchantDetailById($db, $id);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
+    }
+    $barang = getBarangByIdBarang($db, $id_barang, $id);
+    if (empty($barang)) {
+        return ['status' => 'Error', 'message' => 'Barang tidak ada atau telah dihapus'];
+    }
+    if (deleteBarang($db, $id_barang, $id)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Menghapus Barang'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Menghapus Barang'];
+}
+
+function updateMerchantBarang($db, $id, $id_barang, $nama_barang, $harga_barang, $kategori_barang, $uploadedFiles, $directory_barang) {
+    if ( empty($nama_barang) && empty($harga_barang) && empty($kategori_barang) && empty($uploadedFiles['foto_barang'])) {
+        return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
+    }
+    $data = getMerchantDetailById($db, $id);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
+    }
+    $barang = getBarangByIdBarang($db, $id_barang, $id);
+    if (empty($barang)) {
+        return ['status' => 'Error', 'message' => 'Barang tidak ditemukan'];
+    }
+    $path_barang = null;
+    if (empty($uploadedFiles['foto_barang'])) {
+        $path_barang = saveFile($uploadedFiles['foto_barang'], FOTO_BARANG, $directory_barang);
+        if ($path_barang == STATUS_ERROR) {
+            return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+        }
+        unlink($barang['foto_barang']);
+    }
+    if(updateBarang($db, $id_barang, $nama_barang, $harga_barang, $path_barang,$kategori_barang)){
+        return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Barang'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mengupdate Barang'];
+}
+
+//
+// SAVE UPLOADED FILE
 function saveFile($uploadedFile, $type, $directory) {
     if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
@@ -160,10 +231,8 @@ function saveFile($uploadedFile, $type, $directory) {
     }
 }
 
-function loginMerchant($emailNotelpon, $password) {
-
-}
-
+//
+// MERCHANT
 function getMerchantById($db, $id_user) {
     $data = getMerchantDetailById($db, $id_user);
     if (empty($data)) {
@@ -180,6 +249,8 @@ function getMerchant($db) {
     return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Detail Merchant', 'data' => $data];
 }
 
+//
+// MERCHANT KATEGORI BISNIS
 function getMerchantKategori($db) {
     $data = getMerchantKategoriBisnis($db);
     if (empty($data)) {
@@ -227,6 +298,8 @@ function deleteMerchantKategoriBisnis($db, $id) {
     return ['status' => 'Error', 'message' => 'Gagal Menghapus Kategori'];
 }
 
+//
+// MERCHANT KATEGORI BARANG
 function getMerchantKategoriBarang($db) {
     $data = getMerchantKategoriBarangUKM($db);
     if (empty($data)) {
