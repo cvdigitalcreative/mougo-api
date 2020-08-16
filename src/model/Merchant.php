@@ -1,5 +1,7 @@
 <?php
 
+//
+// MERCHANT
 function insertMerchant($db, $id_user, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $url_web_aplikasi, $status_online, $status_verif) {
     $sql = "INSERT INTO ukm (id_user, nama_usaha, alamat_usaha, no_telpon_kantor, url_web_aplikasi, status_online_merchant, status_verifikasi_merchant)
                 VALUES ('$id_user', '$nama_usaha', '$alamat_usaha', '$no_telpon_kantor', '$url_web_aplikasi', $status_online, $status_verif)";
@@ -7,6 +9,8 @@ function insertMerchant($db, $id_user, $nama_usaha, $alamat_usaha, $no_telpon_ka
     return $est->execute();
 }
 
+//
+// MERCHANT KATEGORI
 function insertKategori($db, $id_user, $kategori) {
     $sql = "INSERT INTO kategori_ukm (id_user, id_kategori)
                 VALUES ('$id_user', '$kategori')";
@@ -45,6 +49,8 @@ function getMerchantDetail($db) {
     return $est->fetchAll();
 }
 
+//
+// MERCHANT KATEGORI BISNIS
 function getMerchantKategoriBisnis($db) {
     $sql = "SELECT * FROM kategori_bisnis";
     $est = $db->prepare($sql);
@@ -90,6 +96,8 @@ function deleteKategoriBisnis($db, $id) {
     return $est->execute();
 }
 
+//
+// MERCHANT KATEGORI BARANG
 function getMerchantKategoriBarangUKM($db) {
     $sql = "SELECT * FROM kategori_barang";
     $est = $db->prepare($sql);

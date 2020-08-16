@@ -17,6 +17,32 @@ $app->post('/merchant/{id_user}/barang', function ($request, $response, $args) {
     return $response->withJson(barangMerchant($this->db, $id, $data['nama_barang'], $data['harga_barang'], $data['kategori_barang'], $uploadedFiles, $this->get('settings')['upload_dir_foto_barang']), SERVER_OK);
 });
 
+// MERCHANT GET BARANG
+$app->get('/merchant/{id_user}/barang', function ($request, $response, $args) {
+    $id = $args['id_user'];
+    return $response->withJson(getMerchantBarang($this->db, $id), SERVER_OK);
+});
+
+// MERCHANT GET BARANG DETAIL
+$app->get('/merchant/{id_user}/barang/{id_barang}', function ($request, $response, $args) {
+    $id = $args['id_user'];
+    return $response->withJson(getMerchantBarangDetail($this->db, $id, $args['id_barang']), SERVER_OK);
+});
+
+// MERCHANT DELETE BARANG DETAIL
+$app->delete('/merchant/{id_user}/barang/{id_barang}', function ($request, $response, $args) {
+    $id = $args['id_user'];
+    return $response->withJson(deleteMerchantBarang($this->db, $id, $args['id_barang']), SERVER_OK);
+});
+
+// MERCHANT INPUT BARANG
+$app->post('/merchant/{id_user}/barang/{id_barang}', function ($request, $response, $args) {
+    $id = $args['id_user'];
+    $data = $request->getParsedBody();
+    $uploadedFiles = $request->getUploadedFiles();
+    return $response->withJson(updateMerchantBarang($this->db, $id, $args['id_barang'], $data['nama_barang'], $data['harga_barang'], $data['kategori_barang'], $uploadedFiles, $this->get('settings')['upload_dir_foto_barang']), SERVER_OK);
+});
+
 // MERCHANT LOGIN
 $app->post('/merchant/login', function ($request, $response) {
     $data = $request->getParsedBody();
