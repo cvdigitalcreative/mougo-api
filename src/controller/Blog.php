@@ -67,3 +67,52 @@ function editBlog($db, $id, $judul_blog, $isi_blog, $kategori_blog, $nama_penuli
     }
     return ['status' => 'Error', 'message' => 'Gagal Mengupdate Blog'];
 }
+
+//
+// KATEGORI BLOG
+function getKategoriBlogAll($db) {
+    $data = getKategoriBlog($db);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori tidak ditemukan'];
+    }
+    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Kategori', 'data' => $data];
+}
+
+function insertKategoriBlogWeb($db, $nama) {
+    if (empty($nama)) {
+        return ['status' => 'Error', 'message' => 'Data input tidak boleh kosong'];
+    }
+    $data = getKategoriBlogByName($db, $nama);
+    if (!empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori blog telah ada atau telah ditambahkan'];
+    }
+    if (insertKategoriBlog($db, $nama)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Kategori Blog'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mendaftarkan Kategori Blog'];
+}
+
+function updateKategoriBlogWeb($db, $id, $nama) {
+    if (empty($nama)) {
+        return ['status' => 'Error', 'message' => 'Data input tidak boleh kosong'];
+    }
+    $data = getKategoriBlogByName($db, $nama);
+    if (!empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori blog telah ada atau telah ditambahkan'];
+    }
+    if (updateKategoriBlog($db, $id, $nama)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Kategori Blog'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mengupdate Kategori Blog'];
+}
+
+function deleteKategoriBlogWeb($db, $id) {
+    $data = getKategoriBlogById($db, $id);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'Kategori blog tidak ada atau telah dihapus'];
+    }
+    if (deleteKategoriBlog($db, $id)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Menghapus Kategori Blog'];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Menghapus Kategori Blog'];
+}

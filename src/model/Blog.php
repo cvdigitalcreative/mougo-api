@@ -67,3 +67,50 @@ function updateBlog($db, $id, $judul_blog, $isi_blog, $kategori_blog, $nama_penu
     $est = $db->prepare($sql);
     return $est->execute();
 }
+
+//
+// KATEGORI BLOG
+function getKategoriBlog($db) {
+    $sql = "SELECT * FROM kategori_blog";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->fetchAll();
+}
+
+function getKategoriBlogByName($db, $nama) {
+    $sql = "SELECT * FROM kategori_blog
+            WHERE nama_kategori = '$nama'";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->fetchAll();
+}
+
+function insertKategoriBlog($db, $nama) {
+    $sql = "INSERT INTO kategori_blog (nama_kategori)
+                VALUES ('$nama')";
+    $est = $db->prepare($sql);
+    return $est->execute();
+}
+
+function getKategoriBlogById($db, $id) {
+    $sql = "SELECT * FROM kategori_blog
+            WHERE id_kategori = '$id'";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->fetchAll();
+}
+
+function updateKategoriBlog($db, $id, $nama) {
+    $sql = "UPDATE kategori_blog
+            SET nama_kategori = '$nama'
+            WHERE id_kategori = $id";
+    $est = $db->prepare($sql);
+    return $est->execute();
+}
+
+function deleteKategoriBlog($db, $id) {
+    $sql = "DELETE FROM kategori_blog
+            WHERE id_kategori = '$id'";
+    $est = $db->prepare($sql);
+    return $est->execute();
+}
