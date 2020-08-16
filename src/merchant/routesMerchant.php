@@ -17,6 +17,22 @@ $app->post('/merchant/{id_user}/barang', function ($request, $response, $args) {
     return $response->withJson(barangMerchant($this->db, $id, $data['nama_barang'], $data['harga_barang'], $data['kategori_barang'], $uploadedFiles, $this->get('settings')['upload_dir_foto_barang']), SERVER_OK);
 });
 
+// ADMIN MENCARI MERCHANT KONFIRMASI
+$app->post('/merchant/konfirmasi/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    return $response->withJson(getMerchantDetailByInfo($this->db, $data['info']), SERVER_OK);
+});
+
+// ADMIN ACC MERCHANT
+$app->put('/merchant/accept/{id_user}', function ($request, $response, $args) {
+    return $response->withJson(updateMerchantVerifikasi($this->db,$args['id_user'], STATUS_MERCHANT_ACCEPTED), SERVER_OK);
+});
+
+// ADMIN REJECT MERCHANT
+$app->put('/merchant/reject/{id_user}', function ($request, $response, $args) {
+    return $response->withJson(updateMerchantVerifikasi($this->db,$args['id_user'], STATUS_MERCHANT_REJECTED), SERVER_OK);
+});
+
 // MERCHANT GET BARANG
 $app->get('/merchant/{id_user}/barang', function ($request, $response, $args) {
     $id = $args['id_user'];
