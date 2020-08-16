@@ -228,6 +228,9 @@ function saveFile($uploadedFile, $type, $directory) {
         if ($type == FOTO_BARANG) {
             return "../assets/foto/barang/" . $filename;
         }
+        if ($type == FOTO_BLOG) {
+            return "../assets/foto/blog/" . $filename;
+        }
     }
 }
 
