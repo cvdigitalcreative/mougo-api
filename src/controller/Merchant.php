@@ -104,32 +104,31 @@ function barangMerchant($db, $id_user, $nama_barang, $harga_barang, $kategori_ba
     if (empty($cek_user)) {
         return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
     }
+    // foreach ($uploadedFiles['foto_barang'] as $uploadedFile) {
+    //     if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+    //         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+    //         if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
+    //             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    //         }
+    //     }
+    // }
 
-    foreach ($uploadedFiles['foto_barang'] as $uploadedFile) {
-        if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-            $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-            if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
-                return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
-            }
-        }
-    }
-
-    $state = true;
-    $i = 0;
-    while ($state) {
-        if (empty($nama_barang[$i]) || empty($harga_barang[$i]) || empty($kategori_barang[$i]) || empty($uploadedFiles['foto_barang'][$i])) {
-            break;
-        }
-        $path_barang = saveFile($uploadedFiles['foto_barang'][$i], FOTO_BARANG, $directory_barang);
+    // $state = true;
+    // $i = 0;
+    // while ($state) {
+    //     if (empty($nama_barang[$i]) || empty($harga_barang[$i]) || empty($kategori_barang[$i]) || empty($uploadedFiles['foto_barang'])) {
+    //         break;
+    //     }
+        $path_barang = saveFile($uploadedFiles['foto_barang'], FOTO_BARANG, $directory_barang);
         if ($path_barang == STATUS_ERROR) {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
         }
-        $barang = new Barang($nama_barang[$i], $harga_barang[$i], $path_barang, $kategori_barang[$i]);
+        $barang = new Barang($nama_barang, $harga_barang, $path_barang, $kategori_barang);
         insertBarang($db, $id_user, $barang->getNama_barang(), $barang->getHarga_barang(), $barang->getFoto_barang(), $barang->getKategori_barang());
 
-        $i++;
+        // $i++;
 
-    }
+    // }
 
     return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Barang Merchant'];
 
