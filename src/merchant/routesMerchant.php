@@ -139,3 +139,8 @@ $app->delete('/merchant/barang/kategori/{id_kategori}', function ($request, $res
     $data = $request->getParsedBody();
     return $response->withJson(deleteMerchantKategoriBarang($this->db, $args['id_kategori']), SERVER_OK);
 });
+
+// WEBSITE TOTAL MITRA
+$app->get('/website/total-mitra/', function ($request, $response) {
+    return $response->withJson(getTotalMitraWebsite($this->db), SERVER_OK);
+});
