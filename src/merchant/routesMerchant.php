@@ -39,6 +39,11 @@ $app->get('/merchant/{id_user}/barang', function ($request, $response, $args) {
     return $response->withJson(getMerchantBarang($this->db, $id), SERVER_OK);
 })->add($tokenCheck);
 
+// MERCHANT BARANG
+$app->get('/merchant/barang/detail/', function ($request, $response) {
+    return $response->withJson(getMerchantDetailBarang($this->db), SERVER_OK);
+});
+
 // MERCHANT GET BARANG DETAIL
 $app->get('/merchant/{id_user}/barang/{id_barang}', function ($request, $response, $args) {
     $id = $args['id_user'];

@@ -49,6 +49,31 @@ function getMerchantDetail($db) {
     return $est->fetchAll();
 }
 
+function getMerchantDetailVerifi($db) {
+    $status = STATUS_MERCHANT_ACCEPTED;
+    $sql = "SELECT user.id_user, user.email, user.nama, user.no_telpon, kode_referal.kode_referal, kode_sponsor.kode_sponsor, detail_user.no_ktp, bank.name AS nama_bank, detail_user.no_rekening, detail_user.atas_nama_bank, ukm.nama_usaha, ukm.alamat_usaha, ukm.no_telpon_kantor, ukm.url_web_aplikasi, detail_ukm.nama_direktur, detail_ukm.lama_bisnis, detail_ukm.omset_perbulan, detail_user.foto_ktp, detail_ukm.foto_dokumen_perizinan AS foto_izin, detail_ukm.foto_rekening_tabungan AS foto_rekening, detail_ukm.foto_banner_ukm FROM user
+            INNER JOIN detail_user ON detail_user.id_user = user.id_user
+            INNER JOIN bank ON bank.code = detail_user.bank
+            INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
+            INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+            INNER JOIN ukm ON ukm.id_user = user.id_user
+            INNER JOIN detail_ukm ON detail_ukm.id_user = ukm.id_user
+            WHERE ukm.status_verifikasi_merchant = $status";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->fetchAll();
+}
+
+function getMerchantaKategoriUkm($db, $id) {
+    $sql = "SELECT kategori_bisnis.nama_kategori FROM ukm 
+            INNER JOIN kategori_ukm ON kategori_ukm.id_user = ukm.id_user
+            INNER JOIN kategori_bisnis ON kategori_bisnis.id_kategori = kategori_ukm.id_kategori
+            WHERE ukm.id_user = '$id'";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->fetchAll();
+}
+
 function getMerchantDetailForConfirm($db, $id) {
     $sql = "SELECT user.id_user, user.email, user.nama, user.no_telpon, kode_referal.kode_referal, kode_sponsor.kode_sponsor, detail_user.no_ktp, bank.name AS nama_bank, detail_user.no_rekening, detail_user.atas_nama_bank, ukm.nama_usaha, ukm.alamat_usaha, ukm.no_telpon_kantor, ukm.url_web_aplikasi, detail_ukm.nama_direktur, detail_ukm.lama_bisnis, detail_ukm.omset_perbulan, kategori_bisnis.nama_kategori AS kategori_bisnis, detail_user.foto_ktp, detail_ukm.foto_dokumen_perizinan AS foto_izin, detail_ukm.foto_rekening_tabungan AS foto_rekening, detail_ukm.foto_banner_ukm FROM user
             INNER JOIN detail_user ON detail_user.id_user = user.id_user

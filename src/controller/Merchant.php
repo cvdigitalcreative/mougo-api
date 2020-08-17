@@ -174,6 +174,41 @@ function getMerchantBarang($db, $id) {
     return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Barang'];
 }
 
+function getMerchantDetailBarang($db) {
+    $data = getMerchantDetailVerifi($db);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
+    }
+    $final = [];
+    $k = 0 ;
+    // $l = 0;
+    for ($i=0; $i < count($data); $i++) { 
+        $barang = getBarangById($db, $data[$i]['id_user']);
+        if(!empty($barang)){
+            $final[$k] = $data[$i];
+            for ($j=0; $j < count($barang); $j++) { 
+                $final[$k]['barang'][$j] = $barang[$j];
+            }
+            $k++;
+        }
+    }
+    for ($i=0; $i < count($final); $i++) { 
+        $kategori_bisnis = getMerchantaKategoriUkm($db, $final[$i]['id_user']);
+        // var_dump($kategori_bisnis);
+        if(!empty($kategori_bisnis)){
+            // $final[$l] = $data[$l];
+            for ($j=0; $j < count($kategori_bisnis); $j++) { 
+                $final[$i]['kategori_bisnis'][$j] = $kategori_bisnis[$j];
+            }
+            // $l++; 
+        }
+    }
+    if (!empty($data)) {
+        return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Barang', 'data' => $final];
+    }
+    return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Barang Merchant'];
+}
+
 function getMerchantBarangDetail($db, $id, $id_barang) {
     $data = getMerchantDetailById($db, $id);
     if (empty($data)) {
