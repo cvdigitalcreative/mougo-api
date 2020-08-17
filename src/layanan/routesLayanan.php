@@ -16,7 +16,7 @@ $app->get('/layanan/', function ($request, $response) {
 
 // OWNER LAYANAN VIEW ID
 $app->get('/layanan/{id}', function ($request, $response, $args) {
-    return $response->withJson(deleteLayanan($this->db, $args['id']), SERVER_OK);
+    return $response->withJson(getLayananDetail($this->db, $args['id']), SERVER_OK);
 });
 
 // OWNER LAYANAN DELETE
