@@ -107,6 +107,46 @@ function getMerchantDetailCek($db, $id) {
     return $est->fetch();
 }
 
+function countsUserDriver($db) {
+    $role = DRIVER_ROLE;
+    $sql = "SELECT * FROM user
+            INNER JOIN detail_user ON detail_user.id_user = user.id_user
+            INNER JOIN bank ON bank.code = detail_user.bank
+            INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+            INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
+            WHERE user.role = $role";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->rowCount();
+}
+
+function countsUserCustomer($db) {
+    $role = USER_ROLE;
+    $sql = "SELECT * FROM user
+            INNER JOIN detail_user ON detail_user.id_user = user.id_user
+            INNER JOIN bank ON bank.code = detail_user.bank
+            INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+            INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
+            WHERE user.role = $role";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->rowCount();
+}
+
+function countsUserMerchant($db) {
+    $status = STATUS_MERCHANT_ACCEPTED;
+    $sql = "SELECT * FROM user
+            INNER JOIN ukm ON ukm.id_user = user.id_user
+            INNER JOIN detail_user ON detail_user.id_user = user.id_user
+            INNER JOIN bank ON bank.code = detail_user.bank
+            INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+            INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
+            WHERE ukm.status_verifikasi_merchant = $status";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->rowCount();
+}
+
 function updateVerifikasiMerchant($db, $id, $status) {
     $sql = "UPDATE ukm 
             SET status_verifikasi_merchant = '$status'

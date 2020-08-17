@@ -415,3 +415,15 @@ function deleteMerchantKategoriBarang($db, $id) {
     }
     return ['status' => 'Error', 'message' => 'Gagal Menghapus Kategori Barang'];
 }
+
+//
+// WEBSITE GET TOTAL MITRA
+function getTotalMitraWebsite($db) {
+    $data = [];
+    $data['total_driver'] = countsUserDriver($db);
+    $data['total_customer'] = countsUserCustomer($db);
+    $data['total_merchant'] = countsUserMerchant($db);
+    $data['total_mitra'] = $data['total_driver'] + $data['total_customer'] + $data['total_merchant'];
+    
+    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Mitra', 'data' => $data];
+}
