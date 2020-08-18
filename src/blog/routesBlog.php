@@ -12,12 +12,12 @@ $app->post('/blog/', function ($request, $response) {
 // BLOG VIEW
 $app->get('/blog/', function ($request, $response) {
     return $response->withJson(getBlog($this->db), SERVER_OK);
-})->add($tokenCheck);
+});
 
 // BLOG VIEW ID
 $app->get('/blog/{id_blog}', function ($request, $response, $args) {
     return $response->withJson(getBlogDetail($this->db, $args['id_blog']), SERVER_OK);
-})->add($tokenCheck);
+});
 
 // BLOG DELETE
 $app->delete('/blog/{id_blog}', function ($request, $response, $args) {
