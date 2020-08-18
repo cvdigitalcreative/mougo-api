@@ -204,7 +204,7 @@ function getMerchantDetailBarang($db) {
         }
     }
     if (!empty($data)) {
-        return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Barang', 'data' => $final];
+        return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Barang', 'data' => array_slice($final, 0, 10)];
     }
     return ['status' => 'Error', 'message' => 'Gagal Mendapatkan Barang Merchant'];
 }
