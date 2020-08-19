@@ -194,7 +194,7 @@ class Trip {
         $cancelOrder->setDb($this->db);
 
         if (empty($data_order)) {
-            if ($data_trip['status_trip'] == STATUS_MENGANTAR_KETUJUAN) {
+            if ($data_trip['status_trip'] != STATUS_MENCARI_DRIVER) {
                 return ['status' => 'Error', 'message' => 'Tidak Dapat Membatalkan Trip, Sedang Dalam Perjalanan Ketujuan'];
             }
             $saldo_customer = $cancelOrder->getSaldoUser($data_trip['id_customer']);
