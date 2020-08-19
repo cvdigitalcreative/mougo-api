@@ -249,7 +249,7 @@ function updateMerchantBarang($db, $id, $id_barang, $nama_barang, $harga_barang,
         return ['status' => 'Error', 'message' => 'Barang tidak ditemukan'];
     }
     $path_barang = null;
-    if (empty($uploadedFiles['foto_barang'])) {
+    if (!empty($uploadedFiles['foto_barang'])) {
         $path_barang = saveFile($uploadedFiles['foto_barang'], FOTO_BARANG, $directory_barang);
         if ($path_barang == STATUS_ERROR) {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
