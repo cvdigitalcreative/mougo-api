@@ -7,7 +7,7 @@ function insertBlog($db,  $judul_blog, $isi_blog, $kategori_blog, $nama_penulis,
 }
 
 function getAllBlog($db) {
-    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog, blog.tanggal_posting FROM blog
+    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.id_kategori, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog, blog.tanggal_posting FROM blog
             INNER JOIN kategori_blog ON kategori_blog.id_kategori = blog.kategori_blog";
     $est = $db->prepare($sql);
     $est->execute();
@@ -22,7 +22,7 @@ function deleteBlogById($db, $id) {
 }
 
 function getBlogBy($db, $id) {
-    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog , blog.tanggal_posting FROM blog
+    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.id_kategori, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog , blog.tanggal_posting FROM blog
             INNER JOIN kategori_blog ON kategori_blog.id_kategori = blog.kategori_blog
             WHERE id_blog = $id";
     $est = $db->prepare($sql);
