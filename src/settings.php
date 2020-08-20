@@ -1,11 +1,11 @@
 <?php
-$_ENV['type'] = 'development';
+$_ENV['type'] = 'production';
 $_ENV['web_development'] = 'http://45.114.118.64:72';
 $_ENV['web_production'] = 'http://45.114.118.64:73';
 
 return [
     'settings' => [
-        'displayErrorDetails' => true, // set to false in production
+        'displayErrorDetails' => ($_ENV['type'] == 'development'), // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
         'upload_directory' => __DIR__ . '/../assets/', // upload directory
         'upload_directory2' => __DIR__ . '/../assets-event/', // upload directory
@@ -30,7 +30,7 @@ return [
         ],
         'db' => [
             'host'=>'localhost',
-            'dbname'=>'db_mougo',
+            'dbname'=>'db_mougo_production',
             'user'=>'root',
             'password'=>'DigitalCreativeCrew1!@2',
             'driver' => 'mysql'
