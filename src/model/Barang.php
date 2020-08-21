@@ -50,7 +50,7 @@ function updateBarang($db, $id, $nama_barang, $harga_barang, $foto_barang, $kate
     if (!empty($foto_barang)) {
         $sql = $sql . "foto_barang = '$foto_barang' ";
     }
-    if ((!empty($nama_barang) || !empty($harga_barang)) || !empty($foto_barang)  && !empty($kategori_barang)) {
+    if (((!empty($nama_barang) || !empty($harga_barang)) || !empty($foto_barang)) && !empty($kategori_barang)) {
         $sql = $sql . ", ";
     }
     if (!empty($kategori_barang)) {
