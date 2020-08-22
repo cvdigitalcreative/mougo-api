@@ -23,6 +23,11 @@ $app->post('/merchant/konfirmasi/', function ($request, $response) {
     return $response->withJson(getMerchantDetailByInfo($this->db, $data['info']), SERVER_OK);
 });
 
+// ADMIN GET LIST MERCHANT BELUM KONFIRMASI
+$app->get('/merchant/konfirmasi/', function ($request, $response) {
+    return $response->withJson(getMerchantDetailList($this->db), SERVER_OK);
+});
+
 // ADMIN ACC MERCHANT
 $app->put('/merchant/accept/{id_user}', function ($request, $response, $args) {
     return $response->withJson(updateMerchantVerifikasi($this->db,$args['id_user'], STATUS_MERCHANT_ACCEPTED), SERVER_OK);

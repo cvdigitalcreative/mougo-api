@@ -145,6 +145,14 @@ function getMerchantDetailByInfo($db, $id) {
     return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $data];
 }
 
+function getMerchantDetailList($db) {
+    $data = getMerchantDetailForConfirmList($db);
+    if (empty($data)) {
+        return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
+    }
+    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $data];
+}
+
 function updateMerchantVerifikasi($db, $id_user, $type){
     $data = getMerchantDetailCek($db, $id_user);
     if (empty($data)) {
