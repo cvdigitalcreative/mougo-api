@@ -91,6 +91,26 @@ function getMerchantDetailForConfirm($db, $id) {
     return $est->fetch();
 }
 
+function getMerchantDetailForConfirmList($db) {
+    $status = STATUS_MERCHANT_PENDING;
+    $status_konfirmasi = STATUS_AKTIF_USER;
+    $sql = "SELECT user.id_user, user.email, user.nama, user.no_telpon, kode_referal.kode_referal, kode_sponsor.kode_sponsor, detail_user.no_ktp, bank.name AS nama_bank, detail_user.no_rekening, detail_user.atas_nama_bank, ukm.nama_usaha, ukm.alamat_usaha, ukm.no_telpon_kantor, ukm.url_web_aplikasi, detail_ukm.nama_direktur, detail_ukm.lama_bisnis, detail_ukm.omset_perbulan, kategori_bisnis.nama_kategori AS kategori_bisnis, detail_user.foto_ktp, detail_ukm.foto_dokumen_perizinan AS foto_izin, detail_ukm.foto_rekening_tabungan AS foto_rekening, detail_ukm.foto_banner_ukm FROM user
+            INNER JOIN detail_user ON detail_user.id_user = user.id_user
+            INNER JOIN bank ON bank.code = detail_user.bank
+            INNER JOIN kode_sponsor ON kode_sponsor.id_user = user.id_user
+            INNER JOIN kode_referal ON kode_referal.id_user = user.id_user
+            INNER JOIN ukm ON ukm.id_user = user.id_user
+            INNER JOIN kategori_ukm ON kategori_ukm.id_user = ukm.id_user
+            INNER JOIN kategori_bisnis ON kategori_bisnis.id_kategori = kategori_ukm.id_kategori
+            INNER JOIN detail_ukm ON detail_ukm.id_user = ukm.id_user
+            WHERE ukm.status_verifikasi_merchant = $status
+            AND user.status_aktif_trip = $status_konfirmasi
+            GROUP BY user.id_user";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->fetchAll();
+}
+
 function getMerchantDetailCek($db, $id) {
     $sql = "SELECT * FROM user
             INNER JOIN detail_user ON detail_user.id_user = user.id_user

@@ -7,7 +7,7 @@ function insertBlog($db,  $judul_blog, $isi_blog, $kategori_blog, $nama_penulis,
 }
 
 function getAllBlog($db) {
-    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog, blog.tanggal_posting FROM blog
+    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.id_kategori, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog, blog.tanggal_posting FROM blog
             INNER JOIN kategori_blog ON kategori_blog.id_kategori = blog.kategori_blog";
     $est = $db->prepare($sql);
     $est->execute();
@@ -22,7 +22,7 @@ function deleteBlogById($db, $id) {
 }
 
 function getBlogBy($db, $id) {
-    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog , blog.tanggal_posting FROM blog
+    $sql = "SELECT blog.id_blog, blog.judul_blog, blog.isi_blog, kategori_blog.id_kategori, kategori_blog.nama_kategori AS kategori_blog, blog.nama_penulis, blog.foto_blog , blog.tanggal_posting FROM blog
             INNER JOIN kategori_blog ON kategori_blog.id_kategori = blog.kategori_blog
             WHERE id_blog = $id";
     $est = $db->prepare($sql);
@@ -48,19 +48,19 @@ function updateBlog($db, $id, $judul_blog, $isi_blog, $kategori_blog, $nama_penu
     if (!empty($kategori_blog)) {
         $sql = $sql . "kategori_blog = '$kategori_blog' ";
     }
-    if ((!empty($judul_blog) || !empty($isi_blog)) || !empty($kategori_blog) && !empty($nama_penulis)) {
+    if (((!empty($judul_blog) || !empty($isi_blog)) || !empty($kategori_blog)) && !empty($nama_penulis)) {
         $sql = $sql . ", ";
     }
     if (!empty($nama_penulis)) {
         $sql = $sql . "nama_penulis = '$nama_penulis' ";
     }
-    if ((!empty($judul_blog) || !empty($isi_blog)) || !empty($kategori_blog) || !empty($nama_penulis) && !empty($foto_blog)) {
+    if (((!empty($judul_blog) || !empty($isi_blog)) || !empty($kategori_blog) || !empty($nama_penulis)) && !empty($foto_blog)) {
         $sql = $sql . ", ";
     }
     if (!empty($foto_blog)) {
         $sql = $sql . "foto_blog = '$foto_blog' ";
     }
-    if ((!empty($judul_blog) || !empty($isi_blog)) || !empty($kategori_blog) || !empty($nama_penulis) || !empty($foto_blog)) {
+    if (((!empty($judul_blog) || !empty($isi_blog)) || !empty($kategori_blog) || !empty($nama_penulis)) || !empty($foto_blog)) {
         $sql = $sql . ", tanggal_posting = tanggal_posting";
     }
     $sql = $sql . " WHERE id_blog = $id ";
