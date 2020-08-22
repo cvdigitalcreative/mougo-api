@@ -145,7 +145,7 @@ function getMerchantDetailByInfo($db, $id) {
     return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $data];
 }
 
-function updateMerchantVerifikasi($db, $id_user, $type){
+function updateMerchantVerifikasi($db, $id_user, $type, $email_admin){
     $data = getMerchantDetailCek($db, $id_user);
     if (empty($data)) {
         return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
@@ -157,6 +157,7 @@ function updateMerchantVerifikasi($db, $id_user, $type){
         return ['status' => 'Error', 'message' => 'Verifikasi telah ditolak oleh admin'];
     }
     if (updateVerifikasiMerchant($db, $id_user, $type)) {
+        insertVerifikasiAdminUKM($db, $id_user, $email_admin);
         return ['status' => 'Success', 'message' => 'Berhasil Melakukan Verifikasi Merchant'];
     }
     return ['status' => 'Error', 'message' => 'Gagal Melakukan Verifikasi'];
