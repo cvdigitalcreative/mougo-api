@@ -104,8 +104,7 @@ function getMerchantDetailForConfirmList($db) {
             INNER JOIN kategori_bisnis ON kategori_bisnis.id_kategori = kategori_ukm.id_kategori
             INNER JOIN detail_ukm ON detail_ukm.id_user = ukm.id_user
             WHERE ukm.status_verifikasi_merchant = $status
-            AND user.status_aktif_trip = $status_konfirmasi
-            GROUP BY user.id_user";
+            AND user.status_aktif_trip = $status_konfirmasi";
     $est = $db->prepare($sql);
     $est->execute();
     return $est->fetchAll();
