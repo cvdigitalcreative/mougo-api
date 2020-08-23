@@ -324,7 +324,20 @@ function getMerchant($db) {
     if (empty($data)) {
         return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
     }
-    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Detail Merchant', 'data' => $data];
+    $final = [];
+    $k = 0 ;
+    // $l = 0;
+    for ($i=0; $i < count($data); $i++) { 
+        $barang = getBarangById($db, $data[$i]['id_user']);
+        if(!empty($barang)){
+            $final[$k] = $data[$i];
+            for ($j=0; $j < count($barang); $j++) { 
+                $final[$k]['barang'][$j] = $barang[$j];
+            }
+            $k++;
+        }
+    }
+    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Detail Merchant', 'data' => $final];
 }
 
 //
