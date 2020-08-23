@@ -134,14 +134,6 @@ function barangMerchant($db, $id_user, $nama_barang, $harga_barang, $kategori_ba
 
 }
 
-function getMerchantDetailList($db) {
-    $data = getMerchantDetailForConfirmList($db);
-    if (empty($data)) {
-        return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
-    }
-    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $data];
-}
-
 function getMerchantDetailByInfo($db, $id) {
     if (empty($id)) {
         return ['status' => 'Error', 'message' => 'Harus Memasukkan Informasi Berupa Nomor KTP, Email Atau Nomor Telpon'];
