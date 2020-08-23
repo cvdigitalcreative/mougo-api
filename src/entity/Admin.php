@@ -613,4 +613,64 @@ class Admin {
         
     }
 
+    public function adminGetNomorMougo(){
+        $data = $this->getNomorMougo();
+        return ['status' => 'Success', 'message' => 'Nomor Mougo', 'data' => $data];
+    }
+
+    public function getNomorMougo() {
+        $sql = "SELECT * FROM nomor_mougo";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function adminEditNomorMougo($nomor_mougo){
+        if(empty($nomor_mougo)){
+            return ['status' => 'Error', 'message' => 'Input tidak boleh kosong'];  
+        }
+        if ($this->editNomorMougo($nomor_mougo)){
+            return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Nomor Mougo'];
+        }
+        return ['status' => 'Error', 'message' => 'Gagal Mengupdate Nomor Mougo'];
+    }
+
+    public function editNomorMougo($nomor_mougo) {
+        $sql = "UPDATE nomor_mougo
+                SET nomor_mougo = '$nomor_mougo'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function adminGetKontakMougo(){
+        $data = $this->getKontakMougo();
+        return ['status' => 'Success', 'message' => 'Kontak Mougo', 'data' => $data];
+    }
+
+    public function getKontakMougo() {
+        $sql = "SELECT * FROM kontak_mougo";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $temp = $est->fetch();
+        return $temp;
+    }
+
+    public function adminEditKontakMougo($kontak_mougo){
+        if(empty($kontak_mougo)){
+            return ['status' => 'Error', 'message' => 'Input tidak boleh kosong'];  
+        }
+        if ($this->editKontakMougo($kontak_mougo)){
+            return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Kontak Mougo'];
+        }
+        return ['status' => 'Error', 'message' => 'Gagal Mengupdate Kontak Mougo'];
+    }
+
+    public function editKontakMougo($kontak_mougo) {
+        $sql = "UPDATE kontak_mougo
+                SET kontak_mougo = '$kontak_mougo'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
 }
