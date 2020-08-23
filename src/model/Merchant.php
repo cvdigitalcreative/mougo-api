@@ -176,6 +176,15 @@ function updateVerifikasiMerchant($db, $id, $status) {
 }
 
 //
+// UPDATE VERIFIKASI MERCHANT ADMIN
+function insertVerifikasiAdminUKM($db, $id_user, $email) {
+    $sql = "INSERT INTO verifikasi_ukm (id_user, email_admin)
+                VALUES ('$id_user', '$email')";
+    $est = $db->prepare($sql);
+    return $est->execute();
+}
+
+//
 // MERCHANT KATEGORI BISNIS
 function getMerchantKategoriBisnis($db) {
     $sql = "SELECT * FROM kategori_bisnis";

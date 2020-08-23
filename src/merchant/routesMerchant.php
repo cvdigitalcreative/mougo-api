@@ -30,12 +30,14 @@ $app->get('/merchant/konfirmasi/', function ($request, $response) {
 
 // ADMIN ACC MERCHANT
 $app->put('/merchant/accept/{id_user}', function ($request, $response, $args) {
-    return $response->withJson(updateMerchantVerifikasi($this->db,$args['id_user'], STATUS_MERCHANT_ACCEPTED), SERVER_OK);
+    $data = $request->getParsedBody();
+    return $response->withJson(updateMerchantVerifikasi($this->db,$args['id_user'], STATUS_MERCHANT_ACCEPTED, $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN REJECT MERCHANT
 $app->put('/merchant/reject/{id_user}', function ($request, $response, $args) {
-    return $response->withJson(updateMerchantVerifikasi($this->db,$args['id_user'], STATUS_MERCHANT_REJECTED), SERVER_OK);
+    $data = $request->getParsedBody();
+    return $response->withJson(updateMerchantVerifikasi($this->db,$args['id_user'], STATUS_MERCHANT_REJECTED, $data['email_admin']), SERVER_OK);
 });
 
 // MERCHANT GET BARANG
