@@ -154,6 +154,13 @@ function getMerchantDetailList($db) {
 }
 
 function updateMerchantVerifikasi($db, $id_user, $type, $email_admin){
+    if (empty($email_admin)) {
+        return ['status' => 'Error', 'message' => 'Admin tidak ditemukan'];
+    }
+    $admin = getAdminByEmail($db, $email_admin);
+    if (empty($admin)) {
+        return ['status' => 'Error', 'message' => 'Admin tidak ditemukan'];
+    }
     $data = getMerchantDetailCek($db, $id_user);
     if (empty($data)) {
         return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
