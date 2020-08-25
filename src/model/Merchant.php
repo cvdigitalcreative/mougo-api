@@ -184,6 +184,14 @@ function insertVerifikasiAdminUKM($db, $id_user, $email) {
     return $est->execute();
 }
 
+function getAdminByEmail($db, $email) {
+    $sql = "SELECT * FROM admin
+            WHERE email_admin = '$email'";
+    $est = $db->prepare($sql);
+    $est->execute();
+    return $est->fetch();
+}
+
 //
 // MERCHANT KATEGORI BISNIS
 function getMerchantKategoriBisnis($db) {
