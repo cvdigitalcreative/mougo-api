@@ -60,7 +60,7 @@ class Admin {
             return ['status' => 'Error', 'message' => 'Email atau Password salah'];
         }
         if ($data_admin['password'] == $this->password) {
-            return ['status' => 'Success', 'data' => $data_admin['email_admin'], 'role' => 'Admin'];
+            return ['status' => 'Success', 'data' => $data_admin['email_admin'], 'nama' => $data_admin['nama_admin'], 'role' => 'Admin'];
         }
         return ['status' => 'Error', 'message' => 'Email atau Password Salah'];
 
