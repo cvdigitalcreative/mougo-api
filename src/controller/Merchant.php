@@ -150,7 +150,27 @@ function getMerchantDetailList($db) {
     if (empty($data)) {
         return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
     }
-    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $data];
+    $final = [];
+    $k = 0 ;
+    for ($i=0; $i < count($data); $i++) { 
+        $barang = getBarangById($db, $data[$i]['id_user']);
+        if(!empty($barang)){
+            $final[$k] = $data[$i];
+            for ($j=0; $j < count($barang); $j++) { 
+                $final[$k]['barang'][$j] = $barang[$j];
+            }
+            $k++;
+        }
+    }
+    for ($i=0; $i < count($final); $i++) { 
+        $kategori_bisnis = getMerchantaKategoriUkm($db, $final[$i]['id_user']);
+        if(!empty($kategori_bisnis)){
+            for ($j=0; $j < count($kategori_bisnis); $j++) { 
+                $final[$i]['kategori_bisnis'][$j] = $kategori_bisnis[$j];
+            }
+        }
+    }
+    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $final];
 }
 
 function updateMerchantVerifikasi($db, $id_user, $type, $email_admin){
