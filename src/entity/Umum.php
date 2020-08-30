@@ -530,7 +530,7 @@ class Umum {
         return $est->execute();
     }
 
-    public function rejectDriver($id_user) {
+    public function rejectDriver($id_user,$email_admin) {
         $data = $this->getDriverAdmin($id_user);
         $user = $this->cekFotoCustomer($id_user);
         if ($data['status_akun_aktif'] == STATUS_DRIVER_AKTIF) {
@@ -541,6 +541,14 @@ class Umum {
         }
         if (unlink($data['foto_skck']) && unlink($data['foto_stnk']) && unlink($data['foto_sim']) && unlink($data['foto_diri']) && unlink($user['foto_ktp']) && unlink($user['foto_kk'])) {
             if ($this->deleteUserFoto($id_user)) {
+                if(!empty($email_admin)){
+                    $cek = $this->getAdminVerifiDriver($id_user);
+                    if (empty($cek)) {
+                        $this->insertAdminVerifiDriver($id_user, $email_admin);  
+                    }else{
+                        $this->editAdminVerifiDriver($id_user, $email_admin);
+                    }
+                }
                 if (!$this->deleteDriverFoto($id_user)) {
                     return ['status' => 'Error', 'message' => 'Gagal Reject Driver'];
                 }
@@ -554,7 +562,46 @@ class Umum {
                 SET status_akun_aktif = '$status'
                 WHERE id_user = '$id_driver'";
         $est = $this->getDb()->prepare($sql);
-        if ($est->execute()) {
+        return $est->execute();
+    }
+    
+    public function editAdminVerifiDriver($id_driver, $email) {
+        $sql = "UPDATE verifikasi_driver
+                SET email_admin = '$email'
+                WHERE id_user = '$id_driver'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+     
+    public function getAdminVerifiDriver($id_driver) {
+        $sql = "SELECT * FROM verifikasi_driver
+                WHERE id_user = '$id_driver'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetch();
+    }
+
+    public function insertAdminVerifiDriver($id_driver, $email) {
+        $sql = "INSERT INTO verifikasi_driver (id_user, email_admin)
+                VALUES ('$id_driver', '$email')";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+    
+    public function updateDriverStatus($id_driver, $status, $email_admin) {
+        $data = $this->cekUser($id_driver);
+        if (empty($data)) {   
+            return ['status' => 'Error', 'message' => 'User Tidak Ditemukan'];
+        }
+        if ($this->editDriverStatus($id_driver, $status) ) {
+            if(!empty($email_admin)){
+                $cek = $this->getAdminVerifiDriver($id_driver);
+                if (empty($cek)) {
+                    $this->insertAdminVerifiDriver($id_driver, $email_admin);  
+                }else{
+                    $this->editAdminVerifiDriver($id_driver, $email_admin);
+                }
+            }
             return ['status' => 'Success', 'message' => 'Berhasil Mengaktifkan Driver'];
         }return ['status' => 'Error', 'message' => 'Gagal Mengaktifkan Driver'];
     }
