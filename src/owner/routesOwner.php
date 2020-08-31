@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/../entity/Admin.php';
 require_once dirname(__FILE__) . '/../entity/Owner.php';
+require_once dirname(__FILE__) . '/../controller/Layanan.php';
 
 // REGISTER ADMIN
 $app->post('/admin/register/', function ($request, $response) {

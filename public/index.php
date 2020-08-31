@@ -49,6 +49,15 @@ require __DIR__ . '/../src/admin/routesAdmin.php';
 // Register routesOwner
 require __DIR__ . '/../src/owner/routesOwner.php';
 
+// Register routesMerchant
+require __DIR__ . '/../src/merchant/routesMerchant.php';
+
+// Register routesLayanan
+require __DIR__ . '/../src/layanan/routesLayanan.php';
+
+// Register routesBlog
+require __DIR__ . '/../src/blog/routesBlog.php';
+
 // Constant 
 require __DIR__ . '/../src/constantText.php';
 

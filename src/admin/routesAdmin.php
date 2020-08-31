@@ -116,16 +116,18 @@ $app->post('/admin/driver/confirm/', function ($request, $response) {
 
 // ADMIN Accept Driver
 $app->put('/admin/driver/accept/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->editDriverStatus($args['id_user'], STATUS_DRIVER_AKTIF), SERVER_OK);
+    return $response->withJson($admin->updateDriverStatus($args['id_user'], STATUS_DRIVER_AKTIF, $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN Reject Driver
 $app->put('/admin/driver/reject/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->rejectDriver($args['id_user']), SERVER_OK);
+    return $response->withJson($admin->rejectDriver($args['id_user'], $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN Tambah Keterangan Bantuan
@@ -141,7 +143,7 @@ $app->post('/admin/bantuan/{id}', function ($request, $response, $args) {
     $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->jawabBantuanAdmin($args['id'], $data['jawaban']), SERVER_OK);
+    return $response->withJson($admin->jawabBantuanAdmin($args['id'], $data['jawaban'], $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN GET ALL BANTUAN
@@ -278,3 +280,36 @@ $app->get('/admin/rekap/driver/', function ($request, $response) {
     $data = $admin->getKonfirmasiDriver();
     return $response->withJson(['status' => 'Success', 'datas' => $data['jumlah_konfirmasi_driver']], SERVER_OK);
 });
+
+// NOMOR MOUGO
+// GET NOMOR MOUGO
+$app->get('/nomor/mougo/', function ($request, $response) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminGetNomorMougo(), SERVER_OK);
+});
+
+// MENGUPDATE NOMOR MOUGO
+$app->put('/nomor/mougo/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminEditNomorMougo($data['nomor_mougo']), SERVER_OK);
+});
+
+// KONTAK MOUGO
+// GET KONTAK MOUGO
+$app->get('/kontak/mougo/', function ($request, $response) {
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminGetKontakMougo(), SERVER_OK);
+});
+
+// MENGUPDATE KONTAK MOUGO
+$app->put('/kontak/mougo/', function ($request, $response) {
+    $data = $request->getParsedBody();
+    $admin = new Admin(null, null, null, null);
+    $admin->setDb($this->db);
+    return $response->withJson($admin->adminEditKontakMougo($data['kontak_mougo']), SERVER_OK);
+});
+
