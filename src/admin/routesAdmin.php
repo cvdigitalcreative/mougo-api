@@ -312,3 +312,4 @@ $app->put('/kontak/mougo/', function ($request, $response) {
     $admin->setDb($this->db);
     return $response->withJson($admin->adminEditKontakMougo($data['kontak_mougo']), SERVER_OK);
 });
+
