@@ -116,16 +116,18 @@ $app->post('/admin/driver/confirm/', function ($request, $response) {
 
 // ADMIN Accept Driver
 $app->put('/admin/driver/accept/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->editDriverStatus($args['id_user'], STATUS_DRIVER_AKTIF), SERVER_OK);
+    return $response->withJson($admin->updateDriverStatus($args['id_user'], STATUS_DRIVER_AKTIF, $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN Reject Driver
 $app->put('/admin/driver/reject/{id_user}', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
     $admin = new Umum();
     $admin->setDb($this->db);
-    return $response->withJson($admin->rejectDriver($args['id_user']), SERVER_OK);
+    return $response->withJson($admin->rejectDriver($args['id_user'], $data['email_admin']), SERVER_OK);
 });
 
 // ADMIN Tambah Keterangan Bantuan
