@@ -103,6 +103,9 @@ define('NO_REK_PERUSAHAAN', "7996662227");
 define('NAMA_BANK_PERUSAHAAN', "Bank Mandiri Syariah");
 define('NAMA_REK_PERUSAHAAN', "PT. Dawam Multi Sarana");
 
+// TOPUP
+define('TOPUP_MINIMAL', 10000);
+
 // STATUS TOKEN LUPA PASSWORD
 define('STATUS_TOKEN_UNACTIVE', 2);
 define('STATUS_TOKEN_ACTIVE', 1);
