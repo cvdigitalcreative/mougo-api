@@ -244,8 +244,8 @@ class Umum {
     }
 
     public function inputSaldo($jumlah_topup, $id_user) {
-        if ($jumlah_topup < 50000) {
-            return ['status' => 'Error', 'message' => 'Pengisian Saldo Tidak Boleh Kurang Dari Rp50.000'];
+        if ($jumlah_topup < TOPUP_MINIMAL) {
+            return ['status' => 'Error', 'message' => 'Pengisian Saldo Tidak Boleh Kurang Dari Rp10.000'];
         }
         while (true) {
             $id = randomNum() . randomLett();
