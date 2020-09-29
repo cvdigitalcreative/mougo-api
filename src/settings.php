@@ -1,5 +1,5 @@
 <?php
-$_ENV['type'] = 'development';
+$_ENV['type'] = 'production';
 $_ENV['web_development'] = 'http://45.114.118.64:72';
 $_ENV['web_production'] = 'http://45.114.118.64:73';
 
@@ -36,7 +36,7 @@ return [
         ],
         'db' => [
             'host'=>'localhost',
-            'dbname'=>'db_mougo',
+            'dbname'=>'db_mougo_production',
             'user'=>'root',
             'password'=>'DigitalCreativeCrew1!@2',
             'driver' => 'mysql'
