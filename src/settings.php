@@ -37,7 +37,7 @@ return [
         'db' => [
             'host'=>'localhost',
             'dbname'=>'db_mougo',
-            'user'=>'root',
+            'user'=>'mougo',
             'password'=>'DigitalCreativeCrew1!@2',
             'driver' => 'mysql'
         ]
