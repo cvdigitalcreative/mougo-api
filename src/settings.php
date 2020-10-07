@@ -1,7 +1,7 @@
 <?php
 $_ENV['type'] = 'development';
-$_ENV['web_development'] = 'http://45.114.118.64:72';
-$_ENV['web_production'] = 'http://45.114.118.64:73';
+$_ENV['web_development'] = 'https://mougo.classico.id';
+$_ENV['web_production'] = 'https://mougo.co.id';
 
 return [
     'settings' => [
@@ -38,7 +38,7 @@ return [
             'host'=>'localhost',
             'dbname'=>'db_mougo',
             'user'=>'root',
-            'password'=>'DigitalCreativeCrew1!@2',
+            'password'=>'txyATNIh08mu',
             'driver' => 'mysql'
         ]
     ],
