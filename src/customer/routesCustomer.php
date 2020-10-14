@@ -158,7 +158,7 @@ $app->get('/customer/trip/position/{id_driver}', function ($request, $response, 
 
 // Customer
 // Cek Trip Harga Saldo Customer
-$app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $response, $args) {
+$app->get('/customer/trip/cek/osrm/{id_user}/{jenis_trip}', function ($request, $response, $args) {
     $lat = substr($request->getQueryParam("lat"), 0, 7);
     $long = substr($request->getQueryParam("long"), 0, 8);
     $lat_dest = substr($request->getQueryParam("lat_destinasi"), 0, 7);
@@ -188,7 +188,7 @@ $app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $resp
 
 // Customer
 // Cek Trip Harga Saldo Customer
-$app->get('/customer/trip/cek/google/{id_user}/{jenis_trip}', function ($request, $response, $args) {
+$app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $response, $args) {
     $lat = $request->getQueryParam("lat");
     $long = $request->getQueryParam("long");
     $lat_dest = $request->getQueryParam("lat_destinasi");

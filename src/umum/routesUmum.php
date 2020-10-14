@@ -126,7 +126,7 @@ $app->post('/common/topup/{id_user}', function ($request, $response, $args) {
 
 // CUSTOMER
 // JARAK DAN OSRM
-$app->get('/customer/trip/orderan/', function ($request, $response) {
+$app->get('/customer/trip/orderan/osrm/', function ($request, $response) {
     $lat = substr($request->getQueryParam("lat"), 0, 7);
     $long = substr($request->getQueryParam("long"), 0, 8);
     $lat_dest = substr($request->getQueryParam("lat_destinasi"), 0, 7);
@@ -144,7 +144,7 @@ $app->get('/customer/trip/orderan/', function ($request, $response) {
 
 // CUSTOMER
 // JARAK DAN OSRM
-$app->get('/customer/trip/orderan/google/', function ($request, $response) {
+$app->get('/customer/trip/orderan/', function ($request, $response) {
     $lat = $request->getQueryParam("lat");
     $long = $request->getQueryParam("long");
     $lat_dest = $request->getQueryParam("lat_destinasi");
