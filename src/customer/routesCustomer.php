@@ -185,3 +185,34 @@ $app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $resp
     }
     return $response->withJson(['status' => 'Error', 'data' => $data, 'message' => 'Saldo Anda Tidak Cukup'], SERVER_OK);
 })->add($tokenCheck);
+
+// Customer
+// Cek Trip Harga Saldo Customer
+$app->get('/customer/trip/cek/google/{id_user}/{jenis_trip}', function ($request, $response, $args) {
+    $lat = $request->getQueryParam("lat");
+    $long = $request->getQueryParam("long");
+    $lat_dest = $request->getQueryParam("lat_destinasi");
+    $long_dest = $request->getQueryParam("long_destinasi");
+    $token = getenv('GOOGLE_MAPS_API_TOKEN');
+    $response_web = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
+    $response_web = json_decode($response_web);
+    if(empty($response_web->routes[0]->legs[0]->distance->value)){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mendapatkan Data Dari Server'], SERVER_OK);
+    }
+    $dist = ceil(($response_web->routes[0]->legs[0]->distance->value) / 1000);
+
+    $jarak = new Umum();
+    $jarak->setDb($this->db);
+
+    $harga = $jarak->getHargaCekTotal($dist, $args['jenis_trip']);
+
+    $saldo = $jarak->getSaldoUser($args['id_user']);
+    $data = [
+        'harga' => $harga['harga'],
+        'saldo' => (double) $saldo['jumlah_saldo'],
+    ];
+    if ($saldo['jumlah_saldo'] >= $harga['harga']) {
+        return $response->withJson(['status' => 'Success', 'data' => $data, 'message' => 'Saldo Anda Cukup'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Error', 'data' => $data, 'message' => 'Saldo Anda Tidak Cukup'], SERVER_OK);
+})->add($tokenCheck);
