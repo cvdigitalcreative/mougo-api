@@ -133,12 +133,31 @@ $app->get('/customer/trip/orderan/', function ($request, $response) {
     $long_dest = substr($request->getQueryParam("long_destinasi"), 0, 8);
     $response_web = file_get_contents("http://router.project-osrm.org/route/v1/driving/$long,$lat;$long_dest,$lat_dest?geometries=geojson&alternatives=true&steps=true&generate_hints=false");
     $response_web = json_decode($response_web);
-    $jarak = ($response_web->routes[0]->distance) / 1000;
+    $jarak = ceil(($response_web->routes[0]->distance) / 1000);
     $harga = new Umum();
     $harga->setDb($this->db);
     $data_data = $harga->getHargaTotal($jarak);
     $data_data['jarak'] = $jarak;
     $data_data['koordinat'] = $response_web;
+    return $response->withJson($data_data, SERVER_OK);
+})->add($tokenCheck);
+
+// CUSTOMER
+// JARAK DAN OSRM
+$app->get('/customer/trip/orderan/google/', function ($request, $response) {
+    $lat = $request->getQueryParam("lat");
+    $long = $request->getQueryParam("long");
+    $lat_dest = $request->getQueryParam("lat_destinasi");
+    $long_dest = $request->getQueryParam("long_destinasi");
+    $token = getenv('GOOGLE_MAPS_API_TOKEN');
+    $response_web = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
+    $response_web = json_decode($response_web);
+    $jarak = ceil(($response_web->routes[0]->legs[0]->distance->value) / 1000);
+    $harga = new Umum();
+    $harga->setDb($this->db);
+    $data_data = $harga->getHargaTotal($jarak);
+    $data_data['jarak'] = $jarak;
+    // $data_data['koordinat'] = $response_web;
     return $response->withJson($data_data, SERVER_OK);
 })->add($tokenCheck);
 
