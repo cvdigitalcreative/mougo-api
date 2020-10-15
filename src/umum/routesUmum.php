@@ -150,7 +150,7 @@ $app->get('/customer/trip/orderan/', function ($request, $response) {
     $lat_dest = $request->getQueryParam("lat_destinasi");
     $long_dest = $request->getQueryParam("long_destinasi");
     $token = getenv('GOOGLE_MAPS_API_TOKEN');
-    $response_web = file_get_contents("http://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
+    $response_web = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
     $response_web = json_decode($response_web);
     $jarak = ceil(($response_web->routes[0]->legs[0]->distance->value) / 1000);
     $harga = new Umum();
