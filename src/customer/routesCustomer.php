@@ -194,7 +194,9 @@ $app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $resp
     $lat_dest = $request->getQueryParam("lat_destinasi");
     $long_dest = $request->getQueryParam("long_destinasi");
     $token = getenv('GOOGLE_MAPS_API_TOKEN');
+    var_dump($token);
     $response_web = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
+    var_dump($response_web);
     $response_web = json_decode($response_web);
     if(empty($response_web->routes[0]->legs[0]->distance->value)){
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mendapatkan Data Dari Server'], SERVER_OK);
