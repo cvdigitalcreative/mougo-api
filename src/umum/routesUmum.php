@@ -150,7 +150,10 @@ $app->get('/customer/trip/orderan/', function ($request, $response) {
     $lat_dest = $request->getQueryParam("lat_destinasi");
     $long_dest = $request->getQueryParam("long_destinasi");
     $token = getenv('GOOGLE_MAPS_API_TOKEN');
-    var_dump($token);
+    
+    var_dump('1'.getenv('GOOGLE_MAPS_API_TOKEN'));
+    var_dump('2'.$_ENV['GOOGLE_MAPS_API_TOKEN']);
+    var_dump('3'.$_SERVER['GOOGLE_MAPS_API_TOKEN']);
     $response_web = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
     var_dump($response_web);
     $response_web = json_decode($response_web);
