@@ -189,7 +189,7 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
         $filename = md5($uploadedFile->getClientFilename()) . time() . "." . $extension;
         $directory = $this->get('settings')['upload_directory'];
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
-        $path_name = "../assets/" . $filename;
+        $path_name = "assets/" . $filename;
 
     }return $response->withJson($topup->insertBuktiPembayaran($args['id_topup'], $path_name), SERVER_OK);
 
@@ -527,4 +527,10 @@ $app->post('/input/admin-bantuan/', function ($request, $response, $args) {
     $user = new Umum();
     $user->setDb($this->db);
     return $response->withJson($user->inputAdminBantuan(), SERVER_OK);
+});
+
+$app->post('/update/filepath/', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->editFilepath(), SERVER_OK);
 });
