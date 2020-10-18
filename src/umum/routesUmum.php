@@ -126,19 +126,38 @@ $app->post('/common/topup/{id_user}', function ($request, $response, $args) {
 
 // CUSTOMER
 // JARAK DAN OSRM
-$app->get('/customer/trip/orderan/', function ($request, $response) {
+$app->get('/customer/trip/orderan/osrm/', function ($request, $response) {
     $lat = substr($request->getQueryParam("lat"), 0, 7);
     $long = substr($request->getQueryParam("long"), 0, 8);
     $lat_dest = substr($request->getQueryParam("lat_destinasi"), 0, 7);
     $long_dest = substr($request->getQueryParam("long_destinasi"), 0, 8);
     $response_web = file_get_contents("http://router.project-osrm.org/route/v1/driving/$long,$lat;$long_dest,$lat_dest?geometries=geojson&alternatives=true&steps=true&generate_hints=false");
     $response_web = json_decode($response_web);
-    $jarak = ($response_web->routes[0]->distance) / 1000;
+    $jarak = ceil(($response_web->routes[0]->distance) / 1000);
     $harga = new Umum();
     $harga->setDb($this->db);
     $data_data = $harga->getHargaTotal($jarak);
     $data_data['jarak'] = $jarak;
     $data_data['koordinat'] = $response_web;
+    return $response->withJson($data_data, SERVER_OK);
+})->add($tokenCheck);
+
+// CUSTOMER
+// JARAK DAN OSRM
+$app->get('/customer/trip/orderan/', function ($request, $response) {
+    $lat = $request->getQueryParam("lat");
+    $long = $request->getQueryParam("long");
+    $lat_dest = $request->getQueryParam("lat_destinasi");
+    $long_dest = $request->getQueryParam("long_destinasi");
+    $token = $_ENV['GOOGLE_MAPS_API_TOKEN'];
+    $response_web = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
+    $response_web = json_decode($response_web);
+    $jarak = ceil(($response_web->routes[0]->legs[0]->distance->value) / 1000);
+    $harga = new Umum();
+    $harga->setDb($this->db);
+    $data_data = $harga->getHargaTotal($jarak);
+    $data_data['jarak'] = $jarak;
+    // $data_data['koordinat'] = $response_web;
     return $response->withJson($data_data, SERVER_OK);
 })->add($tokenCheck);
 
@@ -170,7 +189,7 @@ $app->post('/common/topup/konfirmasi/{id_topup}', function ($request, $response,
         $filename = md5($uploadedFile->getClientFilename()) . time() . "." . $extension;
         $directory = $this->get('settings')['upload_directory'];
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
-        $path_name = "../assets/" . $filename;
+        $path_name = "assets/" . $filename;
 
     }return $response->withJson($topup->insertBuktiPembayaran($args['id_topup'], $path_name), SERVER_OK);
 
@@ -508,4 +527,10 @@ $app->post('/input/admin-bantuan/', function ($request, $response, $args) {
     $user = new Umum();
     $user->setDb($this->db);
     return $response->withJson($user->inputAdminBantuan(), SERVER_OK);
+});
+
+$app->post('/update/filepath/', function ($request, $response, $args) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->editFilepath(), SERVER_OK);
 });

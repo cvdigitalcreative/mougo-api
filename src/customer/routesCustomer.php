@@ -93,7 +93,7 @@ $app->post('/customer/foto_ktp/{id_user}', function ($request, $response, $args)
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_ktp'];
-    $path_name = "../assets/foto/ktp/";
+    $path_name = "assets/foto/ktp/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KTP, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -113,7 +113,7 @@ $app->post('/customer/foto_kk/{id_user}', function ($request, $response, $args) 
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_kk'];
-    $path_name = "../assets/foto/kk/";
+    $path_name = "assets/foto/kk/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -158,7 +158,7 @@ $app->get('/customer/trip/position/{id_driver}', function ($request, $response, 
 
 // Customer
 // Cek Trip Harga Saldo Customer
-$app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $response, $args) {
+$app->get('/customer/trip/cek/osrm/{id_user}/{jenis_trip}', function ($request, $response, $args) {
     $lat = substr($request->getQueryParam("lat"), 0, 7);
     $long = substr($request->getQueryParam("long"), 0, 8);
     $lat_dest = substr($request->getQueryParam("lat_destinasi"), 0, 7);
@@ -169,6 +169,37 @@ $app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $resp
         return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mendapatkan Data Dari Server'], SERVER_OK);
     }
     $dist = ceil(($response_web->routes[0]->distance) / 1000);
+
+    $jarak = new Umum();
+    $jarak->setDb($this->db);
+
+    $harga = $jarak->getHargaCekTotal($dist, $args['jenis_trip']);
+
+    $saldo = $jarak->getSaldoUser($args['id_user']);
+    $data = [
+        'harga' => $harga['harga'],
+        'saldo' => (double) $saldo['jumlah_saldo'],
+    ];
+    if ($saldo['jumlah_saldo'] >= $harga['harga']) {
+        return $response->withJson(['status' => 'Success', 'data' => $data, 'message' => 'Saldo Anda Cukup'], SERVER_OK);
+    }
+    return $response->withJson(['status' => 'Error', 'data' => $data, 'message' => 'Saldo Anda Tidak Cukup'], SERVER_OK);
+})->add($tokenCheck);
+
+// Customer
+// Cek Trip Harga Saldo Customer
+$app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $response, $args) {
+    $lat = $request->getQueryParam("lat");
+    $long = $request->getQueryParam("long");
+    $lat_dest = $request->getQueryParam("lat_destinasi");
+    $long_dest = $request->getQueryParam("long_destinasi"); 
+    $token = $_ENV['GOOGLE_MAPS_API_TOKEN'];
+    $response_web = file_get_contents("https://maps.googleapis.com/maps/api/directions/json?origin=$lat,$long&destination=$lat_dest,$long_dest&key=$token");
+    $response_web = json_decode($response_web);
+    if(empty($response_web->routes[0]->legs[0]->distance->value)){
+        return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mendapatkan Data Dari Server'], SERVER_OK);
+    }
+    $dist = ceil(($response_web->routes[0]->legs[0]->distance->value) / 1000);
 
     $jarak = new Umum();
     $jarak->setDb($this->db);

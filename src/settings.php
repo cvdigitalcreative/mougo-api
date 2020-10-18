@@ -7,20 +7,20 @@ return [
     'settings' => [
         'displayErrorDetails' => ($_ENV['type'] == 'development'), // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
-        'upload_directory' => __DIR__ . '/../assets/', // upload directory
-        'upload_directory2' => __DIR__ . '/../assets-event/', // upload directory
-        'upload_dir_foto_kk' => __DIR__ . '/../assets/foto/kk/', // upload directory
-        'upload_dir_foto_ktp' => __DIR__ . '/../assets/foto/ktp/', // upload directory
-        'upload_dir_foto_skck' => __DIR__ . '/../assets/foto/skck/', // upload directory
-        'upload_dir_foto_stnk' => __DIR__ . '/../assets/foto/stnk/', // upload directory
-        'upload_dir_foto_sim' => __DIR__ . '/../assets/foto/sim/', // upload directory
-        'upload_dir_foto_diri' => __DIR__ . '/../assets/foto/diri/', // upload directory
-        'upload_dir_foto_izin' => __DIR__ . '/../assets/foto/izin/', // upload directory
-        'upload_dir_foto_rekening' => __DIR__ . '/../assets/foto/rekening/', // upload directory
-        'upload_dir_foto_banner' => __DIR__ . '/../assets/foto/banner/', // upload directory
-        'upload_dir_foto_layanan' => __DIR__ . '/../assets/foto/layanan/', // upload directory
-        'upload_dir_foto_barang' => __DIR__ . '/../assets/foto/barang/', // upload directory
-        'upload_dir_foto_blog' => __DIR__ . '/../assets/foto/blog/', // upload directory
+        'upload_directory' => __DIR__ . '/../public/assets/', // upload directory
+        'upload_directory2' => __DIR__ . '/../public/assets-event/', // upload directory
+        'upload_dir_foto_kk' => __DIR__ . '/../public/assets/foto/kk/', // upload directory
+        'upload_dir_foto_ktp' => __DIR__ . '/../public/assets/foto/ktp/', // upload directory
+        'upload_dir_foto_skck' => __DIR__ . '/../public/assets/foto/skck/', // upload directory
+        'upload_dir_foto_stnk' => __DIR__ . '/../public/assets/foto/stnk/', // upload directory
+        'upload_dir_foto_sim' => __DIR__ . '/../public/assets/foto/sim/', // upload directory
+        'upload_dir_foto_diri' => __DIR__ . '/../public/assets/foto/diri/', // upload directory
+        'upload_dir_foto_izin' => __DIR__ . '/../public/assets/foto/izin/', // upload directory
+        'upload_dir_foto_rekening' => __DIR__ . '/../public/assets/foto/rekening/', // upload directory
+        'upload_dir_foto_banner' => __DIR__ . '/../public/assets/foto/banner/', // upload directory
+        'upload_dir_foto_layanan' => __DIR__ . '/../public/assets/foto/layanan/', // upload directory
+        'upload_dir_foto_barang' => __DIR__ . '/../public/assets/foto/barang/', // upload directory
+        'upload_dir_foto_blog' => __DIR__ . '/../public/assets/foto/blog/', // upload directory
         
         
         // Renderer settings

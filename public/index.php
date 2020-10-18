@@ -1,4 +1,5 @@
 <?php
+// use Dotenv\Dotenv;
 if (PHP_SAPI == 'cli-server') {
     // To help the built-in PHP dev server, check if the request was actually for
     // something which should probably be served as a static file
@@ -61,6 +62,9 @@ require __DIR__ . '/../src/blog/routesBlog.php';
 // Constant 
 require __DIR__ . '/../src/constantText.php';
 
+// ENV
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/..');
+$dotenv->load();
 
 // Run app
 $app->run();

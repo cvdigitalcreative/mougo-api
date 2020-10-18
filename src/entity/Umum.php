@@ -1902,5 +1902,296 @@ class Umum {
         return ['status' => 'Success', 'message' => 'Berhasil Input Admin Jawab'];
 
     }
+    
+    public function editFilepath() {
+        $sql = "SELECT * FROM detail_user";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        
+        $sql = "SELECT * FROM driver";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt2 = $est->fetchAll();
+
+        $sql = "SELECT * FROM detail_ukm";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt3 = $est->fetchAll();
+        
+        $sql = "SELECT * FROM blog";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt4 = $est->fetchAll();
+        
+        $sql = "SELECT * FROM layanan";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt5 = $est->fetchAll();
+        
+        $sql = "SELECT * FROM barang_ukm";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt6 = $est->fetchAll();
+        
+        $sql = "SELECT * FROM event";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt7 = $est->fetchAll();
+        
+        $sql = "SELECT * FROM bukti_pembayaran";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt8 = $est->fetchAll();
+        
+        if(!empty($stmt)){
+            $this->FilePathUser($stmt);
+        }
+
+        if(!empty($stmt2)){
+            $this->FilePathDriver($stmt2);
+        }
+
+        if(!empty($stmt3)){
+            $this->FilePathDetailUkm($stmt3);
+        }
+
+        if(!empty($stmt4)){
+            $this->FilePathBlog($stmt4);
+        }
+
+        if(!empty($stmt5)){
+            $this->FilePathLayanan($stmt5);
+        }
+
+        if(!empty($stmt6)){
+            $this->FilePathBarang($stmt6);
+        }
+
+        if(!empty($stmt7)){
+            $this->FilePathEvent($stmt7);
+        }
+
+        if(!empty($stmt8)){
+            $this->FilePathBuktiPembayaran($stmt8);
+        }
+
+        return ['status' => 'Success', 'message' => 'Berhasil Edit FilePath'];
+
+    }
+
+    public function FilePathUser($stmt){
+        for ($i=0; $i < count($stmt); $i++) { 
+            $id = $stmt[$i]['id_user'];
+            $sql = "UPDATE detail_user
+                    SET ";
+            if($this->IsStripString($stmt[$i]['foto_ktp']) && $this->IsStripString($stmt[$i]['foto_kk'])){
+                continue;
+            }
+            $file = $stmt[$i]['foto_ktp'];
+            $sql2 = "foto_ktp = '$file', ";
+            if(!$this->IsStripString($stmt[$i]['foto_ktp']) && !$this->IsStringPathNew($stmt[$i]['foto_ktp'])){
+                $file = $this->FormatNewPath($stmt[$i]['foto_ktp']);
+                $sql2 = "foto_ktp = '$file', ";
+            }
+            $file = $stmt[$i]['foto_kk'];
+            $sql3 = "foto_kk = '$file' ";
+            if(!$this->IsStripString($stmt[$i]['foto_kk']) && !$this->IsStringPathNew($stmt[$i]['foto_kk'])){
+                $file = $this->FormatNewPath($stmt[$i]['foto_kk']);
+                $sql3 = "foto_kk = '$file' ";
+            }
+            $sql = $sql.$sql2.$sql3." WHERE id_user = '$id'";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+
+    public function FilePathDriver($stmt2){
+        for ($i=0; $i < count($stmt2); $i++) { 
+            $id = $stmt2[$i]['id_user'];
+            $sql = "UPDATE driver
+                    SET ";
+            if($this->IsStripString($stmt2[$i]['foto_diri']) && $this->IsStripString($stmt2[$i]['foto_skck']) && $this->IsStripString($stmt2[$i]['foto_sim']) && $this->IsStripString($stmt2[$i]['foto_stnk'])){
+                continue;
+            }
+            $file = $stmt2[$i]['foto_diri'];
+            $sql2 = "foto_diri = '$file', ";
+            if(!$this->IsStripString($stmt2[$i]['foto_diri']) && !$this->IsStringPathNew($stmt2[$i]['foto_diri'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_diri']);
+                $sql2 = "foto_diri = '$file', ";
+            }
+            $file = $stmt2[$i]['foto_skck'];
+            $sql3 = "foto_skck = '$file', ";
+            if(!$this->IsStripString($stmt2[$i]['foto_skck']) && !$this->IsStringPathNew($stmt2[$i]['foto_skck'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_skck']);
+                $sql3 = "foto_skck = '$file', ";
+            }
+            $file = $stmt2[$i]['foto_sim'];
+            $sql4 = "foto_sim = '$file', ";
+            if(!$this->IsStripString($stmt2[$i]['foto_sim']) && !$this->IsStringPathNew($stmt2[$i]['foto_sim'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_sim']);
+                $sql4 = "foto_sim = '$file', ";
+            }
+            $file = $stmt2[$i]['foto_stnk'];
+            $sql5 = "foto_stnk = '$file' ";
+            if(!$this->IsStripString($stmt2[$i]['foto_stnk']) && !$this->IsStringPathNew($stmt2[$i]['foto_stnk'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_stnk']);
+                $sql5 = "foto_stnk = '$file' ";
+            }
+            $sql = $sql.$sql2.$sql3.$sql4.$sql5." WHERE id_user = '$id'";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+    
+    public function FilePathDetailUkm($stmt2){
+        for ($i=0; $i < count($stmt2); $i++) { 
+            $id = $stmt2[$i]['id_user'];
+            $sql = "UPDATE detail_ukm
+                    SET ";
+            if($this->IsStripString($stmt2[$i]['foto_dokumen_perizinan']) && $this->IsStripString($stmt2[$i]['foto_rekening_tabungan']) && $this->IsStripString($stmt2[$i]['foto_banner_ukm'])){
+                continue;
+            }
+            $file = $stmt2[$i]['foto_dokumen_perizinan'];
+            $sql2 = "foto_dokumen_perizinan = '$file', ";
+            if(!$this->IsStripString($stmt2[$i]['foto_dokumen_perizinan'])  && !$this->IsStringPathNew($stmt2[$i]['foto_dokumen_perizinan'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_dokumen_perizinan']);
+                $sql2 = "foto_dokumen_perizinan = '$file', ";
+            }
+            $file = $stmt2[$i]['foto_rekening_tabungan'];
+            $sql3 = "foto_rekening_tabungan = '$file', ";
+            if(!$this->IsStripString($stmt2[$i]['foto_rekening_tabungan'])  && !$this->IsStringPathNew($stmt2[$i]['foto_rekening_tabungan'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_rekening_tabungan']);
+                $sql3 = "foto_rekening_tabungan = '$file', ";
+            }
+            $file = $stmt2[$i]['foto_banner_ukm'];
+            $sql5 = "foto_banner_ukm = '$file' ";
+            if(!$this->IsStripString($stmt2[$i]['foto_banner_ukm']) && !$this->IsStringPathNew($stmt2[$i]['foto_banner_ukm'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_banner_ukm']);
+                $sql5 = "foto_banner_ukm = '$file' ";
+            }
+            $sql = $sql.$sql2.$sql3.$sql5." WHERE id_user = '$id'";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+
+    public function FilePathBlog($stmt2){
+        for ($i=0; $i < count($stmt2); $i++) { 
+            $id = $stmt2[$i]['id_blog'];
+            $sql = "UPDATE blog
+                    SET ";
+            if($this->IsStripString($stmt2[$i]['foto_blog'])){
+                continue;
+            }
+            $file = $stmt2[$i]['foto_blog'];
+            $sql5 = "foto_blog = '$file' ";
+            if(!$this->IsStripString($stmt2[$i]['foto_blog'])  && !$this->IsStringPathNew($stmt2[$i]['foto_blog'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_blog']);
+                $sql5 = "foto_blog = '$file' ";
+            }
+            $sql = $sql.$sql5." WHERE id_blog = $id";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+    
+    public function FilePathLayanan($stmt2){
+        for ($i=0; $i < count($stmt2); $i++) { 
+            $id = $stmt2[$i]['id_layanan'];
+            $sql = "UPDATE layanan
+                    SET ";
+            if($this->IsStripString($stmt2[$i]['foto_layanan'])){
+                continue;
+            }
+            $file = $stmt2[$i]['foto_layanan'];
+            $sql5 = "foto_layanan = '$file' ";
+            if(!$this->IsStripString($stmt2[$i]['foto_layanan'])  && !$this->IsStringPathNew($stmt2[$i]['foto_layanan'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_layanan']);
+                $sql5 = "foto_layanan = '$file' ";
+            }
+            $sql = $sql.$sql5." WHERE id_layanan = $id";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+   
+    public function FilePathBarang($stmt2){
+        for ($i=0; $i < count($stmt2); $i++) { 
+            $id = $stmt2[$i]['id_barang'];
+            $sql = "UPDATE barang_ukm
+                    SET ";
+            if($this->IsStripString($stmt2[$i]['foto_barang'])){
+                continue;
+            }
+            $file = $stmt2[$i]['foto_barang'];
+            $sql5 = "foto_barang = '$file' ";
+            if(!$this->IsStripString($stmt2[$i]['foto_barang'])  && !$this->IsStringPathNew($stmt2[$i]['foto_barang'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_barang']);
+                $sql5 = "foto_barang = '$file' ";
+            }
+            $sql = $sql.$sql5." WHERE id_barang = $id";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+
+    public function FilePathEvent($stmt2){
+        for ($i=0; $i < count($stmt2); $i++) { 
+            $id = $stmt2[$i]['id'];
+            $sql = "UPDATE event
+                    SET ";
+            if($this->IsStripString($stmt2[$i]['gambar_event'])){
+                continue;
+            }
+            $file = $stmt2[$i]['gambar_event'];
+            $sql5 = "gambar_event = '$file' ";
+            if(!$this->IsStripString($stmt2[$i]['gambar_event'])  && !$this->IsStringPathNew($stmt2[$i]['gambar_event'])){
+                $file = $this->FormatNewPath($stmt2[$i]['gambar_event']);
+                $sql5 = "gambar_event = '$file' ";
+            }
+            $sql = $sql.$sql5." WHERE id = $id";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+    
+    public function FilePathBuktiPembayaran($stmt2){
+        for ($i=0; $i < count($stmt2); $i++) { 
+            $id = $stmt2[$i]['id_topup'];
+            $sql = "UPDATE bukti_pembayaran
+                    SET ";
+            if($this->IsStripString($stmt2[$i]['foto_transfer'])){
+                continue;
+            }
+            $file = $stmt2[$i]['foto_transfer'];
+            $sql5 = "foto_transfer = '$file' ";
+            if(!$this->IsStripString($stmt2[$i]['foto_transfer'])  && !$this->IsStringPathNew($stmt2[$i]['foto_transfer'])){
+                $file = $this->FormatNewPath($stmt2[$i]['foto_transfer']);
+                $sql5 = "foto_transfer = '$file' ";
+            }
+            $sql = $sql.$sql5." WHERE id_topup = '$id'";
+            $est = $this->getDb()->prepare($sql);
+            $est->execute();
+        }
+    }
+
+    public function IsStripString($string){
+        if($string == STRING_KOSONG){
+            return true;
+        }
+        return false;
+    }
+
+    public function IsStringPathNew($string){
+        if(substr($string,0,3) == "../"){
+            return false;
+        }
+        return true;
+    }
+
+    public function FormatNewPath($string){
+        return substr($string,3);
+    }
 
 }
