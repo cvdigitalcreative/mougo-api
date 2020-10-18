@@ -45,7 +45,7 @@ $app->post('/owner/event/', function ($request, $response) {
             mkdir($directory, 0755, true);
         }
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
-        $path_name = "../assets-event/" . $filename;
+        $path_name = "assets-event/" . $filename;
 
     }return $response->withJson($owner->inputEvent($data['judul'], $data['deskripsi'], $path_name, $data['tanggal_event']), SERVER_OK);
 
@@ -206,7 +206,7 @@ $app->post('/owner/event/{id}', function ($request, $response, $args) {
                 mkdir($directory, 0755, true);
             }
             $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
-            $path_name = "../assets-event/" . $filename;
+            $path_name = "assets-event/" . $filename;
         }
 
     }return $response->withJson($getevent->editEvent($args['id'], $data['judul'], $data['deskripsi'], $path_name, $data['tanggal_event']), SERVER_OK);
