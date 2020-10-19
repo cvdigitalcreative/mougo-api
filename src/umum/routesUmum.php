@@ -38,10 +38,10 @@ $app->post('/common/lupa_password/', function ($request, $response, $args) {
     $mail->isHTML(true);
     $mail->Subject = "MOUGO DMS Reset Password";
     $mail->Body = "Hello " . $nama . " Berikut Adalah Link Untuk Mereset Password Mougo Anda " . $this->web_url . "/mougo/resetpassword/" . $data['token'];
+ 
     if ($mail->send()) {
         return $response->withJson(['status' => 'Success', 'message' => 'Konfirmasi Lupa Password Akan Dikirim Melalui Email'], SERVER_OK);
     }
-
     return $response->withJson(['status' => 'Error', 'message' => 'Gagal Mengirim Konfirmasi Email'], SERVER_BAD);
 });
 

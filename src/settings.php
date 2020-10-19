@@ -1,5 +1,5 @@
 <?php
-$_ENV['type'] = 'production';
+$_ENV['type'] = 'development';
 $_ENV['web_development'] = 'https://mougo.classico.id';
 $_ENV['web_production'] = 'https://www.mougo.co.id';
 
@@ -37,8 +37,8 @@ return [
         'db' => [
             'host'=>'localhost',
             'dbname'=>'db_mougo',
-            'user'=>'mougo',
-            'password'=>'DigitalCreativeCrew1!@2',
+            'user'=>'root',
+            'password'=>'txyATNIh08mu',
             'driver' => 'mysql'
         ]
     ],

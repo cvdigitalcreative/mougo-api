@@ -443,7 +443,7 @@ class User {
             $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Driver Anda " . $this->getWeb_url() . "/mougo/driverRegister/" . $this->id_user;
         }
         if ($role == MERCHANT_ROLE) {
-            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun Merchant MOUGO Anda " . $this->getWeb_url() . "/mougo/merchantRegister/" . $this->id_user;
+            $mail->Body = "Hello " . $nama . " \n Selamat Anda Telah Melakukan Registrasi Akun Merchant MOUGO." ;
         }
         return $mail->send();
 
