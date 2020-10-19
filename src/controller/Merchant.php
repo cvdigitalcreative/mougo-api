@@ -12,7 +12,7 @@ require_once dirname(__FILE__) . '/../model/DetailMerchant.php';
 
 //
 // MERCHANT
-function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_referal, $kode_sponsor, $no_ktp, $nama_bank, $no_rekening, $atas_nama_bank, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $no_izin, $no_fax, $nama_direktur, $url_web_aplikasi, $lama_bisnis, $omset_perbulan, $kategori_bisnis, $uploadedFiles, $directory_ktp, $directory_izin, $directory_rekening, $directory_banner) {
+function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password, $kode_referal, $kode_sponsor, $no_ktp, $nama_bank, $no_rekening, $atas_nama_bank, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $no_izin, $no_fax, $nama_direktur, $url_web_aplikasi, $lama_bisnis, $omset_perbulan, $kategori_bisnis, $uploadedFiles, $directory_ktp, $directory_izin, $directory_rekening, $directory_banner) {
 
     if (empty($email) || empty($nama) || empty($no_telpon) || empty($password) || empty($no_ktp) || empty($nama_bank) || empty($no_rekening) || empty($atas_nama_bank) || empty($nama_usaha) || empty($alamat_usaha) || empty($no_telpon_kantor) || empty($no_izin) || empty($no_fax) || empty($nama_direktur) || empty($url_web_aplikasi) || empty($lama_bisnis) || empty($omset_perbulan) || empty($kategori_bisnis) || empty($uploadedFiles['foto_ktp']->file) || empty($uploadedFiles['foto_dokumen_izin']->file) || empty($uploadedFiles['foto_rekening_tabungan']->file) || empty($uploadedFiles['foto_banner_ukm']->file)) {
         return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
@@ -35,6 +35,7 @@ function registrasiMerchant($db, $email, $nama, $no_telpon, $password, $kode_ref
     }
 
     $user = new User($nama, $email, $no_telpon, $password, $kode_referal, $kode_sponsor);
+    $user->setWeb_url($web_url);
     $user->setDb($db);
     $daftar = $user->register(MERCHANT_ROLE);
     if ($daftar['status'] == STATUS_ERROR) {
