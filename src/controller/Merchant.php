@@ -314,25 +314,25 @@ function saveFile($uploadedFile, $type, $directory) {
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
 
         if ($type == FOTO_KTP) {
-            return "assets/foto/ktp/" . $filename;
+            return "/assets/foto/ktp/" . $filename;
         }
         if ($type == FOTO_IZIN) {
-            return "assets/foto/izin/" . $filename;
+            return "/assets/foto/izin/" . $filename;
         }
         if ($type == FOTO_REKENING) {
-            return "assets/foto/rekening/" . $filename;
+            return "/assets/foto/rekening/" . $filename;
         }
         if ($type == FOTO_BANNER) {
-            return "assets/foto/banner/" . $filename;
+            return "/assets/foto/banner/" . $filename;
         }
         if ($type == FOTO_LAYANAN) {
-            return "assets/foto/layanan/" . $filename;
+            return "/assets/foto/layanan/" . $filename;
         }
         if ($type == FOTO_BARANG) {
-            return "assets/foto/barang/" . $filename;
+            return "/assets/foto/barang/" . $filename;
         }
         if ($type == FOTO_BLOG) {
-            return "assets/foto/blog/" . $filename;
+            return "/assets/foto/blog/" . $filename;
         }
     }
 }

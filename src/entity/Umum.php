@@ -2184,14 +2184,14 @@ class Umum {
     }
 
     public function IsStringPathNew($string){
-        if(substr($string,0,3) == "../"){
+        if(substr($string,0,1) != "/"){
             return false;
         }
         return true;
     }
 
     public function FormatNewPath($string){
-        return substr($string,3);
+        return "/".$string;
     }
 
 }
