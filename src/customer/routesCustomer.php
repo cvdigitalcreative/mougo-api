@@ -93,7 +93,7 @@ $app->post('/customer/foto_ktp/{id_user}', function ($request, $response, $args)
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_ktp'];
-    $path_name = "assets/foto/ktp/";
+    $path_name = "/assets/foto/ktp/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KTP, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -113,7 +113,7 @@ $app->post('/customer/foto_kk/{id_user}', function ($request, $response, $args) 
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_kk'];
-    $path_name = "assets/foto/kk/";
+    $path_name = "/assets/foto/kk/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);

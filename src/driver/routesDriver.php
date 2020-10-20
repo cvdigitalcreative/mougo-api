@@ -103,7 +103,7 @@ $app->post('/driver/foto_ktp/{id_user}', function ($request, $response, $args) {
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_ktp'];
-    $path_name = "assets/foto/ktp/";
+    $path_name = "/assets/foto/ktp/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KTP, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -123,7 +123,7 @@ $app->post('/driver/foto_kk/{id_user}', function ($request, $response, $args) {
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_kk'];
-    $path_name = "assets/foto/kk/";
+    $path_name = "/assets/foto/kk/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_KK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -143,7 +143,7 @@ $app->post('/driver/foto_diri/{id_user}', function ($request, $response, $args) 
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_diri'];
-    $path_name = "assets/foto/diri/";
+    $path_name = "/assets/foto/diri/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_DIRI, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -163,7 +163,7 @@ $app->post('/driver/foto_sim/{id_user}', function ($request, $response, $args) {
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_sim'];
-    $path_name = "assets/foto/sim/";
+    $path_name = "/assets/foto/sim/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_SIM, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -183,7 +183,7 @@ $app->post('/driver/foto_skck/{id_user}', function ($request, $response, $args) 
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_skck'];
-    $path_name = "assets/foto/skck/";
+    $path_name = "/assets/foto/skck/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_SKCK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
@@ -203,7 +203,7 @@ $app->post('/driver/foto_stnk/{id_user}', function ($request, $response, $args) 
     }
     $uploadedFile = $uploadedFiles['gambar'];
     $directory = $this->get('settings')['upload_dir_foto_stnk'];
-    $path_name = "assets/foto/stnk/";
+    $path_name = "/assets/foto/stnk/";
     return $response->withJson($foto->uploadFileFoto($args['id_user'], $uploadedFile, FOTO_STNK, $directory, $path_name), SERVER_OK);
 
 })->add($tokenCheck);
