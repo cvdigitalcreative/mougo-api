@@ -31,7 +31,8 @@ define('PROFILE', 'profile');
 define('PROFILE_DRIVER', 'profile_driver');
 
 // DRIVER
-define('STATUS_ONLINE', 0);
+define('STATUS_OFFLINE', 0);
+define('STATUS_ONLINE', 1);
 define('STATUS_AKUN_AKTIF', 0);
 define('STATUS_AKTIF_USER', 2);
 define('STATUS_AKTIF_USER_REGISTER', 3);
