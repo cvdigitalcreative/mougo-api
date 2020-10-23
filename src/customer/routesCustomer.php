@@ -216,3 +216,11 @@ $app->get('/customer/trip/cek/{id_user}/{jenis_trip}', function ($request, $resp
     }
     return $response->withJson(['status' => 'Error', 'data' => $data, 'message' => 'Saldo Anda Tidak Cukup'], SERVER_OK);
 })->add($tokenCheck);
+
+
+// CUSTOMER GET DRIVER ONLINE POSITION 
+$app->get('/customer/driver/position/', function ($request, $response) {
+    $user = new Umum();
+    $user->setDb($this->db);
+    return $response->withJson($user->CustomerGetDriverOnlinePosition(), SERVER_OK);
+})->add($tokenCheck);

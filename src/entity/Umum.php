@@ -2194,4 +2194,22 @@ class Umum {
         return "/".$string;
     }
 
+    public function CustomerGetDriverOnlinePosition(){
+        $data = $this->GetDriverOnlinePosition();
+        if (empty($data)) {
+            return ['status' => 'Error', 'message' => 'Tidak Ada Driver Online', 'data' => []];
+        }
+        return ['status' => 'Success', 'message' => 'Posisi Driver Online Ditemukan', 'data' => $data];
+    }
+
+    public function GetDriverOnlinePosition(){
+        $status = STATUS_ONLINE;
+        $sql = "SELECT position.latitude, position.longitude FROM position
+                INNER JOIN driver ON driver.id_user = position.id_user
+                WHERE status_online = $status";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        return $est->fetchAll();
+    }
+
 }

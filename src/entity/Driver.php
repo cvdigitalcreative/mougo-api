@@ -92,7 +92,7 @@ class Driver extends User {
                                 VALUES (:id_user , :status_online , :no_polisi , :cabang , :alamat_domisili , :merk_kendaraan , :jenis_kendaraan , :status_akun_aktif , '-' , '-' , '-' , '-')";
         $data_driver = [
             ':id_user' => $this->getId_user(),
-            ':status_online' => STATUS_ONLINE,
+            ':status_online' => STATUS_OFFLINE,
             ':no_polisi' => $this->getNo_polisi(),
             ':cabang' => $this->getCabang(),
             ':alamat_domisili' => $this->getAlamat_domisili(),
@@ -111,11 +111,11 @@ class Driver extends User {
         if (empty($data_driver)) {
             return ['status' => 'Error', 'message' => 'Driver Tidak Ditemukan'];
         }
-        if ($data_driver['status_akun_aktif'] == STATUS_ONLINE) {
+        if ($data_driver['status_akun_aktif'] == STATUS_OFFLINE) {
             return ['status' => 'Error', 'message' => 'Driver Belum Diverifikasi Oleh Admin'];
         }
-        if ($status == STATUS_ONLINE) {
-            if ($this->setStatus($id_user, STATUS_ONLINE)) {
+        if ($status == STATUS_OFFLINE) {
+            if ($this->setStatus($id_user, STATUS_OFFLINE)) {
                 return ['status' => 'Success', 'message' => 'Driver Telah Offline'];
             }
         }
