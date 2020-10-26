@@ -38,7 +38,7 @@ function deleteLayanan($db, $id) {
         return ['status' => 'Error', 'message' => 'Gagal Menghapus Layanan Tidak Ditemukan'];
     }
     if (deleteLayananById($db, $id)) {
-        unlink($data['foto_layanan']);
+        unlink(PATH_PUBLIC.$data['foto_layanan']);
         return ['status' => 'Success', 'message' => 'Berhasil Menghapus Layanan'];
     }
     return ['status' => 'Error', 'message' => 'Gagal Menghapus Layanan'];
@@ -58,7 +58,7 @@ function editLayanan($db, $id, $nama_layanan, $deskripsi_layanan, $uploadedFile,
         if ($path_layanan == STATUS_ERROR) {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
         }
-        unlink($data_layanan['foto_layanan']);
+        unlink(PATH_PUBLIC.$data_layanan['foto_layanan']);
     }
     $layanan = new Layanan($nama_layanan, $deskripsi_layanan, $path_layanan);
     if (updateLayanan($db, $id, $layanan->getNama_layanan(), $layanan->getDeskripsi_layanan(), $layanan->getFoto_layanan())) {

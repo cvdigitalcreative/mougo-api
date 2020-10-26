@@ -201,3 +201,6 @@ define('STATUS_MERCHANT_OFFLINE', 2);
 define('STATUS_MERCHANT_PENDING', 1);
 define('STATUS_MERCHANT_ACCEPTED', 2);
 define('STATUS_MERCHANT_REJECTED', 3);
+
+// PATH
+define('PATH_PUBLIC', '../public');
