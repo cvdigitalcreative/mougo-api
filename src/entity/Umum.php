@@ -368,7 +368,7 @@ class Umum {
                 if ($data_topup['status_topup'] == 2) {
                     return ['status' => 'Error', 'message' => 'Gagal, Topup User Telah Berhasil Diterima Oleh Admin'];
                 }
-                if (unlink($bukti_pembayaran['foto_transfer'])) {
+                if (unlink(PATH_PUBLIC.$bukti_pembayaran['foto_transfer'])) {
                     if (!$this->deleteBuktiPembayaran($id)) {
                         return ['status' => 'Error', 'message' => 'Gagal Menolak Topup'];
                     }
@@ -539,7 +539,7 @@ class Umum {
         if ($data['foto_skck'] == '-' && $data['foto_stnk'] == '-' && $data['foto_sim'] == '-' && $data['foto_diri'] == '-') {
             return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Direject Oleh Admin'];
         }
-        if (unlink($data['foto_skck']) && unlink($data['foto_stnk']) && unlink($data['foto_sim']) && unlink($data['foto_diri']) && unlink($user['foto_ktp']) && unlink($user['foto_kk'])) {
+        if (unlink(PATH_PUBLIC.$data['foto_skck']) && unlink(PATH_PUBLIC.$data['foto_stnk']) && unlink(PATH_PUBLIC.$data['foto_sim']) && unlink(PATH_PUBLIC.$data['foto_diri']) && unlink(PATH_PUBLIC.$user['foto_ktp']) && unlink(PATH_PUBLIC.$user['foto_kk'])) {
             if ($this->deleteUserFoto($id_user)) {
                 if(!empty($email_admin)){
                     $cek = $this->getAdminVerifiDriver($id_user);
@@ -609,10 +609,10 @@ class Umum {
     public function resetFoto($id) {
         $data = $this->cekFotoCustomer($id);
         if (file_exists($data['foto_kk'])) {
-            unlink($data['foto_kk']);
+            unlink(PATH_PUBLIC.$data['foto_kk']);
         }
         if (file_exists($data['foto_ktp'])) {
-            unlink($data['foto_ktp']);
+            unlink(PATH_PUBLIC.$data['foto_ktp']);
         }
         if ($this->deleteUserFoto($id)) {
             return ['status' => 'Success', 'message' => 'Berhasil Mereset Foto KK dan KTP'];
@@ -717,7 +717,7 @@ class Umum {
             }
             $filename = $id_user . "." . $extension;
             if (file_exists("$directory/$filename")) {
-                unlink("$directory/$filename");
+                unlink(PATH_PUBLIC."$directory/$filename");
             }
 
             $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);

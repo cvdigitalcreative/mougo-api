@@ -291,7 +291,7 @@ function updateMerchantBarang($db, $id, $id_barang, $nama_barang, $harga_barang,
         if ($path_barang == STATUS_ERROR) {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
         }
-        unlink($barang['foto_barang']);
+        unlink(PATH_PUBLIC.$barang['foto_barang']);
     }
     if(updateBarang($db, $id_barang, $nama_barang, $harga_barang, $path_barang,$kategori_barang)){
         return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Barang'];
