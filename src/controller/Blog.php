@@ -39,7 +39,7 @@ function deleteBlog($db, $id) {
     }
 
     if (deleteBlogById($db, $id)) {
-        unlink($data['foto_blog']);
+        unlink(PATH_PUBLIC.$data['foto_blog']);
         return ['status' => 'Success', 'message' => 'Berhasil Menghapus Blog'];
     }
     return ['status' => 'Error', 'message' => 'Gagal Menghapus Blog'];
@@ -59,7 +59,7 @@ function editBlog($db, $id, $judul_blog, $isi_blog, $kategori_blog, $nama_penuli
         if ($path_blog == STATUS_ERROR) {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
         }
-        unlink($data_blog['foto_blog']);
+        unlink(PATH_PUBLIC.$data_blog['foto_blog']);
     }
     $blog = new Blog($judul_blog, $isi_blog, $kategori_blog, $path_blog, $nama_penulis);
     if (updateBlog($db, $id, $blog->getJudul_blog(), $blog->getIsi_blog(), $blog->getKategori_blog(), $blog->getNama_penulis(), $blog->getFoto_blog())) {

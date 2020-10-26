@@ -199,7 +199,7 @@ $app->post('/owner/event/{id}', function ($request, $response, $args) {
         if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
             return $response->withJson(['status' => 'Error', 'message' => 'Gambar Event Harus JPG atau PNG'], SERVER_OK);
         }
-        if (unlink($event['gambar_event'])) {
+        if (unlink(PATH_PUBLIC.$event['gambar_event'])) {
             $filename = md5($uploadedFile->getClientFilename()) . time() . "." . $extension;
             $directory = $this->get('settings')['upload_directory2'];
             if (!is_dir($directory)) {
