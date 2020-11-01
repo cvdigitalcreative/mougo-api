@@ -14,16 +14,23 @@ require_once dirname(__FILE__) . '/../model/DetailMerchant.php';
 // MERCHANT
 function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password, $kode_referal, $kode_sponsor, $no_ktp, $nama_bank, $no_rekening, $atas_nama_bank, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $no_izin, $no_fax, $nama_direktur, $url_web_aplikasi, $lama_bisnis, $omset_perbulan, $kategori_bisnis, $uploadedFiles, $directory_ktp, $directory_izin, $directory_rekening, $directory_banner) {
 
-    if (empty($email) || empty($nama) || empty($no_telpon) || empty($password) || empty($no_ktp) || empty($nama_bank) || empty($no_rekening) || empty($atas_nama_bank) || empty($nama_usaha) || empty($alamat_usaha) || empty($no_telpon_kantor) || empty($no_izin) || empty($no_fax) || empty($nama_direktur) || empty($url_web_aplikasi) || empty($lama_bisnis) || empty($omset_perbulan) || empty($kategori_bisnis) || empty($uploadedFiles['foto_ktp']->file) || empty($uploadedFiles['foto_dokumen_izin']->file) || empty($uploadedFiles['foto_rekening_tabungan']->file) || empty($uploadedFiles['foto_banner_ukm']->file)) {
+    if (empty($email) || empty($nama) || empty($no_telpon) || empty($password) || empty($no_ktp) || empty($nama_bank) || empty($no_rekening) || empty($atas_nama_bank) || empty($nama_usaha) || empty($alamat_usaha) || empty($no_telpon_kantor) || empty($nama_direktur) || empty($lama_bisnis) || empty($omset_perbulan) || empty($kategori_bisnis) || empty($uploadedFiles['foto_ktp']->file) || empty($uploadedFiles['foto_rekening_tabungan']->file) || empty($uploadedFiles['foto_banner_ukm']->file)) {
         return ['status' => 'Error', 'message' => 'Data Input Tidak Boleh Kosong'];
     }
+
+    $no_izin = IsStringEmpty($no_izin)?STRING_KOSONG:$no_izin;
+    $no_fax = IsStringEmpty($no_fax)?STRING_KOSONG:$no_fax;
+    $url_web_aplikasi = IsStringEmpty($url_web_aplikasi)?STRING_KOSONG:$url_web_aplikasi;
+
     $extension = pathinfo($uploadedFiles['foto_ktp']->getClientFilename(), PATHINFO_EXTENSION);
     if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
-    $extension = pathinfo($uploadedFiles['foto_dokumen_izin']->getClientFilename(), PATHINFO_EXTENSION);
-    if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    if (!empty($uploadedFiles['foto_dokumen_izin']->file)) {
+        $extension = pathinfo($uploadedFiles['foto_dokumen_izin']->getClientFilename(), PATHINFO_EXTENSION);
+        if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
+            return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+        }
     }
     $extension = pathinfo($uploadedFiles['foto_rekening_tabungan']->getClientFilename(), PATHINFO_EXTENSION);
     if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
@@ -53,9 +60,14 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
     if ($path_ktp == STATUS_ERROR) {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
-    $path_izin = saveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
-    if ($path_izin == STATUS_ERROR) {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    
+    if (!empty($uploadedFiles['foto_dokumen_izin']->file)) {
+        $path_izin = saveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
+        if ($path_izin == STATUS_ERROR) {
+            return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+        }
+    }else{
+        $path_izin = STRING_KOSONG;
     }
     $path_rekening = saveFile($uploadedFiles['foto_rekening_tabungan'], FOTO_REKENING, $directory_rekening);
     if ($path_rekening == STATUS_ERROR) {
@@ -89,6 +101,13 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
     $user_id['id_user'] = $id_user;
     return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Merchant', 'data' => $user_id];
 
+}
+
+function IsStringEmpty($string){
+    if (empty($string)) {
+        return true;
+    }
+    return false;
 }
 
 //
