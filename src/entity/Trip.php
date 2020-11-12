@@ -59,7 +59,10 @@ class Trip {
                 return ['status' => 'Error', 'message' => 'Saldo User Kurang Untuk Melakukan Trip'];
             }
         }
-        // $this->hitungHarga();
+        $dataTemporaryUser = $this->getTemporaryOrderDetailByIdUser($this->id_customer);
+        if (!empty($dataTemporaryUser)) {
+            $this->deleteTemporaryOrderByIdUser($this->id_customer);
+        }
         if ($this->cekTemporaryId() == 0 || $this->cekTemporaryId() == 1 || $this->cekTemporaryId() < $this->cekMaxId()) {
             $this->resetAutoIncrement($this->cekMaxId() + 1);
         }
@@ -230,6 +233,22 @@ class Trip {
         if (!empty($stmt)) {
             return $stmt;
         }return $stmt;
+    }
+
+    public function getTemporaryOrderDetailByIdUser($id_user) {
+        $sql = "SELECT * FROM temporary_order
+                WHERE id_customer = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        $est->execute();
+        $stmt = $est->fetchAll();
+        return $stmt;
+    }
+
+    public function deleteTemporaryOrderByIdUser($id_user) {
+        $sql = "DELETE FROM temporary_order
+                WHERE id_customer = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
     }
 
     public function getTemporaryOrderDetail($id) {
