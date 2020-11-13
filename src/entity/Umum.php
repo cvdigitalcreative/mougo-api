@@ -67,7 +67,8 @@ class Umum {
 
     public function getTemporaryTrip($lat, $long) {
         $sql = "SELECT *
-                FROM temporary_order";
+                FROM temporary_order
+                WHERE tanggal_transaksi >= now() - interval 1 hour AND tanggal_transaksi <= current_timestamp()";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
