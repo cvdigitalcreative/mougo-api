@@ -1767,8 +1767,8 @@ class Owner {
         return $est->rowCount();
     }
 
-    private $column_search_trip_driver = array('nama', 'tanggal_transaksi', 'total_harga');
-    private $trip_driver_id = array('nama' => 'asc');
+    private $column_search_trip_driver = array('nama', 'total_harga', 'tanggal_transaksi');
+    private $trip_driver_id = array('tanggal_transaksi' => 'asc');
 
     public function getTripDriverWeb($order_by, $order, $start, $length, $search) {
         $sql = $this->getTripDriverQuery($order_by, $order, $search);
