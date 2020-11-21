@@ -26,7 +26,7 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
     if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
-    if (!empty($uploadedFiles['foto_dokumen_izin']->file)) {
+    if (isset($uploadedFiles['foto_dokumen_izin']->file)) {
         $extension = pathinfo($uploadedFiles['foto_dokumen_izin']->getClientFilename(), PATHINFO_EXTENSION);
         if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
@@ -61,7 +61,7 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
     
-    if (!empty($uploadedFiles['foto_dokumen_izin']->file)) {
+    if (isset($uploadedFiles['foto_dokumen_izin']->file)) {
         $path_izin = saveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
         if ($path_izin == STATUS_ERROR) {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
