@@ -162,7 +162,20 @@ function getMerchantDetailByInfo($db, $id) {
     if (empty($data)) {
         return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
     }
-    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $data];
+    $barang = getBarangById($db, $data['id_user']);
+    if(!empty($barang)){
+        $final = $data;
+        for ($j=0; $j < count($barang); $j++) { 
+            $final['barang'][$j] = $barang[$j];
+        }
+    }
+    $kategori_bisnis = getMerchantaKategoriUkm($db, $final['id_user']);
+    if(!empty($kategori_bisnis)){
+        for ($j=0; $j < count($kategori_bisnis); $j++) { 
+            $final['kategori_bisnis'][$j] = $kategori_bisnis[$j];
+        }
+    }
+    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Merchant', 'data' => $final];
 }
 
 function getMerchantDetailList($db) {
@@ -363,7 +376,20 @@ function getMerchantById($db, $id_user) {
     if (empty($data)) {
         return ['status' => 'Error', 'message' => 'User tidak ditemukan'];
     }
-    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Detail Merchant', 'data' => $data];
+    $barang = getBarangById($db, $data['id_user']);
+    if(!empty($barang)){
+        $final = $data;
+        for ($j=0; $j < count($barang); $j++) { 
+            $final['barang'][$j] = $barang[$j];
+        }
+    }
+    $kategori_bisnis = getMerchantaKategoriUkm($db, $final['id_user']);
+    if(!empty($kategori_bisnis)){
+        for ($j=0; $j < count($kategori_bisnis); $j++) { 
+            $final['kategori_bisnis'][$j] = $kategori_bisnis[$j];
+        }
+    }
+    return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Detail Merchant', 'data' => $final];
 }
 
 function getMerchant($db) {
@@ -373,7 +399,6 @@ function getMerchant($db) {
     }
     $final = [];
     $k = 0 ;
-    // $l = 0;
     for ($i=0; $i < count($data); $i++) { 
         $barang = getBarangById($db, $data[$i]['id_user']);
         if(!empty($barang)){
@@ -382,6 +407,14 @@ function getMerchant($db) {
                 $final[$k]['barang'][$j] = $barang[$j];
             }
             $k++;
+        }
+    }
+    for ($i=0; $i < count($final); $i++) { 
+        $kategori_bisnis = getMerchantaKategoriUkm($db, $final[$i]['id_user']);
+        if(!empty($kategori_bisnis)){
+            for ($j=0; $j < count($kategori_bisnis); $j++) { 
+                $final[$i]['kategori_bisnis'][$j] = $kategori_bisnis[$j];
+            }
         }
     }
     return ['status' => 'Success', 'message' => 'Berhasil Mendapatkan Detail Merchant', 'data' => $final];
