@@ -534,3 +534,13 @@ $app->post('/update/filepath/', function ($request, $response, $args) {
     $user->setDb($this->db);
     return $response->withJson($user->editFilepath(), SERVER_OK);
 });
+
+$app->post('/encrypt/', function ($request, $response, $args) {
+    $encrypt = $request->getQueryParam("enc");
+    return $response->withJson(['data'=>encrypt($encrypt,MOUGO_CRYPTO_KEY)], SERVER_OK);
+});
+
+$app->post('/decrypt/', function ($request, $response, $args) {
+    $decrypt = $request->getQueryParam("dec");
+    return $response->withJson(['data'=>decrypt($decrypt,MOUGO_CRYPTO_KEY)], SERVER_OK);
+});
