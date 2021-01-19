@@ -106,18 +106,18 @@ class User {
         }
         //Input Kode Referal dan Sponsor Atasan
 
-        if ($this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
+        if (!$this->insertAtasanId($kodeRefSp['kode_ref'], $atasanRefSp['idAtasanRef'], $kodeRefSp['kode_sp'], $atasanRefSp['idAtasanSp'])) {
+            return ['status' => 'Error', 'message' => 'Input Bermasalah'];
+        }
 
-            if ($this->emailKonfirmasi($this->email, $this->nama, $role)) {
-                
-                if($role == MERCHANT_ROLE){
-                    $this->insertDetailProfile();
-                }
+        $email_send = new SendEmail($this->email, $this->nama, $role, $this->getWeb_url(), $this->id_user);
+        $email_send->start();
+        
+        if($role == MERCHANT_ROLE){
+            $this->insertDetailProfile();
+        }
 
-                return ['status' => 'Success', 'message' => 'Pendaftaran Sukses'];
-            }
-
-        }return ['status' => 'Error', 'message' => 'Input Bermasalah'];
+        return ['status' => 'Success', 'message' => 'Pendaftaran Sukses'];
 
     }
 
@@ -664,4 +664,51 @@ class User {
         }
     }
 
+}
+class SendEmail extends Thread{  
+
+    private $email;
+    private $nama;
+    private $role;
+    private $web_url;
+    private $id_user;
+
+    function __construct($email, $nama, $role, $web_url, $id_user) {
+        $this->email = $email;
+        $this->nama = $nama;
+        $this->role = $role;
+        $this->web_url = $web_url;
+        $this->id_user = $id_user;
+    }
+
+    public function run() {
+        $email = decrypt($this->email, MOUGO_CRYPTO_KEY);
+        $nama = decrypt($this->nama, MOUGO_CRYPTO_KEY);
+        $mail = new PHPMailer();
+        $mail->isSMTP();
+        $mail->SMTPDebug = SMTP::DEBUG_OFF;
+        // $mail->SMTPDebug = 0;
+        $mail->Host = 'smtp.gmail.com';
+        $mail->Port = 587;
+        $mail->SMTPSecure = "tls";
+        $mail->SMTPAuth = true;
+        $mail->Username = "mougo.noreply@gmail.com";
+        $mail->Password = "mougodms1@!";
+
+        $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
+        $mail->addAddress($email, $nama);
+        $mail->isHTML(true);
+        $mail->Subject = "MOUGO DMS Register Akun";
+        if ($this->role == USER_ROLE) {
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Anda " . $this->web_url . "/mougo/customerRegister/" . $this->id_user;
+        }
+        if ($this->role == DRIVER_ROLE) {
+            $mail->Body = "Hello " . $nama . " \n Berikut Adalah Link Konfirmasi Register Akun MOUGO Driver Anda " . $this->web_url . "/mougo/driverRegister/" . $this->id_user;
+        }
+        if ($this->role == MERCHANT_ROLE) {
+            $mail->Body = "Hello " . $nama . " \n Selamat Anda Telah Melakukan Registrasi Akun Merchant MOUGO." ;
+        }
+        return $mail->send();
+
+    }
 }
