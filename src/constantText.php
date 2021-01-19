@@ -204,3 +204,5 @@ define('STATUS_MERCHANT_REJECTED', 3);
 
 // PATH
 define('PATH_PUBLIC', '../public');
+
+define('MAX_FILE_SIZE', 2000000);
