@@ -61,11 +61,16 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
     if ($daftar['status'] == STATUS_ERROR) {
         return $daftar;
     }
+
+    $umum = new Umum();
+    $umum->setDb($db);
+
     $id_user = sha1($nama . $email . $no_telpon);
     $detail_user = new Profile($id_user, $no_ktp, "-", "-", $nama_bank, $no_rekening, $atas_nama_bank, null, null);
     $detail_user->setDb($db);
     $daftar_detail = $detail_user->insertDetailUser();
     if (!$daftar_detail) {
+        $umum->MerchantRollbackData($id_user);
         return ['status' => 'Error', 'message' => 'Gagal Input Detail User'];
     }
 
@@ -84,6 +89,7 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
        
         $path_izin = $path_izin->getReturn();
         if ($path_izin == STATUS_ERROR) {
+            $umum->MerchantRollbackData($id_user);
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
         }
     }else{
@@ -91,41 +97,46 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
     }
   
     $path_ktp = $path_ktp->getReturn();
-    if ($path_ktp == STATUS_ERROR) {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
-    }
- 
     $path_rekening = $path_rekening->getReturn();
-    if ($path_rekening == STATUS_ERROR) {
+    $path_banner = $path_banner->getReturn();
+
+    if ($path_ktp == STATUS_ERROR || $path_rekening == STATUS_ERROR || $path_banner == STATUS_ERROR) {
+        $umum->MerchantRollbackData($id_user);
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
 
-    $path_banner = $path_banner->getReturn();
-    if ($path_banner == STATUS_ERROR) {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
-    }
-    $umum = new Umum();
-    $umum->setDb($db);
-    $umum->updateFoto($id_user, $path_ktp, FOTO_KTP);
+    if(!$umum->updateFoto($id_user, $path_ktp, FOTO_KTP)){
+        $umum->MerchantRollbackData($id_user);
+        return ['status' => 'Error', 'message' => 'Gagal Input Photo Merchant Ukm'];
+    };
 
     $merchant = new Merchant($id_user, $nama_usaha, $alamat_usaha, $no_telpon_kantor, $url_web_aplikasi);
 
     if (!insertMerchant($db, $merchant->getId_user(), $merchant->getNama_usaha(), $merchant->getAlamat_usaha(), $merchant->getNo_telpon_kantor(), $merchant->getUrl_web_aplikasi(), $merchant->getStatus_online_merchant(), $merchant->getStatus_verifikasi_merchant())) {
+        $umum->MerchantRollbackData($id_user);
         return ['status' => 'Error', 'message' => 'Gagal Input Merchant Ukm'];
     }
 
     $detailMerchant = new DetailMerchant($id_user, $no_izin, $no_fax, $nama_direktur, $lama_bisnis, $omset_perbulan, $path_izin, $path_rekening, $path_banner);
 
     if (!insertDetailMerchant($db, $detailMerchant->getId_user(), $detailMerchant->getNo_izin(), $detailMerchant->getNo_fax(), $detailMerchant->getNama_direktur(), $detailMerchant->getLama_bisnis(), $detailMerchant->getOmset_perbulan(), $detailMerchant->getFoto_dokumen_perizinan(), $detailMerchant->getFoto_rekening_tabungan(), $detailMerchant->getFoto_banner_ukm())) {
+        $umum->MerchantRollbackData($id_user);
         return ['status' => 'Error', 'message' => 'Gagal Input Detail Merchant Ukm'];
     }
     
     $kategori_bisnis = str_replace( [' '],'' ,$kategori_bisnis);
     $kategori_bisnis_arr = explode( "," ,$kategori_bisnis);
     for ($i=0; $i < count($kategori_bisnis_arr); $i++) { 
-        insertKategori($db, $id_user, $kategori_bisnis_arr[$i]);
+        if(!insertKategori($db, $id_user, $kategori_bisnis_arr[$i])){
+            $umum->MerchantRollbackData($id_user);
+            return ['status' => 'Error', 'message' => 'Gagal Input Kategori Merchant Ukm'];
+        }
     }
+
+    $email_send = new SendEmail($email, $nama, MERCHANT_ROLE, $web_url, $id_user);
+    $email_send->start();
     $user_id['id_user'] = $id_user;
+    
     return ['status' => 'Success', 'message' => 'Berhasil Mendaftarkan Merchant', 'data' => $user_id];
 
 }
