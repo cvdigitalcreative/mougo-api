@@ -110,10 +110,10 @@ class User {
             return ['status' => 'Error', 'message' => 'Input Bermasalah'];
         }
 
-        $email_send = new SendEmail($this->email, $this->nama, $role, $this->getWeb_url(), $this->id_user);
-        $email_send->start();
-        
-        if($role == MERCHANT_ROLE){
+        if($role != MERCHANT_ROLE){
+            $email_send = new SendEmail($this->email, $this->nama, $role, $this->getWeb_url(), $this->id_user);
+            $email_send->start();
+        }else{
             $this->insertDetailProfile();
         }
 
