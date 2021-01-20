@@ -2213,4 +2213,47 @@ class Umum {
         return $est->fetchAll();
     }
 
+    public function deleteUser($id_user) {
+        $sql = "DELETE FROM user
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+    
+    public function deleteDetailUser($id_user) {
+        $sql = "DELETE FROM detail_user
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+    
+    public function deleteUkmUser($id_user) {
+        $sql = "DELETE FROM ukm
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+    
+    public function deleteDetailUkmUser($id_user) {
+        $sql = "DELETE FROM detail_ukm
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function deleteKategoriUkmUser($id_user) {
+        $sql = "DELETE FROM kategori_ukm
+                WHERE id_user = '$id_user'";
+        $est = $this->getDb()->prepare($sql);
+        return $est->execute();
+    }
+
+    public function MerchantRollbackData($id_user){
+        $this->deleteKategoriUkmUser($id_user);
+        $this->deleteDetailUkmUser($id_user);
+        $this->deleteUkmUser($id_user);
+        $this->deleteDetailUser($id_user);
+        $this->deleteUser($id_user);
+    }
+    
 }
