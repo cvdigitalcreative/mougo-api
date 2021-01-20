@@ -26,19 +26,32 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
     if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
+    if (filesize($uploadedFiles['foto_ktp']->file)>MAX_FILE_SIZE){
+        return ['status' => 'Error', 'message' => 'Gambar Harus Lebih Kecil Dari 2MB'];
+    }
     if (isset($uploadedFiles['foto_dokumen_izin']->file)) {
         $extension = pathinfo($uploadedFiles['foto_dokumen_izin']->getClientFilename(), PATHINFO_EXTENSION);
         if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+        }
+        if (filesize($uploadedFiles['foto_dokumen_izin']->file)>MAX_FILE_SIZE){
+            return ['status' => 'Error', 'message' => 'Gambar Harus Lebih Kecil Dari 2MB'];
         }
     }
     $extension = pathinfo($uploadedFiles['foto_rekening_tabungan']->getClientFilename(), PATHINFO_EXTENSION);
     if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
+    if (filesize($uploadedFiles['foto_rekening_tabungan']->file)>MAX_FILE_SIZE){
+        return ['status' => 'Error', 'message' => 'Gambar Harus Lebih Kecil Dari 2MB'];
+    }
+    
     $extension = pathinfo($uploadedFiles['foto_banner_ukm']->getClientFilename(), PATHINFO_EXTENSION);
     if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    }
+    if (filesize($uploadedFiles['foto_banner_ukm']->file)>MAX_FILE_SIZE){
+        return ['status' => 'Error', 'message' => 'Gambar Harus Lebih Kecil Dari 2MB'];
     }
 
     $user = new User($nama, $email, $no_telpon, $password, $kode_referal, $kode_sponsor);
@@ -56,24 +69,38 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
         return ['status' => 'Error', 'message' => 'Gagal Input Detail User'];
     }
 
-    $path_ktp = saveFile($uploadedFiles['foto_ktp'], FOTO_KTP, $directory_ktp);
-    if ($path_ktp == STATUS_ERROR) {
-        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
-    }
+    $path_ktp = new SaveFile($uploadedFiles['foto_ktp'], FOTO_KTP, $directory_ktp);
+    $path_ktp->start();
+  
+    $path_rekening = new SaveFile($uploadedFiles['foto_rekening_tabungan'], FOTO_REKENING, $directory_rekening);
+    $path_rekening->start();
+   
+    $path_banner = new SaveFile($uploadedFiles['foto_banner_ukm'], FOTO_BANNER, $directory_banner);
+    $path_banner->start();
     
     if (isset($uploadedFiles['foto_dokumen_izin']->file)) {
-        $path_izin = saveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
+        $path_izin = new SaveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
+        $path_izin->start();
+       
+        $path_izin = $path_izin->getReturn();
         if ($path_izin == STATUS_ERROR) {
             return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
         }
     }else{
         $path_izin = STRING_KOSONG;
     }
-    $path_rekening = saveFile($uploadedFiles['foto_rekening_tabungan'], FOTO_REKENING, $directory_rekening);
+  
+    $path_ktp = $path_ktp->getReturn();
+    if ($path_ktp == STATUS_ERROR) {
+        return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    }
+ 
+    $path_rekening = $path_rekening->getReturn();
     if ($path_rekening == STATUS_ERROR) {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
-    $path_banner = saveFile($uploadedFiles['foto_banner_ukm'], FOTO_BANNER, $directory_banner);
+
+    $path_banner = $path_banner->getReturn();
     if ($path_banner == STATUS_ERROR) {
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
     }
@@ -329,6 +356,60 @@ function updateMerchantBarang($db, $id, $id_barang, $nama_barang, $harga_barang,
         return ['status' => 'Success', 'message' => 'Berhasil Mengupdate Barang'];
     }
     return ['status' => 'Error', 'message' => 'Gagal Mengupdate Barang'];
+}
+
+class SaveFile extends Thread
+{
+    private $uploadedFile;
+    private $type;
+    private $directory;
+    private $return;
+
+    public function __construct($uploadedFile, $type, $directory) {
+        $this->uploadedFile = $uploadedFile;
+        $this->type = $type;
+        $this->directory = $directory;
+    }
+
+    public function run() {
+        if ($this->uploadedFile->getError() === UPLOAD_ERR_OK) {
+            $extension = pathinfo($this->uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+            if ($extension != "jpg" && $extension != "png" && $extension != "JPG" && $extension != "PNG" && $extension != "jpeg" && $extension != "JPEG") {
+                $this->return = STATUS_ERROR;
+            }
+            $filename = md5($this->uploadedFile->getClientFilename()) . time() . "." . $extension;
+            if (!is_dir($this->directory)) {
+                mkdir($this->directory, 0777, true);
+            }
+            $this->uploadedFile->moveTo($this->directory . DIRECTORY_SEPARATOR . $filename);
+    
+            if ($this->type == FOTO_KTP) {
+                $this->return = "/assets/foto/ktp/" . $filename;
+            }
+            if ($this->type == FOTO_IZIN) {
+                $this->return = "/assets/foto/izin/" . $filename;
+            }
+            if ($this->type == FOTO_REKENING) {
+                $this->return = "/assets/foto/rekening/" . $filename;
+            }
+            if ($this->type == FOTO_BANNER) {
+                $this->return = "/assets/foto/banner/" . $filename;
+            }
+            if ($this->type == FOTO_LAYANAN) {
+                $this->return = "/assets/foto/layanan/" . $filename;
+            }
+            if ($this->type == FOTO_BARANG) {
+                $this->return = "/assets/foto/barang/" . $filename;
+            }
+            if ($this->type == FOTO_BLOG) {
+                $this->return = "/assets/foto/blog/" . $filename;
+            }
+        }
+    }
+
+    public function getReturn(){
+        return $this->return;
+    }
 }
 
 //
