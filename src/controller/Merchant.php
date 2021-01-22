@@ -54,26 +54,6 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
         return ['status' => 'Error', 'message' => 'Gambar Harus Lebih Kecil Dari 2MB'];
     }
 
-    $user = new User($nama, $email, $no_telpon, $password, $kode_referal, $kode_sponsor);
-    $user->setWeb_url($web_url);
-    $user->setDb($db);
-    $daftar = $user->register(MERCHANT_ROLE);
-    if ($daftar['status'] == STATUS_ERROR) {
-        return $daftar;
-    }
-
-    $umum = new Umum();
-    $umum->setDb($db);
-
-    $id_user = sha1($nama . $email . $no_telpon);
-    $detail_user = new Profile($id_user, $no_ktp, "-", "-", $nama_bank, $no_rekening, $atas_nama_bank, null, null);
-    $detail_user->setDb($db);
-    $daftar_detail = $detail_user->insertDetailUser();
-    if (!$daftar_detail) {
-        $umum->MerchantRollbackData($id_user);
-        return ['status' => 'Error', 'message' => 'Gagal Input Detail User'];
-    }
-
     $path_ktp = new SaveFile($uploadedFiles['foto_ktp'], FOTO_KTP, $directory_ktp);
     $path_ktp->start();
   
@@ -82,6 +62,11 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
    
     $path_banner = new SaveFile($uploadedFiles['foto_banner_ukm'], FOTO_BANNER, $directory_banner);
     $path_banner->start();
+    
+    $umum = new Umum();
+    $umum->setDb($db);
+
+    $id_user = sha1($nama . $email . $no_telpon);
     
     if (isset($uploadedFiles['foto_dokumen_izin']->file)) {
         $path_izin = new SaveFile($uploadedFiles['foto_dokumen_izin'], FOTO_IZIN, $directory_izin);
@@ -103,6 +88,22 @@ function registrasiMerchant($db, $web_url, $email, $nama, $no_telpon, $password,
     if ($path_ktp == STATUS_ERROR || $path_rekening == STATUS_ERROR || $path_banner == STATUS_ERROR) {
         $umum->MerchantRollbackData($id_user);
         return ['status' => 'Error', 'message' => 'Gambar Harus JPG atau PNG'];
+    }
+
+    $user = new User($nama, $email, $no_telpon, $password, $kode_referal, $kode_sponsor);
+    $user->setWeb_url($web_url);
+    $user->setDb($db);
+    $daftar = $user->register(MERCHANT_ROLE);
+    if ($daftar['status'] == STATUS_ERROR) {
+        return $daftar;
+    }
+
+    $detail_user = new Profile($id_user, $no_ktp, "-", "-", $nama_bank, $no_rekening, $atas_nama_bank, null, null);
+    $detail_user->setDb($db);
+    $daftar_detail = $detail_user->insertDetailUser();
+    if (!$daftar_detail) {
+        $umum->MerchantRollbackData($id_user);
+        return ['status' => 'Error', 'message' => 'Gagal Input Detail User'];
     }
 
     if(!$umum->updateFoto($id_user, $path_ktp, FOTO_KTP)){
