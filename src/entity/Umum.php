@@ -540,21 +540,28 @@ class Umum {
         if ($data['foto_skck'] == '-' && $data['foto_stnk'] == '-' && $data['foto_sim'] == '-' && $data['foto_diri'] == '-') {
             return ['status' => 'Error', 'message' => 'Gagal, Reject Driver / Driver Telah Direject Oleh Admin'];
         }
-        if (unlink(PATH_PUBLIC.$data['foto_skck']) && unlink(PATH_PUBLIC.$data['foto_stnk']) && unlink(PATH_PUBLIC.$data['foto_sim']) && unlink(PATH_PUBLIC.$data['foto_diri']) && unlink(PATH_PUBLIC.$user['foto_ktp']) && unlink(PATH_PUBLIC.$user['foto_kk'])) {
-            if ($this->deleteUserFoto($id_user)) {
-                if(!empty($email_admin)){
-                    $cek = $this->getAdminVerifiDriver($id_user);
-                    if (empty($cek)) {
-                        $this->insertAdminVerifiDriver($id_user, $email_admin);  
-                    }else{
-                        $this->editAdminVerifiDriver($id_user, $email_admin);
-                    }
-                }
-                if (!$this->deleteDriverFoto($id_user)) {
-                    return ['status' => 'Error', 'message' => 'Gagal Reject Driver'];
+
+        unlink(PATH_PUBLIC.$data['foto_skck']);
+        unlink(PATH_PUBLIC.$data['foto_stnk']);
+        unlink(PATH_PUBLIC.$data['foto_sim']);
+        unlink(PATH_PUBLIC.$data['foto_diri']);
+        unlink(PATH_PUBLIC.$user['foto_ktp']);
+        unlink(PATH_PUBLIC.$user['foto_kk']);
+
+        if ($this->deleteUserFoto($id_user)) {
+            if(!empty($email_admin)){
+                $cek = $this->getAdminVerifiDriver($id_user);
+                if (empty($cek)) {
+                    $this->insertAdminVerifiDriver($id_user, $email_admin);  
+                }else{
+                    $this->editAdminVerifiDriver($id_user, $email_admin);
                 }
             }
+            if (!$this->deleteDriverFoto($id_user)) {
+                return ['status' => 'Error', 'message' => 'Gagal Reject Driver'];
+            }
         }
+        
         return ['status' => 'Success', 'message' => 'Berhasil Reject Driver'];
     }
 
