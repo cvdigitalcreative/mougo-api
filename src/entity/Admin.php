@@ -184,11 +184,7 @@ class Admin {
         INNER JOIN driver ON driver.id_user = user.id_user
         INNER JOIN cabang ON cabang.id = driver.cabang
         INNER JOIN kategori_kendaraan ON kategori_kendaraan.id = driver.jenis_kendaraan
-        WHERE (driver.foto_skck <> '-'
-        AND driver.foto_sim <> '-'
-        AND driver.foto_stnk <> '-'
-        AND driver.foto_diri <> '-'
-        AND driver.status_akun_aktif = 0)
+        WHERE driver.status_akun_aktif = 0
         AND (no_ktp = '$id' OR user.email = '$id' OR user.no_telpon = '$id')";
         $est = $this->getDb()->prepare($sql);
         $est->execute();
