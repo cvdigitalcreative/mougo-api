@@ -31,7 +31,7 @@ $app->post('/common/lupa_password/', function ($request, $response, $args) {
     $mail->SMTPSecure = "tls";
     $mail->SMTPAuth = true;
     $mail->Username = "mougo.noreply@gmail.com";
-    $mail->Password = "mougodms1@!";
+    $mail->Password = "mougodms1@!?";
 
     $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
     $mail->addAddress($email, $nama);
