@@ -430,7 +430,7 @@ class User {
         $mail->SMTPSecure = "tls";
         $mail->SMTPAuth = true;
         $mail->Username = "mougo.noreply@gmail.com";
-        $mail->Password = "mougodms1@!?";
+        $mail->Password = "aueoqsmdznxrsxfe";
 
         $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
         $mail->addAddress($email, $nama);
@@ -693,7 +693,7 @@ class SendEmail extends Thread{
         $mail->SMTPSecure = "tls";
         $mail->SMTPAuth = true;
         $mail->Username = "mougo.noreply@gmail.com";
-        $mail->Password = "mougodms1@!?";
+        $mail->Password = "aueoqsmdznxrsxfe";
 
         $mail->setFrom('mougo.noreply@gmail.com', 'MOUGO DMS');
         $mail->addAddress($email, $nama);
